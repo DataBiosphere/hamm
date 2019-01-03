@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package org.broadinstitute.workbench.ccm.protos;
+
+// The cloud-cost-management service definition.
+service Workflow {
+  rpc getCost (WorkflowCostRequest) returns (WorkflowCostResponse) {}
+}
+
+// The request message containing the user's name.
+message WorkflowCostRequest {
+  int64 id = 1;
+}
+
+// The response message containing the greetings
+message WorkflowCostResponse {
+  double cost = 1;
+}
+

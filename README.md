@@ -1,2 +1,2 @@
-# cloud-cost
-APIs for analyzing workflow cloud cost
+# fs2-grpc-example
+Example implementation for fs2-grpc library
