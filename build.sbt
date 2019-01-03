@@ -20,7 +20,8 @@ lazy val client =
     )
     .dependsOn(protobuf)
 
-val http4sVersion = "0.20.0-M4"
+val http4sVersion = "0.18.21"
+//val http4sVersion = "0.20.0-M4"
 
 lazy val server =
   project
