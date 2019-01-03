@@ -6,6 +6,7 @@ TODO
 * calculate formula
 * figure out cromwell call
 * figure out how to get service URLs properly
+* Add logging
 
 Maybe TODO
 * Deployment
