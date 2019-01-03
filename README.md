@@ -1,2 +1,8 @@
-# fs2-grpc-example
-Example implementation for fs2-grpc library
+TODO
+* calculate formula
+* figure out cromwell call
+
+Maybe TODO
+* Deployment
+* Dockerize
+* Publish client jar

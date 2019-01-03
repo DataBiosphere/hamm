@@ -66,6 +66,7 @@ object Settings {
       resolvers ++= commonResolvers,
       scalacOptions ++= commonCompilerSettings,
       scalafmtOnCompile := true,
-      addCompilerPlugin("org.spire-math" %% "kind-projector"     % "0.9.9")
+      addCompilerPlugin("org.spire-math" %% "kind-projector"     % "0.9.9"),
+      testFrameworks += new TestFramework("minitest.runner.Framework")
     )
 }

@@ -8,7 +8,7 @@ import io.grpc._
 import org.lyranthe.fs2_grpc.java_runtime.implicits._
 import io.grpc.protobuf.services.ProtoReflectionService
 import fs2._
-import org.broadinstitute.workbench.ccm.google.Pricing
+import org.broadinstitute.workbench.ccm.pricing.GcpPricing
 import org.http4s.client.blaze.Http1Client
 //import org.http4s.client.blaze._
 import scala.concurrent.ExecutionContext.Implicits.global //use better thread pool
@@ -23,7 +23,7 @@ object Main extends StreamApp[IO] {
     val app: Stream[IO, Unit] = for {
       _ <- Stream.eval(IO(println("Starting Cloud Cost Management Grpc server"))) //TODO: use logging
 //      httpClient <- BlazeClientBuilder[IO](global).stream
-      pricing = new Pricing[IO](httpClient)
+      pricing = new GcpPricing[IO](httpClient)
       workflowCostService: ServerServiceDefinition = WorkflowFs2Grpc.bindService(new WorkflowImp[IO](pricing))
       _ <- ServerBuilder.forPort(9999)
         .addService(workflowCostService)

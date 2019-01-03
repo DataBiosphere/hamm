@@ -2,38 +2,28 @@ lazy val root = project.in(file("."))
   .settings(
     skip in publish := true
   )
-  .aggregate(protobuf, client, server)
+  .aggregate(protobuf, automation, server)
 
 val protobuf =
   project
     .in(file("protobuf"))
     .enablePlugins(Fs2Grpc)
 
-lazy val client =
+lazy val automation =
   project
-    .in(file("client"))
+    .in(file("automation"))
     .settings(
-      libraryDependencies ++= List(
-        "io.grpc" % "grpc-netty" % "1.11.0"
-      ),
+      libraryDependencies ++= Dependencies.automation,
       Settings.commonSettings
     )
     .dependsOn(protobuf)
-
-val http4sVersion = "0.18.21"
-//val http4sVersion = "0.20.0-M4"
+    .dependsOn(server % "test->test;compile->compile")
 
 lazy val server =
   project
     .in(file("server"))
     .settings(
-      libraryDependencies ++= List(
-        "io.grpc" % "grpc-netty" % "1.11.0",
-        "io.grpc" % "grpc-services" % "1.11.0",
-        "io.circe" %% "circe-core" % "0.10.0",
-        "org.http4s" %% "http4s-circe" % http4sVersion,
-        "org.http4s" %% "http4s-blaze-client" % http4sVersion
-      ),
+      libraryDependencies ++= Dependencies.server,
       Settings.commonSettings
     )
     .dependsOn(protobuf)
