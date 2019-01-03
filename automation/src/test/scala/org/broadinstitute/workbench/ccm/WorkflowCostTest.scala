@@ -12,7 +12,7 @@ import Generators._
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.broadinstitute.workbench.ccm.model._
 
-object WorkflowCost extends SimpleTestSuite with Checkers {
+object WorkflowCostTest extends SimpleTestSuite with Checkers {
   val managedChannelStream: Stream[IO, ManagedChannel] =
     ManagedChannelBuilder
       .forAddress("127.0.0.1", 9999)

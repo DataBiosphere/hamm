@@ -3,6 +3,7 @@ import sbt._
 object Dependencies {
   val minitestVersion = "2.2.2"
   val http4sVersion = "0.18.21"
+  val circeVersion = "0.10.0"
   //val http4sVersion = "0.20.0-M4"
 
   val common = List(
@@ -15,7 +16,8 @@ object Dependencies {
 
   val server = common ++ List(
     "io.grpc" % "grpc-services" % "1.11.0",
-    "io.circe" %% "circe-core" % "0.10.0",
+    "io.circe" %% "circe-core" % circeVersion,
+    "io.circe" %% "circe-parser" % circeVersion,
     "org.http4s" %% "http4s-circe" % http4sVersion,
     "org.http4s" %% "http4s-blaze-client" % http4sVersion,
   )
