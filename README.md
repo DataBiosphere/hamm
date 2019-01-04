@@ -14,7 +14,7 @@ Maybe TODO
 * Set up CI (travis, jenkins)
 * Dockerize
 * Publish client jar
-* Sentry for error reporting
+* Config sentry DSN
 
 Questions for cromwell team
 1. How cromwell will interact with ccm. Contract

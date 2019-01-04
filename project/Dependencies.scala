@@ -15,7 +15,8 @@ object Dependencies {
     "io.circe" %% "circe-parser" % circeVersion % "test",
     "org.http4s" %% "http4s-circe" % http4sVersion,
     "org.http4s" %% "http4s-blaze-client" % http4sVersion,
-    "com.github.pureconfig" %% "pureconfig" % "0.10.1"
+    "com.github.pureconfig" %% "pureconfig" % "0.10.1",
+    "io.sentry" % "sentry-logback" % "1.7.16" // see doc https://docs.sentry.io/clients/java/modules/logback/
   )
 
   val automation = common

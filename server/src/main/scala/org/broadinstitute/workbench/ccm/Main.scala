@@ -6,7 +6,6 @@ import org.broadinstitute.workbench.protos.ccm._
 import io.grpc._
 import org.lyranthe.fs2_grpc.java_runtime.implicits._
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
-import io.chrisdavenport.log4cats.Logger
 import io.grpc.protobuf.services.ProtoReflectionService
 import fs2._
 import org.broadinstitute.workbench.ccm.pricing.GcpPricing
@@ -15,9 +14,10 @@ import scala.concurrent.ExecutionContext.Implicits.global //use better thread po
 
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =  {
+    implicit val logger = Slf4jLogger.unsafeCreate[IO]
+
     val app: Stream[IO, Unit] = for {
       appConfig <- Stream.fromEither[IO](Config.appConfig)
-      implicit0(logger: Logger[IO]) <- Stream.eval(Slf4jLogger.create[IO])
       _ <- Stream.eval(logger.info("Starting Cloud Cost Management Grpc server"))
       httpClient <- BlazeClientBuilder[IO](global).stream
       pricing = new GcpPricing[IO](httpClient, appConfig.pricingGoogleUrl)
@@ -29,6 +29,10 @@ object Main extends IOApp {
         .evalMap(server => IO(server.start()))
     } yield ()
 
-    app.evalMap(_ => IO.never).compile.drain.as(ExitCode.Success)
+    app.handleErrorWith(error => Stream.eval(logger.error(error)("Failed to start server")))
+      .evalMap(_ => IO.never)
+      .compile
+      .drain
+      .as(ExitCode.Success)
   }
 }
