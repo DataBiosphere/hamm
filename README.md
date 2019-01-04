@@ -1,17 +1,20 @@
 # Try it out
 * Start grpc server `sbt server/run`
-* Run automation test against the running server `sbt automation/run` 
+* Run automation test against the running server `sbt automation/test` 
+
+# APIs
+protobuf/src/main/protobuf/ccm.proto
 
 TODO
 * calculate formula
-* figure out cromwell call
 * figure out how to get service URLs properly
-* Add logging
 
 Maybe TODO
 * Deployment
+* Set up CI (travis, jenkins)
 * Dockerize
 * Publish client jar
+* Sentry for error reporting
 
 Questions for cromwell team
 1. How cromwell will interact with ccm. Contract

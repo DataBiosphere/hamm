@@ -3,7 +3,7 @@ package org.broadinstitute.workbench.ccm
 import cats.effect.Sync
 import org.http4s.client.Client
 import org.http4s.circe.CirceEntityDecoder._
-import model._
+import JsonCodec._
 
 class WorkflowMetadata[F[_]: Sync](httpClient: Client[F]) {
   def getMetadata(workflowId: WorkflowId): F[MetadataResponse] = {

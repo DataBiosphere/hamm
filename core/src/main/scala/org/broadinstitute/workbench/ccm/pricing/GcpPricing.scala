@@ -3,13 +3,14 @@ package pricing
 
 import cats.effect.Sync
 import io.circe.Json
-import org.broadinstitute.workbench.ccm.pricing.model._
+import org.broadinstitute.workbench.ccm.pricing.JsonCodec._
+import org.http4s.Uri
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.client.Client
 
-class GcpPricing[F[_]: Sync](httpClient: Client[F]) {
+class GcpPricing[F[_]: Sync](httpClient: Client[F], uri: Uri) {
   def getPriceList(): F[GcpPriceList] = {
-    httpClient.expect[GcpPriceList]("https://cloudpricingcalculator.appspot.com/static/data/pricelist.json")
+    httpClient.expect[GcpPriceList](uri)
   }
 }
 

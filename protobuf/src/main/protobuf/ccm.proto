@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package org.broadinstitute.workbench.ccm.protos;
+package org.broadinstitute.workbench.protos;
 
 // The cloud-cost-management service definition.
-service Workflow {
-  rpc getCost (WorkflowCostRequest) returns (WorkflowCostResponse) {}
+service Ccm {
+  rpc getWorkflowCost (WorkflowCostRequest) returns (WorkflowCostResponse) {}
 }
 
 // The request message containing the user's name.

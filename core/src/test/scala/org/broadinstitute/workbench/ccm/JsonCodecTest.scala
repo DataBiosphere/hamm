@@ -2,9 +2,9 @@ package org.broadinstitute.workbench.ccm
 
 import minitest.SimpleTestSuite
 import io.circe.parser._
-import model._
+import JsonCodec._
 
-object modelTest extends SimpleTestSuite {
+object JsonCodecTest extends CcmTestSuite {
   test("metadataResponseDecoder should be able to decode MetadataResponse"){
     val res = for {
       json <- parse(sampleTest)
