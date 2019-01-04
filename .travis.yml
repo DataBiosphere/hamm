@@ -8,11 +8,12 @@ scala:
 
 sudo: required
 
-before_install:
-  - sbt server/run
+#before_install:
+#  - sbt server/run
 
 script:
-  - sbt coverage coverageReport
+  - sbt "project core" coverage coverageReport
+  - sbt "project server" coverage coverageReport
 
 after_success:
   - export SBT_OPTS="-J-Xmx3g"
