@@ -1,41 +1,47 @@
+//enablePlugins(BuildInfoPlugin)
+
 lazy val ccm = project.in(file("."))
   .settings(
-    skip in publish := true
+    skip in publish := true,
+    Settings.commonSettings
   )
-  .aggregate(protobuf, core, automation, server)
+  .aggregate(core, protobuf, automation, server)
 
 val protobuf =
   project
     .in(file("protobuf"))
-    .enablePlugins(Fs2Grpc)
+    .enablePlugins(Fs2Grpc, BuildInfoPlugin)
+    .settings(Settings.buildInfoSettings)
 
-lazy val core =
+val core =
   project
     .in(file("core"))
     .settings(
       libraryDependencies ++= Dependencies.automation,
-      Settings.commonSettings
+      Settings.commonSettings,
+      Settings.buildInfoSettings
     )
-
-lazy val automation =
-  project
-    .in(file("automation"))
-    .settings(
-      libraryDependencies ++= Dependencies.automation,
-      Settings.commonSettings
-    )
-    .dependsOn(protobuf)
-    .dependsOn(core)
-    .dependsOn(server % "test->test;compile->compile")
 
 lazy val server =
   project
     .in(file("server"))
-    .enablePlugins(BuildInfoPlugin)
+    .enablePlugins(JavaAppPackaging)
     .settings(
       libraryDependencies ++= Dependencies.server,
       Settings.serverSettings
     )
     .dependsOn(protobuf)
     .dependsOn(core % "test->test;compile->compile")
-    .enablePlugins(JavaAppPackaging)
+
+
+lazy val automation =
+  project
+    .in(file("automation"))
+    .settings(
+      libraryDependencies ++= Dependencies.automation,
+      Settings.commonSettings,
+      Settings.buildInfoSettings
+    )
+    .dependsOn(protobuf)
+    .dependsOn(core)
+    .dependsOn(server % "test->test;compile->compile")

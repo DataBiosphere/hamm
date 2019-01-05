@@ -1,3 +1,5 @@
+import java.time.ZoneId
+
 import com.typesafe.sbt.SbtNativePackager.autoImport._
 import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport._
 import com.typesafe.sbt.packager.docker.ExecCmd
@@ -21,6 +23,20 @@ object Settings {
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     scalacOptions in (Compile, console) --= Seq("-Ywarn-unused:imports", "-Xfatal-warnings"),
     scalacOptions in Test -= "-Ywarn-dead-code" // due to https://github.com/mockito/mockito-scala#notes
+  )
+
+  lazy val buildInfoSettings =  List(
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      scalaVersion,
+      sbtVersion,
+      git.gitHeadCommit,
+      BuildInfoKey.action("buildTime") {
+        java.time.LocalDateTime.now(ZoneId.systemDefault()).toString
+      }
+    ),
+    buildInfoPackage := "org.broadinstitute.workbench.ccm"
   )
 
   lazy val dockerSetting = List(
@@ -95,11 +111,5 @@ object Settings {
       testFrameworks += new TestFramework("minitest.runner.Framework")
     )
 
-  lazy val gitCommitString = SettingKey[String]("gitCommit")
-  gitCommitString := git.gitHeadCommit.value.getOrElse("Not Set")
-
-  lazy val serverSettings = commonSettings ++ dockerSetting ++ List(
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, gitCommitString),
-    buildInfoPackage := "ccm.server"
-  )
+  lazy val serverSettings = commonSettings ++ dockerSetting
 }

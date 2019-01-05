@@ -8,7 +8,7 @@ import org.broadinstitute.workbench.ccm.pricing.{ComputeCost, GcpPricing}
 import org.broadinstitute.workbench.protos.ccm._
 import pricing.JsonCodec._
 
-class WorkflowImp[F[_]: Sync: Logger](pricing: GcpPricing[F]) extends CcmFs2Grpc[F] {
+class CcmGrpcImp[F[_]: Sync: Logger](pricing: GcpPricing[F]) extends CcmFs2Grpc[F] {
   override def getWorkflowCost(request: WorkflowCostRequest, clientHeaders: Metadata): F[WorkflowCostResponse] = {
     for {
       priceList <- pricing.getPriceList()
@@ -17,4 +17,11 @@ class WorkflowImp[F[_]: Sync: Logger](pricing: GcpPricing[F]) extends CcmFs2Grpc
       WorkflowCostResponse(computeCost.totalCost)
     }
   }
+
+  override def status(request: StatusRequest, clientHeaders: Metadata): F[StatusResponse] = Sync[F].point(StatusResponse(
+    BuildInfo.scalaVersion,
+    BuildInfo.sbtVersion,
+    BuildInfo.gitHeadCommit.getOrElse("No commit yet"),
+    BuildInfo.buildTime
+  ))
 }

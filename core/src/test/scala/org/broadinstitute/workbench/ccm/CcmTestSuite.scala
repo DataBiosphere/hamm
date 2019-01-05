@@ -6,5 +6,5 @@ import org.scalacheck.Test
 import org.scalacheck.Test.Parameters
 
 trait CcmTestSuite extends SimpleTestSuite with Checkers{
-  override def checkConfig: Parameters = Test.Parameters.default.withMaxSize(3)
+  override def checkConfig: Parameters = Test.Parameters.default.withMinSuccessfulTests(3)
 }

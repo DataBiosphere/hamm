@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: esp-grpc-http-ccm-2
+spec:
+  ports:
+  # Port that accepts gRPC and JSON/HTTP2 requests over HTTP.
+  - port: 80
+    targetPort: 9000
+    protocol: TCP
+    name: http2
+  - port: 443
+    targetPort: 443
+    protocol: TCP
+    name: https
+  selector:
+    app: esp-grpc-http-ccm-2
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: esp-grpc-http-ccm-2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: esp-grpc-http-ccm-2
+    spec:
+      # https://cloud.google.com/endpoints/docs/grpc/enabling-ssl
+      volumes:
+        - name: nginx-ssl
+          secret:
+            secretName: nginx-ssl
+      containers:
+      # https://cloud.google.com/endpoints/docs/grpc/specify-proxy-startup-options
+      # https://github.com/cloudendpoints/esp
+      - name: esp
+        image: gcr.io/endpoints-release/endpoints-runtime:1.16.0
+        args: [
+          "--service=ccm.endpoints.workbench-firestore.cloud.goog",
+          "--rollout_strategy=managed",
+          "--http2_port=9000",
+          "--ssl_port=443",
+          "--backend=grpc://localhost:9999"
+        ]
+        ports:
+          - containerPort: 9000
+          - containerPort: 443
+        volumeMounts:
+          - mountPath: /etc/nginx/ssl
+            name: nginx-ssl
+            readOnly: true
+      - name: ccm
+        image: us.gcr.io/workbench-firestore/cloud-cost-management:latest
+        ports:
+          - containerPort: 9999
