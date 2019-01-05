@@ -6,9 +6,9 @@ scala:
 env:
   global:
     secure: cNcm26IOsmxqxnVFghdNYyulSls3OYd3DU9euliakHVLXfcY+rcYrOfjzYHmju+bWAHRJ/1DmMaVF7q/9zvGcEzBfn2qVbdfwS8pqjQBOk8I6ARdlyy+QHj8EA+pOVAWSGTcy2Ku3kcPF2kJbdhQwkB5+bMMXOMVsSBOq6dO8Ctsp9f3K4cdZ/Hj865wEjvWhaPW55gflktQIBuEuFF8dSaP6wohQyBvO6qrpDS+qjKsZxv/+qBxrLrwI3OhK9AGDfOC82zO+D0Rc/n0Gj/iu6v/QOW4eLzpA5mmWA18r3M36HGCT7NlZE2IkIPqcD+Kfi1t6zxg9JPy3Z599/YD3hvsJNPj/C7NvD+9sUychBYBFzVuXUDdynJ+x3+0UkvijMOSTDP1QsvJYrHOr1az+IJFaJSe+PYLCb+2qPhzCSskHNYf2QbGLMPQJ0h1QxPLcRkn9R+WmKCmoG7Xq6WHIliLGoiM/vBgp6uTet39yhiQKvf4tDAuAxX6+Go6byNLNICmQqw9DDlrgzV3Bl6M87r+TAEFkOuObCFBkIqDWGcPe0Yw+8pc3Ps3rk7dzt4vNrnRNFPvAvoKF8Yf9q0pEBIXIDZQM4H0/MFUOD00xgwGE+crexu9a14507RLXuq4204Sg1Q9m2PHSUOIq8C+fs+mHYveFRp0oEWa/elumCk=
-      - sbt clean coverage test coverageReport && sbt coverageAggregate
 sudo: required
 script:
-  - export COVERALLS_REPO_TOKEN=coverall_token
+  - export COVERALLS_REPO_TOKEN=$coverall_token
+  - sbt clean coverage test coverageReport && sbt coverageAggregate
 after_success:
   - sbt coveralls
