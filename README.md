@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/broadinstitute/cloud-cost-management.png?branch=master)](https://travis-ci.org/broadinstitute/cloud-cost-management)
+[<img src="https://img.shields.io/maven-central/v/org.scoverage/sbt-coveralls.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22sbt-coveralls%22)
+
+
 # Try it out
 * Start gRPC server `sbt server/run`
 * Run automation tests against the running server `sbt automation/test`
