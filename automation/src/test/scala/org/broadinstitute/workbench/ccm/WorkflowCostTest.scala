@@ -14,7 +14,7 @@ object WorkflowCostTest extends CcmTestSuite with Checkers {
   implicit val cs = IO.contextShift(global)
   val managedChannelStream: Stream[IO, ManagedChannel] =
     ManagedChannelBuilder
-      .forAddress("127.0.0.1", 9999)
+      .forAddress("local.broadinstitute.org", 9999)
       .usePlaintext()
       .stream[IO]
 

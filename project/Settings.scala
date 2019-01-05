@@ -1,6 +1,11 @@
+import com.typesafe.sbt.SbtNativePackager.autoImport._
+import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport._
+import com.typesafe.sbt.packager.docker.ExecCmd
+import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
 import sbt.Keys.{scalacOptions, _}
 import sbt._
-import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
+import com.typesafe.sbt.GitPlugin.autoImport._
+import sbtbuildinfo.BuildInfoPlugin.autoImport._
 
 object Settings {
   lazy val artifactory = "https://artifactory.broadinstitute.org/artifactory/"
@@ -16,6 +21,25 @@ object Settings {
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     scalacOptions in (Compile, console) --= Seq("-Ywarn-unused:imports", "-Xfatal-warnings"),
     scalacOptions in Test -= "-Ywarn-dead-code" // due to https://github.com/mockito/mockito-scala#notes
+  )
+
+  lazy val dockerSetting = List(
+    mainClass in Compile := Some("org.broadinstitute.workbench.ccm.Main"),
+    maintainer := "workbench@broadinstitute.org",
+    dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc10",
+    packageName in Docker := "workbench-firestore/cloud-cost-management", //TODO: use appropriate project name
+    dockerRepository := Some("us.gcr.io"),
+    dockerExposedPorts := Seq(9999),
+    dockerUpdateLatest := true,
+    dockerAlias :=  DockerAlias(
+      Some("us.gcr.io"),
+      None,
+      "workbench-firestore/cloud-cost-management",
+      git.gitHeadCommit.value.map(_.substring(0, 10))
+    ),
+    dockerCommands ++= List(
+      ExecCmd("CMD", "export", "CLASSPATH=lib/*jar")
+    )
   )
 
   // recommended scalac options by https://tpolecat.github.io/2017/04/25/scalac-flags.html
@@ -70,4 +94,12 @@ object Settings {
       addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.0-M4"),
       testFrameworks += new TestFramework("minitest.runner.Framework")
     )
+
+  lazy val gitCommitString = SettingKey[String]("gitCommit")
+  gitCommitString := git.gitHeadCommit.value.getOrElse("Not Set")
+
+  lazy val serverSettings = commonSettings ++ dockerSetting ++ List(
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, gitCommitString),
+    buildInfoPackage := "ccm.server"
+  )
 }

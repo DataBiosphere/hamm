@@ -1,4 +1,4 @@
-lazy val root = project.in(file("."))
+lazy val ccm = project.in(file("."))
   .settings(
     skip in publish := true
   )
@@ -31,11 +31,11 @@ lazy val automation =
 lazy val server =
   project
     .in(file("server"))
+    .enablePlugins(BuildInfoPlugin)
     .settings(
       libraryDependencies ++= Dependencies.server,
-      Settings.commonSettings
+      Settings.serverSettings
     )
     .dependsOn(protobuf)
     .dependsOn(core % "test->test;compile->compile")
-
-trapExit := false
+    .enablePlugins(JavaAppPackaging)

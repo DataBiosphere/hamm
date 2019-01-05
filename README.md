@@ -5,6 +5,12 @@
 # APIs
 protobuf/src/main/protobuf/ccm.proto
 
+# Publish grpc docker image
+* Set up auth: `gcloud auth configure-docker`
+
+sbt server/docker:publishLocal
+sbt server/docker:publish
+
 TODO
 * calculate formula
 * figure out how to get service URLs properly
