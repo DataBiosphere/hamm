@@ -34,7 +34,8 @@ TODO
 Maybe TODO
 * Build (google cloud build)
 * Deployment
-* Set up CI (travis, jenkins)
+- Deploy docker image to google with cloud build
+* Set up automation tests in CI (deploy a server and then run automation tests against that)
 * Dockerize
 * Publish client jar
 * Config sentry DSN

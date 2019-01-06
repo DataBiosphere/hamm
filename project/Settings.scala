@@ -39,25 +39,6 @@ object Settings {
     buildInfoPackage := "org.broadinstitute.workbench.ccm"
   )
 
-  lazy val dockerSetting = List(
-    mainClass in Compile := Some("org.broadinstitute.workbench.ccm.Main"),
-    maintainer := "workbench@broadinstitute.org",
-    dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc10",
-    packageName in Docker := "workbench-firestore/cloud-cost-management", //TODO: use appropriate project name
-    dockerRepository := Some("us.gcr.io"),
-    dockerExposedPorts := Seq(9999),
-    dockerUpdateLatest := true,
-    dockerAlias :=  DockerAlias(
-      Some("us.gcr.io"),
-      None,
-      "workbench-firestore/cloud-cost-management",
-      git.gitHeadCommit.value.map(_.substring(0, 10))
-    ),
-    dockerCommands ++= List(
-      ExecCmd("CMD", "export", "CLASSPATH=lib/*jar")
-    )
-  )
-
   // recommended scalac options by https://tpolecat.github.io/2017/04/25/scalac-flags.html
   lazy val commonCompilerSettings = Seq(
     "-target:jvm-1.8",
@@ -111,5 +92,25 @@ object Settings {
       testFrameworks += new TestFramework("minitest.runner.Framework")
     )
 
-  lazy val serverSettings = commonSettings ++ dockerSetting
+
+  lazy val serverDockerSetting = List(
+    mainClass in Compile := Some("org.broadinstitute.workbench.ccm.server.Main"),
+    maintainer := "workbench@broadinstitute.org",
+    dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc10",
+    packageName in Docker := "workbench-firestore/cloud-cost-management", //TODO: use appropriate project name
+    dockerRepository := Some("us.gcr.io"),
+    dockerExposedPorts := Seq(9999),
+    dockerUpdateLatest := true,
+    dockerAlias :=  DockerAlias(
+      Some("us.gcr.io"),
+      None,
+      "workbench-firestore/cloud-cost-management",
+      git.gitHeadCommit.value.map(_.substring(0, 10))
+    ),
+    dockerCommands ++= List(
+      ExecCmd("CMD", "export", "CLASSPATH=lib/*jar")
+    )
+  )
+
+  lazy val serverSettings = commonSettings ++ serverDockerSetting
 }

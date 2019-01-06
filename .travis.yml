@@ -1,14 +1,54 @@
 jdk:
 - oraclejdk8
 language: scala
+sudo: required
 scala:
 - 2.12.8
+cache:
+ directories:
+ - "$HOME/google-cloud-sdk/"
+ - "$HOME/.ivy2/cache/"
+ - "$HOME/.sbt/launchers/"
 env:
-  global:
-    secure: cNcm26IOsmxqxnVFghdNYyulSls3OYd3DU9euliakHVLXfcY+rcYrOfjzYHmju+bWAHRJ/1DmMaVF7q/9zvGcEzBfn2qVbdfwS8pqjQBOk8I6ARdlyy+QHj8EA+pOVAWSGTcy2Ku3kcPF2kJbdhQwkB5+bMMXOMVsSBOq6dO8Ctsp9f3K4cdZ/Hj865wEjvWhaPW55gflktQIBuEuFF8dSaP6wohQyBvO6qrpDS+qjKsZxv/+qBxrLrwI3OhK9AGDfOC82zO+D0Rc/n0Gj/iu6v/QOW4eLzpA5mmWA18r3M36HGCT7NlZE2IkIPqcD+Kfi1t6zxg9JPy3Z599/YD3hvsJNPj/C7NvD+9sUychBYBFzVuXUDdynJ+x3+0UkvijMOSTDP1QsvJYrHOr1az+IJFaJSe+PYLCb+2qPhzCSskHNYf2QbGLMPQJ0h1QxPLcRkn9R+WmKCmoG7Xq6WHIliLGoiM/vBgp6uTet39yhiQKvf4tDAuAxX6+Go6byNLNICmQqw9DDlrgzV3Bl6M87r+TAEFkOuObCFBkIqDWGcPe0Yw+8pc3Ps3rk7dzt4vNrnRNFPvAvoKF8Yf9q0pEBIXIDZQM4H0/MFUOD00xgwGE+crexu9a14507RLXuq4204Sg1Q9m2PHSUOIq8C+fs+mHYveFRp0oEWa/elumCk=
-sudo: required
+ global:
+ - PATH=$PATH:$HOME/google-cloud-sdk/bin
+ - GOOGLE_PROJECT=workbench-firestore
+ - CLUSTER_NAME_PRD=standard-cluster-1
+ - ZONE=us-central1-a
+ - secure: cNcm26IOsmxqxnVFghdNYyulSls3OYd3DU9euliakHVLXfcY+rcYrOfjzYHmju+bWAHRJ/1DmMaVF7q/9zvGcEzBfn2qVbdfwS8pqjQBOk8I6ARdlyy+QHj8EA+pOVAWSGTcy2Ku3kcPF2kJbdhQwkB5+bMMXOMVsSBOq6dO8Ctsp9f3K4cdZ/Hj865wEjvWhaPW55gflktQIBuEuFF8dSaP6wohQyBvO6qrpDS+qjKsZxv/+qBxrLrwI3OhK9AGDfOC82zO+D0Rc/n0Gj/iu6v/QOW4eLzpA5mmWA18r3M36HGCT7NlZE2IkIPqcD+Kfi1t6zxg9JPy3Z599/YD3hvsJNPj/C7NvD+9sUychBYBFzVuXUDdynJ+x3+0UkvijMOSTDP1QsvJYrHOr1az+IJFaJSe+PYLCb+2qPhzCSskHNYf2QbGLMPQJ0h1QxPLcRkn9R+WmKCmoG7Xq6WHIliLGoiM/vBgp6uTet39yhiQKvf4tDAuAxX6+Go6byNLNICmQqw9DDlrgzV3Bl6M87r+TAEFkOuObCFBkIqDWGcPe0Yw+8pc3Ps3rk7dzt4vNrnRNFPvAvoKF8Yf9q0pEBIXIDZQM4H0/MFUOD00xgwGE+crexu9a14507RLXuq4204Sg1Q9m2PHSUOIq8C+fs+mHYveFRp0oEWa/elumCk=
+before_install:
+- openssl aes-256-cbc -K $encrypted_730b0c0ede05_key -iv $encrypted_730b0c0ede05_iv -in ccm-ci-cloud-build-credentials.tar.gz.enc -out ccm-ci-cloud-build-credentials.tar.gz -d
+- sudo rm -rf $HOME/google-cloud-sdk/
+- sudo rm -rf /usr/lib/google-cloud-sdk
+- sudo rm -rf ${HOME}/.config/gcloud
+- if [ ! -d ${HOME}/google-cloud-sdk ]; then curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-228.0.0-linux-x86_64.tar.gz | bash; fi
+- tar zxvf google-cloud-sdk-228.0.0-linux-x86_64.tar.gz && ./google-cloud-sdk/install.sh --usage-reporting=false --path-update=true
+- source $HOME/.bashrc
+- gcloud version
+- ./google-cloud-sdk/bin/gcloud version
+- ./google-cloud-sdk/bin/gcloud info --format='value(installation.sdk_root)'
+- ./google-cloud-sdk/bin/gcloud info --format='value(config.paths.global_config_dir)'
+- ./google-cloud-sdk/bin/gcloud version
+- ./google-cloud-sdk/bin/gcloud --quiet components update
+- ./google-cloud-sdk/bin/gcloud --quiet components update kubectl
+- tar -xzf ccm-ci-cloud-build-credentials.tar.gz
+- mkdir -p ${HOME}/.docker
+# Begin Authentication against google for publishing docker image
+- ./google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${GOOGLE_PROJECT}-ccm-ci.json
+- ./google-cloud-sdk/bin/gcloud auth configure-docker --quiet # add credHelper section to docker
+- cat workbench-firestore-ccm-ci.json | docker login -u _json_key --password-stdin https://us.gcr.io
+# End Authentication
+- ./google-cloud-sdk/bin/gcloud container clusters get-credentials ${CLUSTER_NAME_PRD} --zone ${ZONE} --project ${GOOGLE_PROJECT}
+install:
+- ./google-cloud-sdk/bin/gcloud config set project ${GOOGLE_PROJECT}
+- ./google-cloud-sdk/bin/gcloud config set container/cluster $CLUSTER_NAME_PRD --quiet
+- ./google-cloud-sdk/bin/gcloud config set compute/zone ${ZONE}
+#- ./google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${GOOGLE_PROJECT}-ccm-ci.json
+- sbt server/docker:publish
+- kubectl set image deployment.v1.apps/esp-grpc-http-ccm-3 ccm=us.gcr.io/workbench-firestore/cloud-cost-management:latest --record
+- export SBT_OPTS="-Dhost=130.211.211.97  -Dgrpc.automation.port=80"
 script:
-  - export COVERALLS_REPO_TOKEN=$coverall_token
-  - sbt clean coverage test coverageReport && sbt coverageAggregate
+- export COVERALLS_REPO_TOKEN=$coverall_token
+- sbt clean coverage test coverageReport && sbt coverageAggregate
 after_success:
-  - sbt coveralls
+- sbt coveralls

@@ -5,6 +5,7 @@ object Dependencies {
   val circeVersion = "0.10.0"
   val http4sVersion = "0.20.0-M4"
   val grpcNettyVersion = "1.15.1"
+  val cirisVersion = "0.12.1"
 
   val common = List(
     "io.grpc" % "grpc-netty" % grpcNettyVersion,
@@ -19,7 +20,11 @@ object Dependencies {
     "io.sentry" % "sentry-logback" % "1.7.16" // see doc https://docs.sentry.io/clients/java/modules/logback/
   )
 
-  val automation = common
+  val automation = common ++ List(
+    "is.cir" %% "ciris-core" % circeVersion,
+    "is.cir" %% "ciris-cats" % circeVersion,
+    "is.cir" %% "ciris-cats-effect" % circeVersion
+  )
 
   val server = common ++ List(
     "io.grpc" % "grpc-services" % grpcNettyVersion

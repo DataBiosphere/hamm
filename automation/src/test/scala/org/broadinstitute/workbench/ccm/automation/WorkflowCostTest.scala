@@ -1,23 +1,15 @@
 package org.broadinstitute.workbench.ccm
+package automation
 
 import cats.effect.IO
 import fs2.Stream
-import io.grpc.{ManagedChannel, ManagedChannelBuilder, Metadata}
-import org.broadinstitute.workbench.protos.ccm._
+import io.grpc.Metadata
 import minitest.laws.Checkers
+import org.broadinstitute.workbench.ccm.protos.ccm._
 import org.lyranthe.fs2_grpc.java_runtime.implicits._
-import Generators._
-import scala.concurrent.ExecutionContext.Implicits.global
+import server.Generators._
 
 object WorkflowCostTest extends CcmTestSuite with Checkers {
-  implicit val cs = IO.contextShift(global)
-  val managedChannelStream: Stream[IO, ManagedChannel] =
-    ManagedChannelBuilder
-      .forAddress("35.238.22.31", 80)
-      // .forAddress("local.broadinstitute.org", 9999)
-      .usePlaintext()
-      .stream[IO]
-
   val defaultMetaData = new Metadata()
 //  val authKey = Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER)
 //  import sys.process._
@@ -27,7 +19,7 @@ object WorkflowCostTest extends CcmTestSuite with Checkers {
 //  TODO: put this in a different file
   test("status should return build info"){
     val res = for {
-      managedChannel <- managedChannelStream
+      managedChannel <- Stream.resource(TestDependencies.managedChannelResource)
       ccmStub = CcmFs2Grpc.stub[IO](managedChannel)
       response <- Stream.eval(ccmStub.status(StatusRequest(), defaultMetaData))
     } yield {
@@ -41,7 +33,7 @@ object WorkflowCostTest extends CcmTestSuite with Checkers {
     check1{
       (workflowCostRequest: WorkflowCostRequest) =>
         val res = for {
-          managedChannel <- managedChannelStream
+          managedChannel <- Stream.resource(TestDependencies.managedChannelResource)
           workflowStub = CcmFs2Grpc.stub[IO](managedChannel)
           response <- Stream.eval(workflowStub.getWorkflowCost(workflowCostRequest, defaultMetaData))
         } yield {

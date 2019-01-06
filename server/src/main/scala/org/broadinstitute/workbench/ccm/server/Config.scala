@@ -1,9 +1,10 @@
 package org.broadinstitute.workbench.ccm
+package server
 
 import cats.implicits._
-import pureconfig.generic.auto._
 import org.http4s.Uri
 import pureconfig.ConfigReader
+import pureconfig.generic.auto._
 
 object Config {
   final case class Grpc(port: Int)

@@ -1,4 +1,4 @@
-coverageExcludedPackages := "org.broadinstitute.workbench.protos.ccm"
+coverageExcludedPackages := "org.broadinstitute.workbench.ccm.protos"
 coverageMinimum := 15 //Update this once there're more tests
 coverageFailOnMinimum := true
 

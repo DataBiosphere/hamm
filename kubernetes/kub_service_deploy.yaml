@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: esp-grpc-http-ccm-2
+  name: esp-grpc-http-ccm-3
 spec:
   ports:
   # Port that accepts gRPC and JSON/HTTP2 requests over HTTP.
@@ -14,19 +14,21 @@ spec:
     protocol: TCP
     name: https
   selector:
-    app: esp-grpc-http-ccm-2
+    app: esp-grpc-http-ccm-3
   type: LoadBalancer
+  # Static IP created using `gcloud compute addresses create ccm-external-ip --region us-central1`
+  loadBalancerIP: "130.211.211.97"
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: esp-grpc-http-ccm-2
+  name: esp-grpc-http-ccm-3
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: esp-grpc-http-ccm-2
+        app: esp-grpc-http-ccm-3
     spec:
       # https://cloud.google.com/endpoints/docs/grpc/enabling-ssl
       volumes:

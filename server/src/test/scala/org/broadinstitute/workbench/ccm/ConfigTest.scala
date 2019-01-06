@@ -1,7 +1,8 @@
 package org.broadinstitute.workbench.ccm
+package server
 
 import org.http4s.Uri
-import Config._
+import org.broadinstitute.workbench.ccm.server.Config._
 
 object ConfigTest extends CcmTestSuite {
   test("Config should load configuration file properly"){

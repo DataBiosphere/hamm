@@ -12,7 +12,7 @@ name: ccm.endpoints.workbench-firestore.cloud.goog
 #
 title: Cloud Cost Management API
 apis:
-- name: org.broadinstitute.workbench.protos.Ccm
+- name: org.broadinstitute.workbench.ccm.protos.Ccm
 
 #
 # API usage restrictions.
@@ -20,9 +20,9 @@ apis:
 usage:
   rules:
   # ListShelves methods can be called without an API Key.
-  - selector: org.broadinstitute.workbench.protos.Ccm.getWorkflowCost
+  - selector: org.broadinstitute.workbench.ccm.protos.Ccm.getWorkflowCost
     allow_unregistered_calls: true
-  - selector: org.broadinstitute.workbench.protos.Ccm.status
+  - selector: org.broadinstitute.workbench.ccm.protos.Ccm.status
     allow_unregistered_calls: true
 # Exposing REST API
 # See more examples https://github.com/GoogleCloudPlatform/python-docs-samples/blob/master/endpoints/bookstore-grpc/api_config_http.yaml
@@ -31,7 +31,7 @@ usage:
 # https://cloud.google.com/endpoints/docs/grpc-service-config/reference/rpc/google.api#http
 http:
   rules:
-  - selector: org.broadinstitute.workbench.protos.Ccm.getWorkflowCost
+  - selector: org.broadinstitute.workbench.ccm.protos.Ccm.getWorkflowCost
     get: /v0/workflow_cost/{id}
-  - selector: org.broadinstitute.workbench.protos.Ccm.status
+  - selector: org.broadinstitute.workbench.ccm.protos.Ccm.status
     get: /status

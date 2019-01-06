@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package org.broadinstitute.workbench.protos;
+package org.broadinstitute.workbench.ccm.protos;
 
 // The cloud-cost-management service definition.
 service Ccm {
