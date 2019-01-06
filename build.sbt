@@ -1,4 +1,6 @@
-//enablePlugins(BuildInfoPlugin)
+coverageExcludedPackages := "org.broadinstitute.workbench.protos.ccm"
+coverageMinimum := 15 //Update this once there're more tests
+coverageFailOnMinimum := true
 
 lazy val ccm = project.in(file("."))
   .settings(
