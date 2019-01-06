@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/broadinstitute/cloud-cost-management.png?branch=master)](https://travis-ci.org/broadinstitute/cloud-cost-management)
-[![coveralls](https://coveralls.io/github/broadinstitute/cloud-cost-management/coverage.svg?branch=master)](https://coveralls.io/github/broadinstitute/cloud-cost-management?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/broadinstitute/cloud-cost-management/badge.svg?branch=master)](https://coveralls.io/github/broadinstitute/cloud-cost-management?branch=master)
 
 # Try it out
 * Start gRPC server `sbt server/run`
