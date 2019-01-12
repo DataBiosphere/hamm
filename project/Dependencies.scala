@@ -6,6 +6,8 @@ object Dependencies {
   val http4sVersion = "0.20.0-M4"
   val grpcNettyVersion = "1.15.1"
   val cirisVersion = "0.12.1"
+  val doobieVersion = "0.6.0"
+//  val doobieVersion = "0.7.0-M1"
 
   val common = List(
     "io.grpc" % "grpc-netty" % grpcNettyVersion,
@@ -17,7 +19,10 @@ object Dependencies {
     "org.http4s" %% "http4s-circe" % http4sVersion,
     "org.http4s" %% "http4s-blaze-client" % http4sVersion,
     "com.github.pureconfig" %% "pureconfig" % "0.10.1",
-    "io.sentry" % "sentry-logback" % "1.7.16" // see doc https://docs.sentry.io/clients/java/modules/logback/
+    "io.sentry" % "sentry-logback" % "1.7.16", // see doc https://docs.sentry.io/clients/java/modules/logback/
+    "org.tpolecat" %% "doobie-core" % doobieVersion,
+    "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
+    "org.tpolecat" %% "doobie-specs2"   % doobieVersion % "test"
   )
 
   val automation = common ++ List(
