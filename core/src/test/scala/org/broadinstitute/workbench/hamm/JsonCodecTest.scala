@@ -3,8 +3,12 @@ package org.broadinstitute.workbench.hamm
 import io.circe.parser._
 import JsonCodec._
 
+import scala.concurrent.duration.Duration
+
 object JsonCodecTest extends HammTestSuite {
   test("metadataResponseDecoder should be able to decode MetadataResponse"){
+    val formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+    def toInstant(time: String): Instant = formatter.parse(time).toInstant
     val res = for {
       json <- parse(sampleTest)
       r <- json.as[MetadataResponse]
@@ -12,9 +16,32 @@ object JsonCodecTest extends HammTestSuite {
       val expectedResponse = MetadataResponse(
         List(Call(
           RuntimeAttributes(CpuNumber(1), Disks(DiskName("local-disk"), DiskSize(1), DiskType("HDD")), BootDiskSizeGb(10), Preemptible(3)),
+          List(ExecutionEvent(ExecutionEventDescription("delocalizing-files"),       toInstant("2019-01-02T22:14:05.438689657Z"), toInstant("2019-01-02T22:14:09.779343193Z")),
+               ExecutionEvent(ExecutionEventDescription("UpdatingJobStore"),         toInstant("2019-01-02T22:14:39.825Z"),       toInstant("2019-01-02T22:14:40.799Z")),
+               ExecutionEvent(ExecutionEventDescription("ok"),                       toInstant("2019-01-02T22:14:09.779343193Z"), toInstant("2019-01-02T22:14:10Z")),
+               ExecutionEvent(ExecutionEventDescription("waiting for quota"),        toInstant("2019-01-02T22:11:04Z"),           toInstant("2019-01-02T22:11:27Z")),
+               ExecutionEvent(ExecutionEventDescription("RequestingExecutionToken"), toInstant("2019-01-02T22:10:13.687Z"),       toInstant("2019-01-02T22:10:13.979Z")),
+               ExecutionEvent(ExecutionEventDescription("RunningJob"),               toInstant("2019-01-02T22:11:02.884Z"),       toInstant("2019-01-02T22:11:04Z")),
+               ExecutionEvent(ExecutionEventDescription("UpdatingCallCache"),        toInstant("2019-01-02T22:14:39.160Z"),       toInstant("2019-01-02T22:14:39.825Z")),
+               ExecutionEvent(ExecutionEventDescription("pulling-image"),            toInstant("2019-01-02T22:12:47.780575142Z"), toInstant("2019-01-02T22:12:52.779343466Z")),
+               ExecutionEvent(ExecutionEventDescription("cromwell poll interval"),   toInstant("2019-01-02T22:14:10Z"),           toInstant("2019-01-02T22:14:39.160Z")),
+               ExecutionEvent(ExecutionEventDescription("localizing-files"),         toInstant("2019-01-02T22:12:52.779343466Z"), toInstant("2019-01-02T22:14:04.589980901Z")),
+               ExecutionEvent(ExecutionEventDescription("Pending"),                  toInstant("2019-01-02T22:10:13.686Z"),       toInstant("2019-01-02T22:10:13.687Z")),
+               ExecutionEvent(ExecutionEventDescription("start"),                    toInstant("2019-01-02T22:12:46.103634373Z"), toInstant("2019-01-02T22:12:47.780575142Z")),
+               ExecutionEvent(ExecutionEventDescription("WaitingForValueStore"),     toInstant("2019-01-02T22:10:13.979Z"),       toInstant("2019-01-02T22:10:13.979Z")),
+               ExecutionEvent(ExecutionEventDescription("initializing VM"),          toInstant("2019-01-02T22:11:27Z"),           toInstant("2019-01-02T22:12:46.103634373Z")),
+               ExecutionEvent(ExecutionEventDescription("running-docker"),           toInstant("2019-01-02T22:14:04.589980901Z"), toInstant("2019-01-02T22:14:05.438689657Z")),
+               ExecutionEvent(ExecutionEventDescription("CheckingCallCache"),        toInstant("2019-01-02T22:11:02.874Z"),       toInstant("2019-01-02T22:11:02.884Z")),
+               ExecutionEvent(ExecutionEventDescription("PreparingJob"),             toInstant("2019-01-02T22:10:13.979Z"),       toInstant("2019-01-02T22:11:02.874Z"))),
           false,
-          true
-        ))
+          true,
+          Region("us-central1-c"),
+          Status("Success"),
+          MachineType("us-central1-c/f1-micro"),
+          BackEnd("JES"),
+          Attempt(1))),
+        toInstant("2019-01-02T22:10:07.088Z"),
+        toInstant("2019-01-02T22:14:47.266Z")
       )
       assertEquals(r, expectedResponse)
     }
