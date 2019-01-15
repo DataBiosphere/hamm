@@ -20,5 +20,5 @@ object WorkflowCostDAOSqlSpec extends Specification with IOChecker {
   check(insertConnIO(workflowDb))
   check(getWorkflowDBConnIO(workflowDb.workflowId))
 
-  override def transactor: doobie.Transactor[IO] = new SqlConnection[IO](DBConfig.dbConfig).dbTransactor
+  override def transactor: doobie.Transactor[IO] = DummyDbTransactor.transactor()
 }

@@ -7,7 +7,7 @@ import cats.implicits._
 import org.broadinstitute.workbench.ccm.Generators._
 
 object WorkflowCostDAOSpec extends CcmTestSuite {
-  val transactor = new SqlConnection[IO](DBConfig.dbConfig).dbTransactor
+  val transactor = DummyDbTransactor.transactor()
   val workflowCostDAO = WorkflowCostDAO[IO](transactor)
 
   implicit val eq: Eq[WorkflowDB] = Eq.instance{

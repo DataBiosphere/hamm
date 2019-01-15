@@ -13,7 +13,10 @@ val protobuf =
   project
     .in(file("protobuf"))
     .enablePlugins(Fs2Grpc, BuildInfoPlugin)
-    .settings(Settings.buildInfoSettings)
+    .settings(
+      Settings.buildInfoSettings,
+      PB.protocOptions in Compile += "--descriptor_set_out=./protobuf/target/ccm.pb"
+    )
 
 val core =
   project

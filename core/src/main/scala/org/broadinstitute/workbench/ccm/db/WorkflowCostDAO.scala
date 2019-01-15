@@ -65,7 +65,7 @@ object WorkflowCostDAO{
            cost
          from WORKFLOW_COST where workflow_id = ${workflowId}
        """
-    .query[WorkflowDB](workflowDBRead)
+    .query[WorkflowDB]
 }
 
 sealed abstract class Label {
