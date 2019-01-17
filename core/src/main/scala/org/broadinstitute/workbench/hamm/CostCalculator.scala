@@ -7,8 +7,7 @@ import cats.effect.Sync
 import cats.effect._
 import cats.implicits._
 import cats.data._
-import org.broadinstitute.workbench.ccm.CostCalculator.preemptible
-import org.broadinstitute.workbench.ccm.pricing.{GcpPriceList, PriceList, Skus}
+import org.broadinstitute.workbench.ccm.pricing.{ PriceList}
 
 
 object CostCalculator {

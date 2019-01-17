@@ -4,6 +4,7 @@ package org.broadinstitute.workbench.hamm
 import java.time.format.DateTimeFormatter
 import java.time.temporal.{ChronoField, Temporal, TemporalAccessor}
 import java.text.SimpleDateFormat
+
 import cats.implicits._
 import io.circe.Decoder
 

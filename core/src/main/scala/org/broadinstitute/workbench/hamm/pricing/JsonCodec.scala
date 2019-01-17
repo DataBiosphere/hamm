@@ -1,7 +1,7 @@
 package org.broadinstitute.workbench.hamm
 package pricing
 
-import io.circe.Decoder
+import io.circe.{Decoder, DecodingFailure}
 
 //TODO: this needs to be updated to use https://cloud.google.com/billing/v1/how-tos/catalog-api
 object JsonCodec {
@@ -11,8 +11,8 @@ object JsonCodec {
   implicit val gcpPriceListDecoder: Decoder[GcpPriceList] = Decoder.forProduct1("gcp_price_list")(GcpPriceList.apply)
 
 
- // implicit val categoryDecoder: Decoder[Category] = Decoder.forProduct4("serviceDisplayName", "resourceFamily", "resourceGroup", "usageType")(Category.apply)
-  implicit val categoryDecoder: Decoder[Category] = Decoder.instance{ cursor =>
+  // implicit val categoryDecoder: Decoder[Category] = Decoder.forProduct4("serviceDisplayName", "resourceFamily", "resourceGroup", "usageType")(Category.apply)
+  implicit val categoryDecoder: Decoder[Category] = Decoder.instance { cursor =>
     for {
       serviceDisplayName <- cursor.downField("serviceDisplayName").as[String]
       resourceFamily <- cursor.downField("resourceFamily").as[String]
@@ -21,7 +21,7 @@ object JsonCodec {
     } yield Category(ServiceDisplayName(serviceDisplayName), ResourceFamily(resourceFamily), ResourceGroup(resourceGroup), UsageType(usageType))
   }
 
-  implicit val TieredRateDecoder: Decoder[TieredRate] = Decoder.instance { cursor =>
+  implicit val tieredRateDecoder: Decoder[TieredRate] = Decoder.instance { cursor =>
     for {
       startUsageAmount <- cursor.downField("startUsageAmount").as[Int]
       currencyCode <- cursor.downField("unitPrice").downField("currencyCode").as[String]
@@ -30,14 +30,15 @@ object JsonCodec {
     } yield TieredRate(StartUsageAmount(startUsageAmount), CurrencyCode(currencyCode), Units(units), Nanos(nanos))
   }
 
-  implicit val pricingInfoDecoder: Decoder[PricingInfo] = Decoder.instance{ cursor =>
+  implicit val pricingInfoDecoder: Decoder[PricingInfo] = Decoder.instance { cursor =>
     for {
       usageUnit <- cursor.downField("pricingExpression").downField("usageUnit").as[String]
       tieredRates <- cursor.downField("pricingExpression").downField("tieredRates").as[List[TieredRate]]
     } yield PricingInfo(UsageUnit(usageUnit), tieredRates)
   }
 
-  implicit val googlePriceItemDecoder: Decoder[GooglePriceItem] = Decoder.instance{
+  implicit val googlePriceItemDecoder: Decoder[GooglePriceItem] = Decoder.instance {
+    // put filtering in here!
     cursor =>
       for {
         name <- cursor.downField("name").as[String]
@@ -49,5 +50,80 @@ object JsonCodec {
       } yield GooglePriceItem(SkuName(name), SkuId(skuId), SkuDescription(description), category, serviceRegions.map(ServiceRegion(_)), pricingInfo)
   }
 
-  implicit val skusDecoder: Decoder[Skus] = Decoder.forProduct1("skus")(Skus.apply)
+  def PriceListDecoder(region: Region, machineType: MachineType): Decoder[PriceList] = Decoder.instance  {
+    cursor =>
+      def getPrice(googlePriceItems: List[GooglePriceItem], resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType, descriptionShouldInclude: Option[String], descriptionShouldNotInclude: Option[String]): Either[DecodingFailure, Double] = {
+        val sku = googlePriceItems.filter { priceItem =>
+          (priceItem.serviceRegions.contains(region)
+            && priceItem.category.resourceFamily.equals(resourceFamily)
+            && priceItem.category.resourceGroup.equals(resourceGroup)
+            && priceItem.category.usageType.equals(usageType)
+            && (descriptionShouldInclude match {
+            case Some(desc) => priceItem.description.asString.contains(desc)
+            case None => true})
+            && (descriptionShouldNotInclude match {
+            case Some(desc) => !priceItem.description.asString.contains(desc)
+            case None => true}))
+        }
+        sku.length match {
+          case 0  => Left(DecodingFailure(s"No SKUs matched with region $region, resourceFamily $resourceFamily, resourceGroup $resourceGroup, $usageType usageType, and description including $descriptionShouldInclude and notIncluding $descriptionShouldNotInclude in the following price list: $googlePriceItems", List()))
+          case 1 => Right(getPriceFromSku(sku.head))
+          case tooMany => Left(DecodingFailure(s"$tooMany SKUs matched with region $region, resourceFamily $resourceFamily, resourceGroup $resourceGroup, $usageType usageType, and description including $descriptionShouldInclude and notIncluding $descriptionShouldNotInclude in the following price list: $googlePriceItems", List()))
+        }
+      }
+
+      def getPriceFromSku(priceItem: GooglePriceItem): Double = {
+        // ToDo: Currently just takes first, make it take either most recent or make it dependent on when the call ran
+        priceItem.pricingInfo.head.tieredRates.filter(rate => rate.startUsageAmount.asInt == 0).head.nanos.asInt.toDouble * 1000000000
+      }
+
+      def priceList(googlePriceList: GooglePriceList): Either[DecodingFailure, PriceList] = {
+        val filteredByRegion = googlePriceList.priceItems.filter(priceItem => priceItem.serviceRegions.contains(region))
+        for {
+          ssdCostPerGbPerMonth <- getPrice(filteredByRegion, ResourceFamily("Storage"), ResourceGroup("SSD"), UsageType("OnDemand"), None, Some("Regional"))
+          hddCostPerGbPerMonth <- getPrice(filteredByRegion, ResourceFamily("Storage"), ResourceGroup("PdStandard"), UsageType("OnDemand"), None, Some("Regional"))
+          cpuOnDemandCostGibibytesPerHour <- getPrice(filteredByRegion, ResourceFamily("Compute"), ResourceGroup("CPU"), UsageType("OnDemand"), None, None)
+          ramOnDemandCostGibibytesPerHour <- getPrice(filteredByRegion, ResourceFamily("Compute"), ResourceGroup("RAM"), UsageType("OnDemand"), None, Some("Custom Extended"))
+          extendedRamOnDemandCostGibibytesPerHour <- getPrice(filteredByRegion, ResourceFamily("Compute"), ResourceGroup("RAM"), UsageType("OnDemand"), Some("Custom Extended"), None)
+          cpuPreemptibleCostGibibytesPerHour <- getPrice(filteredByRegion, ResourceFamily("Compute"), ResourceGroup("CPU"), UsageType("Preemptible"), None, Some("Custom Extended"))
+          ramPreemptibleCostGibibytesPerHour <- getPrice(filteredByRegion, ResourceFamily("Compute"), ResourceGroup("RAM"), UsageType("Preemptible"), None, Some("Custom Extended"))
+          extendedRamPreemptibleCostGibibytesPerHour <- getPrice(filteredByRegion, ResourceFamily("Compute"), ResourceGroup("RAM"), UsageType("Preemptible"), Some("Custom Extended"), None)
+        } yield {
+          val ssdCostPerGbPerHour = ssdCostPerGbPerMonth * (24 * 365 / 12)
+          val hddCostPerGbPerHour = hddCostPerGbPerMonth * (24 * 365 / 12)
+          PriceList(
+            region,
+            machineType,
+            ssdCostPerGbPerHour,
+            hddCostPerGbPerHour,
+            cpuOnDemandCostGibibytesPerHour,
+            ramOnDemandCostGibibytesPerHour,
+            extendedRamOnDemandCostGibibytesPerHour,
+            cpuPreemptibleCostGibibytesPerHour,
+            ramPreemptibleCostGibibytesPerHour,
+            extendedRamPreemptibleCostGibibytesPerHour
+          )
+        }
+      }
+
+      for {
+        googlePriceList <- googlePriceListDecoder.apply(cursor)
+        result <- priceList(googlePriceList)
+      } yield {
+        result
+      }
+  }
+
+  implicit val googlePriceListDecoder: Decoder[GooglePriceList] = Decoder.instance {
+     cursor =>
+       for {
+         priceItems <- cursor.downField("skus").as[List[GooglePriceItem]]
+       } yield {
+         GooglePriceList(priceItems)
+       }
+  }
+
+
+
+  //Decoder.forProduct1("skus")(GooglePriceList.apply)
 }

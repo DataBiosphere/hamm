@@ -52,7 +52,7 @@ object GcpPricingTest extends CcmTestSuite {
     toInstant("2019-01-02T22:14:47.266Z")
   )
 
-  val sampleSkus =  Skus(
+  val sampleSkus =  GooglePriceList(
     List(GooglePriceItem(
       SkuName("services/6F81-5844-456A/skus/077F-E880-3C8E"),
       SkuId("077F-E880-3C8E"),

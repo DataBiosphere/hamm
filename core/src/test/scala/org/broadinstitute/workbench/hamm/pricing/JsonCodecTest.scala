@@ -9,9 +9,9 @@ object JsonCodecTest extends CcmTestSuite {
   test("SKUsDecoder should be able to decode SKUs"){
     val res = for {
       json <- parse(sampleTest)
-      r <- json.as[Skus]
+      r <- json.as[GooglePriceList]
     } yield {
-      val expectedResponse = Skus(
+      val expectedResponse = GooglePriceList(
         List(
           GooglePriceItem(
             SkuName("services/6F81-5844-456A/skus/0013-863C-A2FF"),
