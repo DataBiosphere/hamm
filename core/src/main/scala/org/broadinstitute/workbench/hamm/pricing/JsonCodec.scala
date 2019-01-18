@@ -89,8 +89,8 @@ object JsonCodec {
           ramPreemptibleCostGibibytesPerHour <- getPrice(filteredByRegion, ResourceFamily("Compute"), ResourceGroup("RAM"), UsageType("Preemptible"), None, Some("Custom Extended"))
           extendedRamPreemptibleCostGibibytesPerHour <- getPrice(filteredByRegion, ResourceFamily("Compute"), ResourceGroup("RAM"), UsageType("Preemptible"), Some("Custom Extended"), None)
         } yield {
-          val ssdCostPerGbPerHour = ssdCostPerGbPerMonth * (24 * 365 / 12)
-          val hddCostPerGbPerHour = hddCostPerGbPerMonth * (24 * 365 / 12)
+          val ssdCostPerGbPerHour = ssdCostPerGbPerMonth / (24 * 365 / 12)
+          val hddCostPerGbPerHour = hddCostPerGbPerMonth / (24 * 365 / 12)
           PriceList(
             region,
             machineType,
@@ -114,16 +114,16 @@ object JsonCodec {
       }
   }
 
-  implicit val googlePriceListDecoder: Decoder[GooglePriceList] = Decoder.instance {
-     cursor =>
-       for {
-         priceItems <- cursor.downField("skus").as[List[GooglePriceItem]]
-       } yield {
-         GooglePriceList(priceItems)
-       }
-  }
+//  implicit val googlePriceListDecoder: Decoder[GooglePriceList] = Decoder.instance {
+//     cursor =>
+//       for {
+//         priceItems <- cursor.downField("skus").as[List[GooglePriceItem]]
+//       } yield {
+//         GooglePriceList(priceItems)
+//       }
+//  }
 
 
 
-  //Decoder.forProduct1("skus")(GooglePriceList.apply)
+  implicit val googlePriceListDecoder: Decoder[GooglePriceList] = Decoder.forProduct1("skus")(GooglePriceList.apply)
 }
