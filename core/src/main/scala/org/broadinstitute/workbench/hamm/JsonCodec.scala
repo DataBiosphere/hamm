@@ -4,6 +4,7 @@ package org.broadinstitute.workbench.hamm
 import java.time.format.DateTimeFormatter
 import java.time.temporal.{ChronoField, Temporal, TemporalAccessor}
 import java.text.SimpleDateFormat
+import java.time.Instant
 
 import cats.implicits._
 import io.circe.Decoder
@@ -35,9 +36,9 @@ object JsonCodec {
 
     for {
       description <- cursor.downField("description").as[String]
-      startTime <- cursor.downField("startTime").as[String]
-      endTime <- cursor.downField("endTime").as[String]
-    } yield ExecutionEvent(ExecutionEventDescription(description), formatter.parse(startTime).toInstant, formatter.parse(endTime).toInstant)
+      startTime <- cursor.downField("startTime").as[Instant]
+      endTime <- cursor.downField("endTime").as[Instant]
+    } yield ExecutionEvent(ExecutionEventDescription(description), startTime, endTime)
 
   }
 
@@ -60,9 +61,9 @@ object JsonCodec {
     cursor =>
       for {
         calls <- cursor.downField("calls").as[Map[String, List[Call]]].map(x => (x.values.flatten.toList))
-        start <- cursor.downField("start").as[String]
-        end <- cursor.downField("end").as[String]
-      } yield MetadataResponse(calls, formatter.parse(start).toInstant, formatter.parse(end).toInstant)
+        start <- cursor.downField("start").as[Instant]
+        end <- cursor.downField("end").as[Instant]
+      } yield MetadataResponse(calls, start, end)
   }
 
 

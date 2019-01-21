@@ -45,16 +45,16 @@ object JsonCodec {
         skuId <- cursor.downField("skuId").as[String]
         description <- cursor.downField("description").as[String]
         category <- cursor.downField("category").as[Category]
-        serviceRegions <- cursor.downField("serviceRegions").as[List[String]]
+        regions <- cursor.downField("serviceRegions").as[List[String]]
         pricingInfo <- cursor.downField("pricingInfo").as[List[PricingInfo]]
-      } yield GooglePriceItem(SkuName(name), SkuId(skuId), SkuDescription(description), category, serviceRegions.map(ServiceRegion(_)), pricingInfo)
+      } yield GooglePriceItem(SkuName(name), SkuId(skuId), SkuDescription(description), category, regions.map(Region(_)), pricingInfo)
   }
 
   def PriceListDecoder(region: Region, machineType: MachineType): Decoder[PriceList] = Decoder.instance  {
     cursor =>
       def getPrice(googlePriceItems: List[GooglePriceItem], resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType, descriptionShouldInclude: Option[String], descriptionShouldNotInclude: Option[String]): Either[DecodingFailure, Double] = {
         val sku = googlePriceItems.filter { priceItem =>
-          (priceItem.serviceRegions.contains(region)
+          (priceItem.regions.contains(region)
             && priceItem.category.resourceFamily.equals(resourceFamily)
             && priceItem.category.resourceGroup.equals(resourceGroup)
             && priceItem.category.usageType.equals(usageType)
@@ -78,10 +78,12 @@ object JsonCodec {
       }
 
       def priceList(googlePriceList: GooglePriceList): Either[DecodingFailure, PriceList] = {
-        val filteredByRegion = googlePriceList.priceItems.filter(priceItem => priceItem.serviceRegions.contains(region))
+        println(s"GOOGLE PRICE LIST: $googlePriceList")
+        val filteredByRegion = googlePriceList.priceItems.filter(priceItem => priceItem.regions.contains(region))
+        println(s"FILTERED BY REGION: $filteredByRegion" )
         for {
           ssdCostPerGbPerMonth <- getPrice(filteredByRegion, ResourceFamily("Storage"), ResourceGroup("SSD"), UsageType("OnDemand"), None, Some("Regional"))
-          hddCostPerGbPerMonth <- getPrice(filteredByRegion, ResourceFamily("Storage"), ResourceGroup("PdStandard"), UsageType("OnDemand"), None, Some("Regional"))
+          hddCostPerGbPerMonth <- getPrice(filteredByRegion, ResourceFamily("Storage"), ResourceGroup("PDStandard"), UsageType("OnDemand"), None, Some("Regional"))
           cpuOnDemandCostGibibytesPerHour <- getPrice(filteredByRegion, ResourceFamily("Compute"), ResourceGroup("CPU"), UsageType("OnDemand"), None, None)
           ramOnDemandCostGibibytesPerHour <- getPrice(filteredByRegion, ResourceFamily("Compute"), ResourceGroup("RAM"), UsageType("OnDemand"), None, Some("Custom Extended"))
           extendedRamOnDemandCostGibibytesPerHour <- getPrice(filteredByRegion, ResourceFamily("Compute"), ResourceGroup("RAM"), UsageType("OnDemand"), Some("Custom Extended"), None)

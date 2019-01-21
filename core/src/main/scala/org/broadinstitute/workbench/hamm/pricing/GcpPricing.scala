@@ -9,7 +9,7 @@ import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.client.Client
 
 
-case class PriceList(region: Region,
+final case class PriceList(region: Region,
                      machineType: MachineType,
                      ssdCostPerGbPerHour: Double,
                      hddCostPerGbPerHour: Double,
