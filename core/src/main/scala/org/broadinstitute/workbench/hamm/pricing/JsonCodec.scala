@@ -74,7 +74,7 @@ object JsonCodec {
 
       def getPriceFromSku(priceItem: GooglePriceItem): Double = {
         // ToDo: Currently just takes first, make it take either most recent or make it dependent on when the call ran
-        priceItem.pricingInfo.head.tieredRates.filter(rate => rate.startUsageAmount.asInt == 0).head.nanos.asInt.toDouble * 1000000000
+        priceItem.pricingInfo.head.tieredRates.filter(rate => rate.startUsageAmount.asInt == 0).head.nanos.asInt.toDouble / 1000000000
       }
 
       def priceList(googlePriceList: GooglePriceList): Either[DecodingFailure, PriceList] = {
@@ -115,17 +115,6 @@ object JsonCodec {
         result
       }
   }
-
-//  implicit val googlePriceListDecoder: Decoder[GooglePriceList] = Decoder.instance {
-//     cursor =>
-//       for {
-//         priceItems <- cursor.downField("skus").as[List[GooglePriceItem]]
-//       } yield {
-//         GooglePriceList(priceItems)
-//       }
-//  }
-
-
 
   implicit val googlePriceListDecoder: Decoder[GooglePriceList] = Decoder.forProduct1("skus")(GooglePriceList.apply)
 }
