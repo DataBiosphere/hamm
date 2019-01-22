@@ -153,8 +153,8 @@ object JsonCodecTest extends CcmTestSuite {
     } yield {
       val expectedResponse = PriceList(region,
         machineType,
-        0.0003931506,
-        0.0001315068,
+        0.0002794520547945205,
+        0.0001315068493150685,
         0.03797,
         0.001076,
         0.010931,
