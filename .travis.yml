@@ -39,6 +39,8 @@ before_install:
 - cat workbench-firestore-ccm-ci.json | docker login -u _json_key --password-stdin https://us.gcr.io
 # End Authentication
 - ./google-cloud-sdk/bin/gcloud container clusters get-credentials ${CLUSTER_NAME_PRD} --zone ${ZONE} --project ${GOOGLE_PROJECT}
+- sudo netstat -nlp
+- docker run --name postgres -e POSTGRES_PASSWORD=123 -e POSTGRES_USER=ccm -e POSTGRES_DB=cmm -p 5432:5432 -d postgres
 install:
 - ./google-cloud-sdk/bin/gcloud config set project ${GOOGLE_PROJECT}
 - ./google-cloud-sdk/bin/gcloud config set container/cluster $CLUSTER_NAME_PRD --quiet
