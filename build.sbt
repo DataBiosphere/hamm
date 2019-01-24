@@ -1,4 +1,4 @@
-coverageExcludedPackages := "org.broadinstitute.workbench.ccm.protos"
+coverageExcludedPackages := "org.broadinstitute.workbench.hamm.protos"
 coverageMinimum := 15 //Update this once there're more tests
 coverageFailOnMinimum := true
 
@@ -15,7 +15,7 @@ val protobuf =
     .enablePlugins(Fs2Grpc, BuildInfoPlugin)
     .settings(
       Settings.buildInfoSettings,
-      PB.protocOptions in Compile += "--descriptor_set_out=./protobuf/target/ccm.pb"
+      PB.protocOptions in Compile += "--descriptor_set_out=./protobuf/target/hamm.pb"
     )
 
 val core =

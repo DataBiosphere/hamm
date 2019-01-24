@@ -28,7 +28,6 @@ curl -k https://localhost/status
 {"scalaVersion":"2.12.7","sbtVersion":"1.2.8","gitCommit":"350b74fc073550b1262609f918583eae10774ecc","buildTime":"2019-01-05T11:33:00.564"}%
 ```
 
-<<<<<<< HEAD
 # Development
 
 ## Using git secrets

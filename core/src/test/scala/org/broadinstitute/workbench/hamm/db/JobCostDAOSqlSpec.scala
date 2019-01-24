@@ -1,10 +1,10 @@
-package org.broadinstitute.workbench.ccm.db
+package org.broadinstitute.workbench.hamm.db
 
 import cats.effect.IO
 import doobie.implicits._
 import doobie.specs2._
-import org.broadinstitute.workbench.ccm.Generators._
-import org.broadinstitute.workbench.ccm.db.JobCostDAO._
+import org.broadinstitute.workbench.hamm.Generators._
+import org.broadinstitute.workbench.hamm.db.JobCostDAO._
 import org.specs2.mutable.Specification
 
 import scala.concurrent.ExecutionContext

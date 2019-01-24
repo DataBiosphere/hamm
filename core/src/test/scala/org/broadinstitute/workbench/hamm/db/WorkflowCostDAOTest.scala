@@ -1,10 +1,10 @@
-package org.broadinstitute.workbench.ccm
+package org.broadinstitute.workbench.hamm
 package db
 
 import cats.effect.IO
-import org.broadinstitute.workbench.ccm.Generators._
+import org.broadinstitute.workbench.hamm.Generators._
 
-object WorkflowCostDAOSpec extends CcmTestSuite {
+object WorkflowCostDAOSpec extends HammTestSuite {
   val transactor = DummyDbTransactor.transactor()
   val workflowCostDAO = WorkflowCostDAO[IO](transactor)
 

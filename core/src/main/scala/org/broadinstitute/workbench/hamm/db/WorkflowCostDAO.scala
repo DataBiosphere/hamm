@@ -1,4 +1,4 @@
-package org.broadinstitute.workbench.ccm
+package org.broadinstitute.workbench.hamm
 package db
 
 import java.time.Instant
@@ -8,7 +8,7 @@ import cats.data.NonEmptyList
 import cats.effect.Async
 import doobie._
 import doobie.implicits._
-import org.broadinstitute.workbench.ccm.db.WorkflowCostDAO._
+import org.broadinstitute.workbench.hamm.db.WorkflowCostDAO._
 
 class WorkflowCostDAO[F[_]: Async](transactor: Transactor[F]) {
   val createTable = createSql.run.transact[F](transactor)

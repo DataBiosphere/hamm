@@ -3,8 +3,8 @@ package org.broadinstitute.workbench.hamm
 import java.time.Instant
 
 import cats.data.NonEmptyList
-import org.broadinstitute.workbench.ccm.db.{CallCost, CallFqn, Label, WorkflowDB}
-import org.broadinstitute.workbench.ccm.db.Label.{Submission, Workspace}
+import org.broadinstitute.workbench.hamm.db.{CallCost, CallFqn, Label, WorkflowDB}
+import org.broadinstitute.workbench.hamm.db.Label.{Submission, Workspace}
 import org.scalacheck.{Arbitrary, Gen}
 
 object Generators {

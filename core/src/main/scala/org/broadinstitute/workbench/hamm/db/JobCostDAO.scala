@@ -1,11 +1,11 @@
-package org.broadinstitute.workbench.ccm.db
+package org.broadinstitute.workbench.hamm.db
 
 import java.time.Instant
 
 import cats.effect.Async
 import doobie._
 import doobie.implicits._
-import org.broadinstitute.workbench.ccm.WorkflowId
+import org.broadinstitute.workbench.hamm.WorkflowId
 import JobCostDAO._
 
 class JobCostDAO[F[_]: Async](transactor: Transactor[F]) {

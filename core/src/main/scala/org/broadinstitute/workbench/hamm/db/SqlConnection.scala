@@ -1,4 +1,4 @@
-package org.broadinstitute.workbench.ccm.db
+package org.broadinstitute.workbench.hamm.db
 
 import cats.effect.{Async, ContextShift, IO, _}
 import cats.implicits._

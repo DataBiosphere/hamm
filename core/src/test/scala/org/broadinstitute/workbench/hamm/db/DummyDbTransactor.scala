@@ -1,4 +1,4 @@
-package org.broadinstitute.workbench.ccm
+package org.broadinstitute.workbench.hamm
 package db
 
 import cats.effect.{ContextShift, IO}
