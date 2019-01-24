@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/broadinstitute/cloud-cost-management.png?branch=master)](https://travis-ci.org/broadinstitute/cloud-cost-management)
 [![Coverage Status](https://coveralls.io/repos/github/broadinstitute/cloud-cost-management/badge.svg?branch=master)](https://coveralls.io/github/broadinstitute/cloud-cost-management?branch=master)
+TODO: fix these 2 badges
 
 # Try it out
 * Start gRPC server `sbt server/run`
@@ -27,9 +28,22 @@ curl -k https://localhost/status
 {"scalaVersion":"2.12.7","sbtVersion":"1.2.8","gitCommit":"350b74fc073550b1262609f918583eae10774ecc","buildTime":"2019-01-05T11:33:00.564"}%
 ```
 
+# Development
+
+## To build 
+Make sure git secrets is installed:
+```bash
+brew install git-secrets
+```
+Ensure git-secrets is run:
+<i>If you use the rsync script to run locally you can skip this step</i>
+```bash
+cp -r hooks/ .git/hooks/
+chmod 755 .git/hooks/apply-git-secrets.sh
+```
+
 TODO
-* calculate formula
-* figure out how to get service URLs properly
+
 
 Maybe TODO
 * Build (google cloud build)
