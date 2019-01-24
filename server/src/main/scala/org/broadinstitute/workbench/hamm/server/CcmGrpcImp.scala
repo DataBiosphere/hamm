@@ -1,15 +1,15 @@
-package org.broadinstitute.workbench.ccm
+package org.broadinstitute.workbench.hamm
 package server
 
 import cats.effect.Sync
 import cats.implicits._
 import io.chrisdavenport.log4cats.Logger
 import io.grpc.Metadata
-import org.broadinstitute.workbench.ccm.pricing.JsonCodec._
-import org.broadinstitute.workbench.ccm.pricing.{ComputeCost, GcpPricing}
-import org.broadinstitute.workbench.ccm.protos.ccm._
+import org.broadinstitute.workbench.hamm.pricing.JsonCodec._
+import org.broadinstitute.workbench.hamm.pricing.{ComputeCost, GcpPricing}
+import org.broadinstitute.workbench.hamm.protos.hamm._
 
-class CcmGrpcImp[F[_]: Sync: Logger](pricing: GcpPricing[F]) extends CcmFs2Grpc[F] {
+class HammGrpcImp[F[_]: Sync: Logger](pricing: GcpPricing[F]) extends HammFs2Grpc[F] {
   override def getWorkflowCost(request: WorkflowCostRequest, clientHeaders: Metadata): F[WorkflowCostResponse] = {
     for {
       priceList <- pricing.getPriceList()

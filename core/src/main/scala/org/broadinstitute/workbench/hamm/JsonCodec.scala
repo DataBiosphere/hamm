@@ -1,4 +1,4 @@
-package org.broadinstitute.workbench.ccm
+package org.broadinstitute.workbench.hamm
 
 import cats.implicits._
 import io.circe.Decoder

@@ -1,4 +1,4 @@
-package org.broadinstitute.workbench.ccm
+package org.broadinstitute.workbench.hamm
 package automation
 
 import cats.effect.{IO, Resource}

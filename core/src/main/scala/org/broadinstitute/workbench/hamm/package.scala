@@ -1,5 +1,5 @@
 package org.broadinstitute.workbench
 
-package object ccm {
+package object hamm {
 
 }

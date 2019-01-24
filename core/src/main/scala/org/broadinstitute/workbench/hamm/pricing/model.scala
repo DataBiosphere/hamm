@@ -1,4 +1,4 @@
-package org.broadinstitute.workbench.ccm.pricing
+package org.broadinstitute.workbench.hamm.pricing
 
 import io.circe.Decoder
 

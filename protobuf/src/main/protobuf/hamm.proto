@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package org.broadinstitute.workbench.ccm.protos;
+package org.broadinstitute.workbench.hamm.protos;
 
 // The cloud-cost-management service definition.
-service Ccm {
+service Hamm {
   rpc status (StatusRequest) returns (StatusResponse) {}
   rpc getWorkflowCost (WorkflowCostRequest) returns (WorkflowCostResponse) {}
 }

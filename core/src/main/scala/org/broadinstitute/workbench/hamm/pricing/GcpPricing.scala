@@ -1,9 +1,9 @@
-package org.broadinstitute.workbench.ccm
+package org.broadinstitute.workbench.hamm
 package pricing
 
 import cats.effect.Sync
 import io.circe.Json
-import org.broadinstitute.workbench.ccm.pricing.JsonCodec._
+import org.broadinstitute.workbench.hamm.pricing.JsonCodec._
 import org.http4s.Uri
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.client.Client

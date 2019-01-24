@@ -1,4 +1,4 @@
-package org.broadinstitute.workbench.ccm
+package org.broadinstitute.workbench.hamm
 
 final case class Cpu(asString: String) extends AnyVal
 final case class CpuNumber(asInt: Int) extends AnyVal

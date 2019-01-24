@@ -1,7 +1,7 @@
-package org.broadinstitute.workbench.ccm
+package org.broadinstitute.workbench.hamm
 package server
 
-import org.broadinstitute.workbench.ccm.protos.ccm.WorkflowCostRequest
+import org.broadinstitute.workbench.hamm.protos.hamm.WorkflowCostRequest
 import org.scalacheck.{Arbitrary, Gen}
 
 object Generators {

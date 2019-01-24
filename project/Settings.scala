@@ -36,7 +36,7 @@ object Settings {
         java.time.LocalDateTime.now(ZoneId.systemDefault()).toString
       }
     ),
-    buildInfoPackage := "org.broadinstitute.workbench.ccm"
+    buildInfoPackage := "org.broadinstitute.workbench.hamm"
   )
 
   // recommended scalac options by https://tpolecat.github.io/2017/04/25/scalac-flags.html
@@ -94,7 +94,7 @@ object Settings {
 
 
   lazy val serverDockerSetting = List(
-    mainClass in Compile := Some("org.broadinstitute.workbench.ccm.server.Main"),
+    mainClass in Compile := Some("org.broadinstitute.workbench.hamm.server.Main"),
     maintainer := "workbench@broadinstitute.org",
     dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc10",
     packageName in Docker := "workbench-firestore/cloud-cost-management", //TODO: use appropriate project name

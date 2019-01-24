@@ -1,4 +1,4 @@
-package org.broadinstitute.workbench.ccm
+package org.broadinstitute.workbench.hamm
 
 import cats.effect.Sync
 import org.http4s.client.Client
