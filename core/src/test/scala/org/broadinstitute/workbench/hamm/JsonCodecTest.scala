@@ -15,7 +15,7 @@ object JsonCodecTest extends HammTestSuite {
     } yield {
       val expectedResponse = MetadataResponse(
         List(Call(
-          RuntimeAttributes(CpuNumber(1), Disks(DiskName("local-disk"), DiskSize(1), DiskType("HDD")), BootDiskSizeGb(10), Preemptible(3)),
+          RuntimeAttributes(CpuNumber(1), Disks(DiskName("local-disk"), DiskSize(1), DiskType.stringToDiskType("HDD")), BootDiskSizeGb(10), PreemptibleAttemptsAllowed(3)),
           List(ExecutionEvent(ExecutionEventDescription("delocalizing-files"),       Instant.parse("2019-01-02T22:14:05.438689657Z"), Instant.parse("2019-01-02T22:14:09.779343193Z")),
                ExecutionEvent(ExecutionEventDescription("UpdatingJobStore"),         Instant.parse("2019-01-02T22:14:39.825Z"),       Instant.parse("2019-01-02T22:14:40.799Z")),
                ExecutionEvent(ExecutionEventDescription("ok"),                       Instant.parse("2019-01-02T22:14:09.779343193Z"), Instant.parse("2019-01-02T22:14:10Z")),
@@ -35,10 +35,10 @@ object JsonCodecTest extends HammTestSuite {
                ExecutionEvent(ExecutionEventDescription("PreparingJob"),             Instant.parse("2019-01-02T22:10:13.979Z"),       Instant.parse("2019-01-02T22:11:02.874Z"))),
           false,
           true,
-          Region("us-central1-c"),
-          Status("Success"),
-          MachineType("us-central1-c/f1-micro"),
-          BackEnd("JES"),
+          Region.stringToRegion("us-central1-c"),
+          Status.stringToStatus("Success"),
+          MachineType.F1Micro,
+          BackEnd.stringToBackEnd("JES"),
           Attempt(1))),
         Instant.parse("2019-01-02T22:10:07.088Z"),
         Instant.parse("2019-01-02T22:14:47.266Z")

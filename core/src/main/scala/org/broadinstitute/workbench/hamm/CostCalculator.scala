@@ -3,11 +3,8 @@ package org.broadinstitute.workbench.ccm
 import java.time.{Duration, Instant}
 
 import cats.data.NonEmptyList
-import cats.effect.Sync
-import cats.effect._
 import cats.implicits._
-import cats.data._
-import org.broadinstitute.workbench.ccm.pricing.{ PriceList}
+import org.broadinstitute.workbench.ccm.pricing.{PriceList, PriceListKey, Prices, UsageType}
 
 
 object CostCalculator {
@@ -23,27 +20,23 @@ object CostCalculator {
   private def getPriceOfCall(call: Call, priceList: PriceList, startTime: Instant, endTime: Instant): Either[String, Double] = {
     for {
       _ <- if (call.status.asString == "Success") Right(()) else Left(s"Call {name} status was ${call.status.asString}.") // not evaluating workflows that are in flight or Failed or Aborted or whatever
-      machineType <- if (call.machineType.asString.contains("custom")) Right("custom") else {
-        Either.catchNonFatal(call.machineType.asString.split("/", 1)).leftMap(_ => "MachineType could not be parsed.")}
+      diskSize = call.runtimeAttributes.disks.diskSize.asInt + call.runtimeAttributes.bootDiskSizeGb.asInt
+      diskType = call.runtimeAttributes.disks.diskType
+      usageType = getUsageType(call)
+      priceListItem <- Either.catchNonFatal(priceList.prices.get(PriceListKey(call.region, call.machineType, diskType, usageType, false)).get).leftMap(_ => s"couldn't get prices for region ${call.region}, machineType ${call.machineType}, $diskType, $usageType and non-extended.")
     } yield {
       // ToDo: calculate subworkflows
-      val isVMPreemptible = preemptible(call)
       val wasPreempted = wasCallPreempted(call)
       // only looking at actual and not requested disk info
-      val diskName = call.runtimeAttributes.disks.diskName
-      val diskSize = call.runtimeAttributes.disks.diskSize.asInt + call.runtimeAttributes.bootDiskSizeGb.asInt
-      val diskType = call.runtimeAttributes.disks.diskType
       val callDurationInSeconds = getCallDuration(call, startTime, endTime)
-
       // ToDo: add calculating prices for non-custom
       // adjust the call duration to account for preemptibility
       // if a VM preempted less than 10 minutes after it is created, user incurs no cost
-      val adjustedCallDurationInSeconds = if (isVMPreemptible && wasPreempted && callDurationInSeconds < (10 * 60)) 0 else callDurationInSeconds
-      val cpuCost = adjustedCallDurationInSeconds * (if (isVMPreemptible) priceList.CPUPreemptiblePrice else priceList.CPUOnDemandPrice)
-      val diskCostPerGbHour = if (call.runtimeAttributes.disks.diskType.asString.equals("SSD")) priceList.ssdCostPerGbPerHour else priceList.hddCostPerGbPerHour
+      val adjustedCallDurationInSeconds = if (usageType == UsageType.Preemptible && wasPreempted && callDurationInSeconds < (10 * 60)) 0 else callDurationInSeconds
+      val cpuCost = adjustedCallDurationInSeconds * priceListItem.CPUPrice
       val diskGbHours = call.runtimeAttributes.disks.diskSize.asInt * (adjustedCallDurationInSeconds)
-      val diskCost = diskGbHours * diskCostPerGbHour
-      val memCost = adjustedCallDurationInSeconds * (if (isVMPreemptible) priceList.RAMPreemptiblePrice else priceList.RAMOnDemandPrice)
+      val diskCost = diskGbHours * priceListItem.diskCostPerGbPerHour
+      val memCost = adjustedCallDurationInSeconds * priceListItem.RAMPrice
       cpuCost + diskCost + memCost
     }
   }
@@ -54,8 +47,9 @@ object CostCalculator {
     call.executionEvents.exists(event => (event.description.asString.equals("Preempted") || event.description.asString.equals("RetryableFailure")))
   }
 
-  private def preemptible(call: Call): Boolean = {
-    call.attempt.asInt <= call.runtimeAttributes.preemptible.asInt
+  private def getUsageType(call: Call): UsageType = {
+    if (call.attempt.asInt <= call.runtimeAttributes.preemptibleAttemptsAllowed.asInt)
+      UsageType.Preemptible else UsageType.OnDemand
     // ToDo: Add false result if the metadata does not contain an "attempt" or preemptible info
   }
 

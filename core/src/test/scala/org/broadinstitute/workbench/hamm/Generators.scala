@@ -6,7 +6,6 @@ import org.broadinstitute.workbench.hamm.db.{CallFqn, JobCost, Label, WorkflowDB
 import org.scalacheck.{Arbitrary, Gen}
 
 object Generators {
-  val genCpu = Gen.alphaStr.map(Cpu)
   val genBootDiskSizedGb = Gen.posNum[Int].map(BootDiskSizeGb)
   val genWorkflowId = Gen.uuid.map(WorkflowId)
   val genSubmissionId = Gen.uuid.map(SubmissionId)

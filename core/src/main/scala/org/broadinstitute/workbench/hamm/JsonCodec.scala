@@ -16,21 +16,29 @@ object JsonCodec {
   val formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
   implicit val cpuNumberDecoder: Decoder[CpuNumber] = Decoder.decodeString.emap(s => Either.catchNonFatal(s.toInt).leftMap(_.getMessage).map(CpuNumber))
   implicit val bootDiskSizeGbDecoder: Decoder[BootDiskSizeGb] = Decoder.decodeString.emap(x => Either.catchNonFatal(x.toInt).leftMap(_.getMessage).map(BootDiskSizeGb))
-  implicit val preemptibleDecoder: Decoder[Preemptible] = Decoder.decodeString.emap{
-    s =>
-      Either.catchNonFatal(s.toInt).leftMap(_.getMessage).map(Preemptible)
-  }
+//  implicit val preemptibleDecoder: Decoder[UsageType] = Decoder.decodeString.emap{
+//    s =>
+//      Either.catchNonFatal(s.toInt).leftMap(_.getMessage).map(str => str)
+//  }
   implicit val diskNameDecoder: Decoder[Disks] = Decoder.decodeString.emap{
     str =>
       // sample value for str: `local-disk 1 HDD`
       for{
         array <- Either.catchNonFatal(str.split(" ")).leftMap(_.getMessage)
         size <- Either.catchNonFatal(array(1).toInt).leftMap(_.getMessage)
-      } yield Disks(DiskName(array(0)), DiskSize(size), DiskType(array(2)))
+      } yield Disks(DiskName(array(0)), DiskSize(size), DiskType.stringToDiskType(array(2)))
   }
 
 
-  implicit val runtimeAttributesDecoder: Decoder[RuntimeAttributes] = Decoder.forProduct4("cpu", "disks", "bootDiskSizeGb", "preemptible")(RuntimeAttributes)
+  implicit val runtimeAttributesDecoder: Decoder[RuntimeAttributes] = Decoder.instance {
+    cursor =>
+      for {
+        cpuNumber <- cursor.downField("cpu").as[Int]
+        disks <- cursor.downField("disks").as[Disks]
+        bootDiskSizeGb <- cursor.downField("bootDiskSizeGb").as[Int]
+        preemptibleAttemptsAllowed <- cursor.downField("preemptible").as[Int]
+      } yield RuntimeAttributes(CpuNumber(cpuNumber), disks, BootDiskSizeGb(bootDiskSizeGb), PreemptibleAttemptsAllowed(preemptibleAttemptsAllowed))
+  }
 
   implicit val executionEventDecoder: Decoder[ExecutionEvent] = Decoder.instance  { cursor =>
 
@@ -50,11 +58,14 @@ object JsonCodec {
         isPreemptible <- cursor.downField("preemptible").as[Boolean]
         isCallCaching <- cursor.downField("callCaching").downField("hit").as[Boolean]
         region <- cursor.downField("jes").downField("zone").as[String]
-        machineType <- cursor.downField("jes").downField("machineType").as[String]
-        status <- cursor.downField("backendStatus").as[String]
+        machineTypeString <- cursor.downField("jes").downField("machineType").as[String]
+        status <- cursor.downField("executionStatus").as[String]
         backend <- cursor.downField("backend").as[String]
         attempt <- cursor.downField("attempt").as[Int]
-      } yield Call(ra, executionEvents, isCallCaching, isPreemptible, Region(region), Status(status), MachineType(machineType), BackEnd(backend), Attempt(attempt))
+      } yield {
+        val machineType = MachineType.stringToMachineType(machineTypeString.split("/", 1).last) //make this better
+          Call(ra, executionEvents, isCallCaching, isPreemptible, Region.stringToRegion(region), Status.stringToStatus(status), machineType, BackEnd.stringToBackEnd(backend), Attempt(attempt))
+      }
   }
 
   implicit val metadataResponseDecoder: Decoder[MetadataResponse] = Decoder.instance {

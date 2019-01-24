@@ -1,14 +1,33 @@
 package org.broadinstitute.workbench.hamm.pricing
 
 import io.circe.Decoder
-import org.broadinstitute.workbench.ccm.Region
+import org.broadinstitute.workbench.ccm.{Region}
 
-final case class CpuCost(asDouble: Double) extends AnyVal
-final case class RamCost(asDouble: Double) extends AnyVal
 
-final case class ComputeCost(cpuCost: CpuCost, ramCost: RamCost) {
-  val totalCost = cpuCost.asDouble + ramCost.asDouble //TODO: update this
+sealed trait UsageType {
+  def asString: String
 }
+
+object UsageType {
+  final val PREEMPTIBLE = "Preemptible"
+  final val ONDEMAND = "OnDemand"
+
+  final val allUsageTypes = Seq(Preemptible, OnDemand)
+
+  val stringToUsageType = Map(
+    PREEMPTIBLE -> Preemptible,
+    ONDEMAND -> OnDemand
+  )
+
+  case object Preemptible extends UsageType {
+    def asString = PREEMPTIBLE
+  }
+
+  case object OnDemand extends UsageType {
+    def asString = ONDEMAND
+  }
+}
+
 
 final case class SkuName(asString: String) extends AnyVal
 final case class SkuId(asString: String) extends AnyVal
@@ -16,7 +35,6 @@ final case class SkuDescription(asString: String) extends AnyVal
 final case class ServiceDisplayName(asString: String) extends AnyVal
 final case class ResourceFamily(asString: String) extends AnyVal
 final case class ResourceGroup(asString: String) extends AnyVal
-final case class UsageType(asString: String) extends AnyVal
 final case class UsageUnit(asString: String) extends AnyVal
 final case class StartUsageAmount(asInt: Int) extends AnyVal
 final case class CurrencyCode(asString: String) extends AnyVal
