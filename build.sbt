@@ -2,7 +2,7 @@ coverageExcludedPackages := "org.broadinstitute.workbench.ccm.protos"
 coverageMinimum := 15 //Update this once there're more tests
 coverageFailOnMinimum := true
 
-lazy val ccm = project.in(file("."))
+lazy val hamm = project.in(file("."))
   .settings(
     skip in publish := true,
     Settings.commonSettings

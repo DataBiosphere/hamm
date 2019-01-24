@@ -104,7 +104,7 @@ object Settings {
     dockerAlias :=  DockerAlias(
       Some("us.gcr.io"),
       None,
-      "workbench-firestore/cloud-cost-management",
+      "workbench-firestore/cloud-cost-management", //TODO change this to real project container registry
       git.gitHeadCommit.value.map(_.substring(0, 10))
     ),
     dockerCommands ++= List(
