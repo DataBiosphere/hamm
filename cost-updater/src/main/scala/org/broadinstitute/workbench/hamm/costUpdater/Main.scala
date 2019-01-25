@@ -10,22 +10,28 @@ import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 import io.grpc.protobuf.services.ProtoReflectionService
 import fs2._
 import fs2.concurrent.Queue
-import org.broadinstitute.dsde.workbench.google2.{Event, GoogleSubscriber, GoogleSubscriberInterpreter, SubscriberConfig}
+import org.broadinstitute.dsde.workbench.google2.{Event, GoogleSubscriber}
 import org.broadinstitute.workbench.hamm.protos.costUpdater._
-import _root_.io.circe.Decoder
 import JsonCodec._
 
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =  {
     implicit val logger = Slf4jLogger.unsafeCreate[IO]
 
+    val updateCost: Sink[IO, Event[MetadataResponse]] = Sink{
+      event =>
+//TODO: calculate cost and persist to database before acknowledging
+        IO.delay(event.consumer.ack())
+    }
+
     val app: Stream[IO, Unit] = for {
       appConfig <- Stream.fromEither[IO](Config.appConfig)
 
       _ <- Stream.eval(logger.info("Starting Hamm Cost Updater Grpc server"))
       queue <- Stream.eval(Queue.bounded[IO, Event[MetadataResponse]](10000)) //TODO: think about size of the queue a bit more
-      subscriber <- Stream.resource(googleSubscriber(appConfig.google.subscriber, queue))
+      subscriber <- Stream.resource(GoogleSubscriber.resource(appConfig.google.subscriber, queue))
       subscribeStream = Stream.eval_(subscriber.start)
+      processMetadataStream = subscriber.messages to updateCost
 
       service: ServerServiceDefinition = CostUpdaterFs2Grpc.bindService(new CostUpdaterGrpcImp[IO])
       grpcStream = ServerBuilder.forPort(9999)
@@ -33,7 +39,7 @@ object Main extends IOApp {
         .addService(ProtoReflectionService.newInstance())
         .stream[IO]
         .evalMap(server => IO(server.start()))
-      _ <- subscribeStream merge grpcStream
+      _ <- Stream(subscribeStream, grpcStream, processMetadataStream).parJoin(50) //TODO: think more about max open
     } yield ()
 
     app.handleErrorWith(error => Stream.eval(logger.error(error)("Failed to start server")))
@@ -42,10 +48,6 @@ object Main extends IOApp {
       .drain
       .as(ExitCode.Success)
   }
-
-  def googleSubscriber[F[_]: Effect: Logger: Timer: ContextShift, A: Decoder](subscriberConfig: SubscriberConfig, queue: Queue[F, Event[A]]): Resource[F, GoogleSubscriber[F, A]] = for {
-    subscriberClient <- GoogleSubscriberInterpreter.subscriber(subscriberConfig, queue)
-  } yield GoogleSubscriberInterpreter(subscriberClient, queue)
 }
 
 class CostUpdaterGrpcImp[F[_]: Sync: Logger] extends CostUpdaterFs2Grpc[F] {

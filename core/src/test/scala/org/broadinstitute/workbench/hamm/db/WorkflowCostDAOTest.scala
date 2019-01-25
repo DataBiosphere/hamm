@@ -4,7 +4,7 @@ package db
 import cats.implicits._
 import cats.effect.IO
 import org.broadinstitute.workbench.hamm.Generators._
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Arbitrary
 
 object WorkflowCostDAOSpec extends HammTestSuite {
   val transactor = DummyDbTransactor.transactor()

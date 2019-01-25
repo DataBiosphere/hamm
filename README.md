@@ -51,7 +51,7 @@ https://codelabs.developers.google.com/codelabs/cloud-postgresql-gke-memegen/#5
 
 ## Use postgres container for local development
 ```bash
-docker run --name postgres -e POSTGRES_PASSWORD=123 -e POSTGRES_USER=ccm -e POSTGRES_DB=cmm -p 5433:5433 -d postgres
+docker run --name postgres -e POSTGRES_PASSWORD=123 -e POSTGRES_USER=ccm -e POSTGRES_DB=cmm -p 5433:5432 -d postgres
 ```
 
 

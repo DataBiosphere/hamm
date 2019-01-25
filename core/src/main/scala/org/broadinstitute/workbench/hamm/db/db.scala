@@ -4,15 +4,11 @@ import java.time.Instant
 import java.util.UUID
 
 import doobie._
-import doobie.implicits._
-import doobie.postgres._
 import doobie.postgres.implicits._
-import cats._
 import cats.data._
 import cats.implicits._
 import io.circe._
 import io.circe.syntax._
-import io.circe.parser._
 import org.postgresql.util.PGobject
 
 package object db {

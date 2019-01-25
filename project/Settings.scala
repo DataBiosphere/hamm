@@ -73,10 +73,10 @@ object Settings {
     "-Ywarn-nullary-override", // Warn when non-nullary `def f()' overrides nullary `def f'.
     "-Ywarn-numeric-widen", // Warn when numerics are widened.
     "-Ywarn-unused:implicits", // Warn if an implicit parameter is unused.
-//    "-Ywarn-unused:imports", // Warn if an import selector is not referenced.
+    "-Ywarn-unused:imports", // Warn if an import selector is not referenced.
     "-language:postfixOps",
-    "-language:higherKinds"
-    //  "-Ywarn-value-discard" // Warn when non-Unit expression results are unused.
+    "-language:higherKinds",
+    "-Ywarn-value-discard" // Warn when non-Unit expression results are unused.
   )
 
   //common settings for all sbt subprojects
