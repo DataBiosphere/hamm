@@ -1,8 +1,7 @@
-package org.broadinstitute.workbench.hamm
-package server
+package org.broadinstitute.workbench.hamm.server
 
+import org.broadinstitute.workbench.hamm.HammTestSuite
 import org.http4s.Uri
-import org.broadinstitute.workbench.hamm.server.Config._
 
 object ConfigTest extends HammTestSuite {
   test("Config should load configuration file properly"){
