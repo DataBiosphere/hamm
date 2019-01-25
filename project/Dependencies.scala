@@ -4,7 +4,7 @@ object Dependencies {
   val minitestVersion = "2.2.2"
   val circeVersion = "0.10.0"
   val http4sVersion = "0.20.0-M4"
-  val grpcNettyVersion = "1.17.1"
+  val grpcNettyVersion = "1.18.0"
   val cirisVersion = "0.12.1"
   val doobieVersion = "0.7.0-M2"
 
