@@ -2,20 +2,29 @@ package org.broadinstitute.workbench.hamm
 package db
 
 import java.time.Instant
-import java.util.UUID
-
-import cats.data.NonEmptyList
 import cats.effect.Async
+import cats.implicits._
 import doobie._
+import doobie.free.connection
 import doobie.implicits._
 import org.broadinstitute.workbench.hamm.db.WorkflowCostDAO._
 
 class WorkflowCostDAO[F[_]: Async](transactor: Transactor[F]) {
-  val createTable = createSql.run.transact[F](transactor)
+  val createTable: F[Unit] = {
+    val connIO = for {
+      createTable <- createSql.run
+      createIndex <- if(createTable == 0) createIndex.run else connection.raiseError(new Exception(s"creating table $workflowTableName failed with $createTable"))
+      _ <- if(createIndex == 0) ().pure[ConnectionIO] else connection.raiseError(new Exception(s"creating index labelsIndex failed with $createIndex"))
+    } yield ()
+
+    connIO.transact(transactor)
+  }
 
   def insert(workflowddb: WorkflowDB): F[Int] = insertWorkflowSql(workflowddb).run.transact[F](transactor)
 
-  def getWorkflowDB(workflowId: WorkflowId): F[WorkflowCost] = getWorkflowCostSql(workflowId).unique.transact[F](transactor)
+  def getWorkflowDB(workflowId: WorkflowId): F[WorkflowDB] = getWorkflowDBSql(workflowId).unique.transact[F](transactor)
+
+  def getWorkflowCostWithLabel(label: Label): F[Double] = getWorkflowCostSqlWithLabel(label).unique.transact[F](transactor)
 }
 
 object WorkflowCostDAO {
@@ -23,39 +32,47 @@ object WorkflowCostDAO {
 
   val createSql: Update0 =
     (fr"CREATE TABLE IF NOT EXISTS" ++ workflowTableName ++
-      fr"(id SERIAL," ++
+      fr"(id SERIAL NOT NULL," ++
       workflowIdFragment ++ fr"UUID NOT NULL," ++
-      subWorkflowIdFragment ++ fr"UUID[]," ++
+      parentWorkflowIdFragment ++ fr"UUID," ++
+      rootWorkflowIdFragment ++ fr"UUID," ++
       isSubWorkflowFragment ++ fr"BOOLEAN NOT NULL," ++
-      submissionIdFragment ++ fr"UUID NOT NULL," ++
-      workspaceIdFragment ++ fr"UUID NOT NULL," ++
-      billingProjectIdFragment ++ fr"UUID NOT NULL," ++
-      startTimeFragment ++ fr"TIMESTAMPTZ," ++
-      endTimeFragment ++ fr"TIMESTAMPTZ," ++
-      labelNameFragment ++ fr"VARCHAR," ++
-      labelValueFragment ++ fr"VARCHAR," ++
+      startTimeFragment ++ fr"TIMESTAMPTZ NOT NULL," ++
+      endTimeFragment ++ fr"TIMESTAMPTZ NOT NULL," ++
+      labelsFragment ++ fr"JSONB," ++
       costFragment ++ fr"FLOAT8 NOT NULL" ++
       fr")").update
+
+  val createIndex: Update0 = (fr"CREATE INDEX IF NOT EXISTS labelsIndex ON" ++ workflowTableName ++ fr"USING GIN (" ++ labelsFragment ++ fr")").update
 
   def insertWorkflowSql(workflowddb: WorkflowDB): Update0 = {
     val query =
       s"""INSERT INTO WORKFLOW_COST (
                 $workflowIdFieldName,
-                $subWorkflowIdFieldName,
+                $parentWorkflowIdFieldName,
+                $rootWorkflowIdFieldName,
                 $isSubWorkflowFieldName,
-                $submissionIdFieldName,
-                $workspaceIdFieldName,
-                $billingProjectIdFieldName,
                 $startTimeFieldName,
                 $endTimeFieldName,
-                $labelNameFieldName,
-                $labelValueFieldName,
+                $labelsFieldName,
                 $costFieldName
-        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) values (?, ?, ?, ?, ?, ?, ?, ?)
       """
 
     Update[WorkflowDB](query).toUpdate0(workflowddb)
   }
+
+  def getWorkflowDBSql(workflowId: WorkflowId): Query0[WorkflowDB] =
+    (fr"select" ++
+         workflowIdFragment ++ fr"," ++
+         parentWorkflowIdFragment ++ fr"," ++
+         rootWorkflowIdFragment ++ fr"," ++
+         isSubWorkflowFragment ++ fr"," ++
+         startTimeFragment ++ fr"," ++
+         endTimeFragment ++ fr"," ++
+         labelsFragment ++ fr"," ++
+         costFragment ++ fr"from WORKFLOW_COST where workflow_id = ${workflowId}")
+      .query[WorkflowDB]
 
   def getWorkflowCostSql(workflowId: WorkflowId): Query0[WorkflowCost] =
     sql"""select
@@ -64,36 +81,20 @@ object WorkflowCostDAO {
          from WORKFLOW_COST where workflow_id = ${workflowId}
        """
       .query[WorkflowCost]
-}
 
-sealed abstract class Label {
-  def name: String
-  def labelValue: String
-}
-
-object Label {
-
-  final case class Submission(labelValue: String) extends Label {
-    def name = "submission"
-  }
-
-  final case class Workspace(labelValue: String) extends Label {
-    def name = "workspace"
-  }
-
-  val validNames = List("submission", "workspace")
+  def getWorkflowCostSqlWithLabel(label: Label): Query0[Double] =
+    (fr"select sum(cost) from" ++ workflowTableName ++ fr"where" ++ labelsFragment ++ fr"->>${label.key}" ++ fr"=" ++ fr"${label.value}").query[Double]
 }
 
 final case class WorkflowDB(
     workflowId: WorkflowId,
-    subWorkflows: Option[NonEmptyList[WorkflowId]],
+    parentWorkflow: Option[WorkflowId],
+    rootWorkflow: Option[WorkflowId],
     isSubWorkflow: Boolean,
-    submissionId: SubmissionId,
-    workspaceId: WorkspaceId,
-    billingProjectId: UUID, //TODO: fix the type
     startTime: Instant,
     endTime: Instant,
-    label: Option[Label],
+    label: Map[String, String],
     cost: Double)
 
+final case class Label(key: String, value: String)
 final case class WorkflowCost(workflowId: WorkflowId, cost: Double)

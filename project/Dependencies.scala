@@ -14,7 +14,7 @@ object Dependencies {
     "io.monix" %% "minitest-laws" % minitestVersion % "test",
     "io.chrisdavenport" %% "log4cats-slf4j"   % "0.2.0",
     "io.circe" %% "circe-core" % circeVersion,
-    "io.circe" %% "circe-parser" % circeVersion % "test",
+    "io.circe" %% "circe-parser" % circeVersion,
     "org.http4s" %% "http4s-circe" % http4sVersion,
     "org.http4s" %% "http4s-blaze-client" % http4sVersion,
     "com.github.pureconfig" %% "pureconfig" % "0.10.1",
@@ -31,6 +31,8 @@ object Dependencies {
     "is.cir" %% "ciris-cats-effect" % circeVersion
   )
 
+  val costUpdater = common
+  
   val server = common ++ List(
     "io.grpc" % "grpc-services" % grpcNettyVersion
   )

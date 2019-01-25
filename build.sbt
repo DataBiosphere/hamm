@@ -38,6 +38,17 @@ lazy val server =
     .dependsOn(protobuf)
     .dependsOn(core % "test->test;compile->compile")
 
+lazy val costUpdater =
+  project
+    .in(file("cost-updater"))
+    .enablePlugins(JavaAppPackaging)
+    .settings(
+      libraryDependencies ++= Dependencies.costUpdater,
+      Settings.costUpdaterSettings
+    )
+    .dependsOn(protobuf)
+    .dependsOn(core % "test->test;compile->compile")
+
 
 lazy val automation =
   project

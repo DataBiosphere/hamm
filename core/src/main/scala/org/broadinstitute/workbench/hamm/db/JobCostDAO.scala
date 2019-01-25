@@ -2,19 +2,28 @@ package org.broadinstitute.workbench.hamm.db
 
 import java.time.Instant
 
+import cats.implicits._
 import cats.effect.Async
 import doobie._
 import doobie.implicits._
 import org.broadinstitute.workbench.hamm.WorkflowId
 import JobCostDAO._
+import doobie.free.connection
 
 class JobCostDAO[F[_]: Async](transactor: Transactor[F]) {
-  val createTable = createSql.run.transact[F](transactor)
+  val createTable: F[Unit] = {
+    val connIO = for {
+      createTable <- createSql.run
+      createIndex <- if(createTable == 0) createUniqueIndexSql.run else connection.raiseError(new Exception(s"creating table $jobTableName failed with $createTable"))
+      _ <- if(createIndex == 0) ().pure[ConnectionIO] else connection.raiseError(new Exception(s"creating index callUniqueIdentifierIndex failed with $createIndex"))
+    } yield ()
 
-  def insert(callCost: CallCost): F[Int] = insertCallCostSql(callCost).run.transact[F](transactor)
+    connIO.transact(transactor)
+  }
 
-  def getCallCost(callUniquekey: CallUniquekey): F[CallCost] = getCallCostSql(callUniquekey).unique.transact[F](transactor)
+  def insert(callCost: JobCost): F[Int] = insertCallCostSql(callCost).run.transact[F](transactor)
 
+  def getJobCost(callUniquekey: CallUniquekey): F[JobCost] = getCallCostSql(callUniquekey).unique.transact[F](transactor)
 }
 
 object JobCostDAO {
@@ -26,42 +35,54 @@ object JobCostDAO {
       workflowIdFragment ++ fr"UUID NOT NULL," ++
       callFqnFragment ++ fr"VARCHAR(255) NOT NULL," ++
       attemptFragment ++ fr"SMALLINT NOT NULL," ++
-      gcpJobIdFragment ++ fr"VARCHAR(255)," ++
+      jobIndexFragment ++ fr"INTEGER NOT NULL," ++
+      vendorJobIdFragment ++ fr"VARCHAR(255)," ++
       startTimeFragment ++ fr"TIMESTAMPTZ NOT NULL," ++
       endTimeFragment ++ fr"TIMESTAMPTZ NOT NULL," ++
       costFragment ++ fr"FLOAT8 NOT NULL" ++
       fr")").update
 
-  def insertCallCostSql(callCost: CallCost): Update0 = {
+  val createUniqueIndexSql: Update0 = (fr"CREATE UNIQUE INDEX IF NOT EXISTS callUniqueIdentifierIndex ON" ++ jobTableName ++ fr"(" ++
+    workflowIdFragment ++ fr"," ++
+    callFqnFragment ++ fr"," ++
+    attemptFragment ++ fr"," ++
+    vendorJobIdFragment ++
+    fr")").update
+
+  def insertCallCostSql(callCost: JobCost): Update0 = {
     val query =
       s"""INSERT INTO JOB_COST (
                 $workflowIdFieldName,
                 $callFqnFieldName,
                 $attemptFieldName,
-                $gcpJobIdFieldName,
+                $jobIndexFieldName,
+                $vendorJobIdFieldName,
                 $startTimeFieldName,
                 $endTimeFieldName,
                 $costFieldName
-        ) values (?, ?, ?, ?, ?, ?, ?)
+        ) values (?, ?, ?, ?, ?, ?, ?, ?)
       """
 
-    Update[CallCost](query).toUpdate0(callCost)
+    Update[JobCost](query).toUpdate0(callCost)
   }
 
-  def getCallCostSql(callUniquekey: CallUniquekey): Query0[CallCost] =
+  def getCallCostSql(callUniquekey: CallUniquekey): Query0[JobCost] =
     (fr"select" ++
       workflowIdFragment ++ fr"," ++
       callFqnFragment ++ fr"," ++
       attemptFragment ++ fr"," ++
-      gcpJobIdFragment ++ fr"," ++
+      jobIndexFragment ++ fr"," ++
+      vendorJobIdFragment ++ fr"," ++
       startTimeFragment ++ fr"," ++
       endTimeFragment ++ fr"," ++
       costFragment ++
       fr"FROM JOB_COST WHERE WORKFLOW_ID = ${callUniquekey.workflowId} AND" ++
       callFqnFragment ++ fr"=${callUniquekey.callFqn} AND" ++
-      attemptFragment ++ fr"=${callUniquekey.attempt}").query[CallCost]
+      attemptFragment ++ fr"=${callUniquekey.attempt}").query[JobCost]
 }
 
 final case class CallFqn(asString: String) extends AnyVal
-final case class CallUniquekey(workflowId: WorkflowId, callFqn: CallFqn, attempt: Short)
-final case class CallCost(workflowId: WorkflowId, callFqn: CallFqn, attempt: Short, gcpJobId: Option[String], startTime: Instant, endTime: Instant, cost: Double)
+final case class CallUniquekey(workflowId: WorkflowId, callFqn: CallFqn, attempt: Short, jobIndexId: Int)
+final case class JobCost(workflowId: WorkflowId, callFqn: CallFqn, attempt: Short, jobIndexId: Int, gcpJobId: Option[String], startTime: Instant, endTime: Instant, cost: Double){
+  val uniqueKey = CallUniquekey(workflowId, callFqn, attempt, jobIndexId)
+}

@@ -13,12 +13,12 @@ object JobCostDAOSqlSpec extends Specification with IOChecker {
   implicit val cs = IO.contextShift(ExecutionContext.global)
 
 
-  val callCost = genCallCost.sample.get
+  val callCost = genJobCost.sample.get
 
   check(createSql)
   val res = createSql.run.transact[IO](transactor).unsafeRunSync()
   check(insertCallCostSql(callCost))
-  val callUniqueKey = CallUniquekey(callCost.workflowId, callCost.callFqn, callCost.attempt)
+  val callUniqueKey = CallUniquekey(callCost.workflowId, callCost.callFqn, callCost.attempt, callCost.jobIndexId)
   check(getCallCostSql(callUniqueKey))
 
   override def transactor: doobie.Transactor[IO] = DummyDbTransactor.transactor()
