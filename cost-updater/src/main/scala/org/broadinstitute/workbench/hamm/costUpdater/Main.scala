@@ -23,6 +23,7 @@ object Main extends IOApp {
         .addService(ProtoReflectionService.newInstance())
         .stream[IO]
         .evalMap(server => IO(server.start()))
+    //TODO: start subscriber here
     } yield ()
 
     app.handleErrorWith(error => Stream.eval(logger.error(error)("Failed to start server")))
@@ -42,3 +43,4 @@ class CostUpdaterGrpcImp[F[_]: Sync: Logger] extends CostUpdaterFs2Grpc[F] {
     BuildInfo.toString
   ))
 }
+

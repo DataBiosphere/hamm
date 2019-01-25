@@ -32,7 +32,8 @@ object Dependencies {
   )
 
   val costUpdater = common ++ List(
-    "io.grpc" % "grpc-services" % grpcNettyVersion
+    "io.grpc" % "grpc-services" % grpcNettyVersion,
+    "org.broadinstitute.dsde.workbench" %% "workbench-google2" % "0.1-285abc2-SNAP"
   )
   
   val server = common ++ List(
