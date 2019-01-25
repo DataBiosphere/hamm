@@ -1,10 +1,9 @@
-package org.broadinstitute.workbench.ccm
-
+package org.broadinstitute.workbench.hamm
 import java.time.{Duration, Instant}
 
 import cats.data.NonEmptyList
 import cats.implicits._
-import org.broadinstitute.workbench.ccm.pricing.{PriceList, PriceListKey, Prices, UsageType}
+import org.broadinstitute.workbench.hamm.pricing.{PriceList, PriceListKey, Prices, UsageType}
 
 
 object CostCalculator {
@@ -14,7 +13,7 @@ object CostCalculator {
       getPriceOfCall(call, priceList, Instant.now(), Instant.now()).leftMap(NonEmptyList.one)
     }
 
-    ls.parSequence.leftMap(errors => new Exception(errors.toList.mkString(", "))).map(_.sum)
+    ls.parSequence.leftMap(errors => new Exception(errors.toList.toString)).map(_.sum)
   }
 
   private def getPriceOfCall(call: Call, priceList: PriceList, startTime: Instant, endTime: Instant): Either[String, Double] = {

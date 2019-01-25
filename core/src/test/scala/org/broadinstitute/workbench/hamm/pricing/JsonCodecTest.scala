@@ -1,11 +1,13 @@
-package org.broadinstitute.workbench.ccm.pricing
+package org.broadinstitute.workbench.hamm.pricing
 
 import minitest.SimpleTestSuite
 import io.circe.parser._
 import JsonCodec._
-import org.broadinstitute.workbench.ccm.{CcmTestSuite, MachineType, Region}
+import org.broadinstitute.workbench.hamm.pricing.UsageType.{Commit1Yr, OnDemand}
+import org.broadinstitute.workbench.hamm.{HammTestSuite, MachineType, Region}
 
-object JsonCodecTest extends CcmTestSuite {
+object JsonCodecTest extends HammTestSuite {
+
   test("SKUsDecoder should be able to decode SKUs"){
     val res = for {
       json <- parse(sampleTest)
@@ -13,6 +15,43 @@ object JsonCodecTest extends CcmTestSuite {
     } yield {
       val expectedResponse = GooglePriceList(
         List(
+          //region Global, resourceFamily ResourceFamily(Compute), resourceGroup ResourceGroup(RAM), Preemptible usageType, notIncluding Some(Custom Extended)
+          GooglePriceItem(
+            SkuName("services/6F81-5844-456A/skus/0000-2C0D-17F3"),
+            SkuId("0000-2C0D-17F3"),
+            SkuDescription("Preemptible Custom Extended Instance Ram running globally"),
+            Category(ServiceDisplayName("Compute Engine"),
+              ResourceFamily("Compute"),
+              ResourceGroup("RAM"),
+              UsageType.stringToUsageType("Preemptible")),
+            List(Region.stringToRegion("us-west2")),
+            List(PricingInfo(UsageUnit("GiBy.h"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(10931000)))))),
+
+          //region Global, resourceFamily ResourceFamily(Compute), resourceGroup ResourceGroup(CPU), Preemptible usageType, notIncluding None
+          GooglePriceItem(
+            SkuName("services/6F81-5844-456A/skus/0000-BBAF-9069"),
+            SkuId("0000-BBAF-9069"),
+            SkuDescription("Preemptible Custom Instance Core running globally"),
+            Category(ServiceDisplayName("Compute Engine"),
+              ResourceFamily("Compute"),
+              ResourceGroup("CPU"),
+              UsageType.stringToUsageType("Preemptible")),
+            List(Region.stringToRegion("global")),
+            List(PricingInfo(UsageUnit("h"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(6986000)))))),
+
+          //region Global, resourceFamily ResourceFamily(Storage), resourceGroup ResourceGroup(SSD), Preemptible usageType, notIncluding Some(Regional)
+          GooglePriceItem(
+            SkuName("services/6F81-5844-456A/skus/9420-2C0D-17F3"),
+            SkuId("9420-2C0D-17F3"),
+            SkuDescription("Preemptible Custom Ram running globally"),
+            Category(ServiceDisplayName("Compute Engine"),
+              ResourceFamily("Storage"),
+              ResourceGroup("SSD"),
+              UsageType.stringToUsageType("Preemptible")),
+            List(Region.stringToRegion("global")),
+            List(PricingInfo(UsageUnit("GiBy.mo"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(20931000)))))),
+
+
           GooglePriceItem(
             SkuName("services/6F81-5844-456A/skus/472A-2C0D-17F3"),
             SkuId("472A-2C0D-17F3"),
@@ -167,22 +206,108 @@ object JsonCodecTest extends CcmTestSuite {
     res.fold[Unit](e => throw e, identity)
   }
 
+
+  def makeSkuJson(region: Region, resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType, machineType: MachineType, extended: Boolean, price: Nanos): String = {
+    def description = s"${usageType.asDescriptionString} ${machineType.asDescriptionString} ${if (extended) "extended" else ""} some more description"
+
+    s"""{
+      "name": "test-name",
+      "skuId": "test-id",
+      "description": "$description",
+      "category": {
+        "serviceDisplayName": "Compute Engine",
+        "resourceFamily": "$resourceFamily",
+        "resourceGroup": "$resourceGroup",
+        "usageType": "$usageType"
+      },
+      "serviceRegions": [
+      "$region"
+      ],
+      "pricingInfo": [
+      {
+        "summary": "",
+        "pricingExpression": {
+          "usageUnit": "test-unit",
+          "usageUnitDescription": "test-unit",
+          "baseUnit": "s",
+          "baseUnitDescription": "second",
+          "baseUnitConversionFactor": 3600,
+          "displayQuantity": 1,
+          "tieredRates": [
+        {
+          "startUsageAmount": 0,
+          "unitPrice": {
+          "currencyCode": "USD",
+          "units": "0",
+          "nanos": ${price.asInt}
+        }
+        }
+          ]
+        },
+        "currencyConversionRate": 1,
+        "effectiveTime": "2019-01-17T13:07:15.915Z"
+      }
+      ],
+      "serviceProviderName": "Google"
+    }"""
+  }
+
   val sampleTest: String =
     """
       |{
       |  "skus": [
-      |  {
-      |      "name": "services/6F81-5844-456A/skus/472A-2C0D-17F3",
-      |      "skuId": "472A-2C0D-17F3",
-      |      "description": "Preemptible Custom Extended Instance Ram running in Los Angeles",
+      |     {
+      |      "name": "services/6F81-5844-456A/skus/0000-BBAF-9069",
+      |      "skuId": "0000-BBAF-9069",
+      |      "description": "Preemptible Custom Instance Core running globally",
       |      "category": {
       |        "serviceDisplayName": "Compute Engine",
       |        "resourceFamily": "Compute",
-      |        "resourceGroup": "RAM",
+      |        "resourceGroup": "CPU",
       |        "usageType": "Preemptible"
       |      },
       |      "serviceRegions": [
-      |        "us-west2"
+      |        "global"
+      |      ],
+      |      "pricingInfo": [
+      |        {
+      |          "summary": "",
+      |          "pricingExpression": {
+      |            "usageUnit": "h",
+      |            "usageUnitDescription": "hour",
+      |            "baseUnit": "s",
+      |            "baseUnitDescription": "second",
+      |            "baseUnitConversionFactor": 3600,
+      |            "displayQuantity": 1,
+      |            "tieredRates": [
+      |              {
+      |                "startUsageAmount": 0,
+      |                "unitPrice": {
+      |                  "currencyCode": "USD",
+      |                  "units": "0",
+      |                  "nanos": 6986000
+      |                }
+      |              }
+      |            ]
+      |          },
+      |          "currencyConversionRate": 1,
+      |          "effectiveTime": "2019-01-17T13:07:15.915Z"
+      |        }
+      |      ],
+      |      "serviceProviderName": "Google"
+      |    },
+      |  {
+      |      "name": "services/6F81-5844-456A/skus/9420-2C0D-17F3",
+      |      "skuId": "9420-2C0D-17F3",
+      |      "description": "Preemptible Custom Ram running globally",
+      |      "category": {
+      |        "serviceDisplayName": "Compute Engine",
+      |        "resourceFamily": "Storage",
+      |        "resourceGroup": "SSD",
+      |        "usageType": "Preemptible"
+      |      },
+      |      "serviceRegions": [
+      |        "global"
       |      ],
       |      "pricingInfo": [
       |        {
@@ -200,7 +325,7 @@ object JsonCodecTest extends CcmTestSuite {
       |                "unitPrice": {
       |                  "currencyCode": "USD",
       |                  "units": "0",
-      |                  "nanos": 10931000
+      |                  "nanos": 20931000
       |                }
       |              }
       |            ]

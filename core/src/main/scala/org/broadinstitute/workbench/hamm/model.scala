@@ -8,6 +8,7 @@ import java.util.UUID
 final case class Cpu(asString: String) extends AnyVal
 sealed trait MachineType {
   def asString: String
+  def asDescriptionString: String
 }
 
 object MachineType {
@@ -15,6 +16,12 @@ object MachineType {
   final val N1STANDARD = "N1Standard"
   final val F1MICRO = "F1Micro"
   final val G1SMALL = "G1Small"
+
+  final val CUSTOM_DESCRIPTION_STRING = "Custom Instance"
+  final val N1STANDARD_DESCRIPTION_STRING = "N1 Standard Instance"
+  final val F1MICRO_DESCRIPTION_STRING = "Micro instance"
+  final val G1SMALL_DESCRIPTION_STRING = "Small Instance"
+
 
   final val allMachineTypes = Seq(Custom, N1Standard, F1Micro, G1Small)
 
@@ -27,18 +34,22 @@ object MachineType {
 
   case object Custom extends MachineType {
     def asString = CUSTOM
+    override def asDescriptionString: String = CUSTOM_DESCRIPTION_STRING
   }
 
   case object N1Standard extends MachineType {
     def asString = N1STANDARD
+    override def asDescriptionString: String = N1STANDARD_DESCRIPTION_STRING
   }
 
   case object F1Micro extends MachineType {
     def asString = F1MICRO
+    override def asDescriptionString: String = F1MICRO_DESCRIPTION_STRING
   }
 
   case object G1Small extends MachineType {
     def asString = G1SMALL
+    override def asDescriptionString: String = G1SMALL_DESCRIPTION_STRING
   }
 }
 
@@ -98,6 +109,7 @@ object Region {
     Asiasouth1
   )
 
+  //ToDo: string might be in the format "us-central1-c" from Cromwell, handle those cases too
   val stringToRegion = Map(
       GLOBAL -> Global,
       US -> Us,

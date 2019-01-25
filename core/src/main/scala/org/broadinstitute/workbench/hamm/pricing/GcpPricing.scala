@@ -1,8 +1,10 @@
 package org.broadinstitute.workbench.hamm
 package pricing
 
+import cats.data.NonEmptyList
 import cats.effect.Sync
 import cats.implicits._
+import io.circe.Json
 import org.broadinstitute.workbench.hamm.pricing.JsonCodec._
 import org.http4s.Uri
 import org.http4s.circe.CirceEntityDecoder._
@@ -18,10 +20,10 @@ final case class PriceList(prices: Map[PriceListKey, Prices])
 class GcpPricing[F[_]: Sync](httpClient: Client[F], uri: Uri) {
 
   def getGcpPriceList(): F[GooglePriceList] = {
-    httpClient.expect[GooglePriceList](uri)
+    for {
+      googlePriceList <- httpClient.expect[GooglePriceList](uri)
+    } yield googlePriceList.filterByResourceFamily(NonEmptyList.of("Compute", "Storage"))
   }
-
-
 }
 
 
@@ -87,23 +89,9 @@ object GcpPricing {
       }
     }
 
-    val parseq: Either[Throwable, PriceList] = tuples.toList.parSequence.leftMap(errors => new Exception(errors.toList.mkString(", "))).map(x => PriceList(x.toMap))
+    val parseq: Either[Throwable, PriceList] = tuples.toList.parSequence.leftMap(errors => new Exception(errors.toString)).map(x => PriceList(x.toMap))
     parseq
 
   }
 
 }
-
-
-//CUSTOM_MACHINE_CPU = "CP-DB-PG-CUSTOM-VM-CORE"
-//CUSTOM_MACHINE_RAM = "CP-DB-PG-CUSTOM-VM-RAM"
-//CUSTOM_MACHINE_EXTENDED_RAM = "CP-COMPUTEENGINE-CUSTOM-VM-EXTENDED-RAM"
-//CUSTOM_MACHINE_CPU_PREEMPTIBLE = "CP-COMPUTEENGINE-CUSTOM-VM-CORE-PREEMPTIBLE"
-//CUSTOM_MACHINE_RAM_PREEMPTIBLE = "CP-COMPUTEENGINE-CUSTOM-VM-RAM-PREEMPTIBLE"
-//CUSTOM_MACHINE_EXTENDED_RAM_PREEMPTIBLE = "CP-COMPUTEENGINE-CUSTOM-VM-EXTENDED-RAM-PREEMPTIBLE"
-//CUSTOM_MACHINE_TYPES = [CUSTOM_MACHINE_CPU,
-//CUSTOM_MACHINE_RAM,
-//CUSTOM_MACHINE_EXTENDED_RAM,
-//CUSTOM_MACHINE_CPU_PREEMPTIBLE,
-//CUSTOM_MACHINE_RAM_PREEMPTIBLE,
-//CUSTOM_MACHINE_EXTENDED_RAM_PREEMPTIBLE]
