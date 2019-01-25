@@ -31,7 +31,9 @@ object Dependencies {
     "is.cir" %% "ciris-cats-effect" % circeVersion
   )
 
-  val costUpdater = common
+  val costUpdater = common ++ List(
+    "io.grpc" % "grpc-services" % grpcNettyVersion
+  )
   
   val server = common ++ List(
     "io.grpc" % "grpc-services" % grpcNettyVersion

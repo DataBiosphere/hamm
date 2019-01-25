@@ -14,7 +14,7 @@ object DbTransactorResource {
       te <- ExecutionContexts.cachedThreadPool[F]    // our transaction EC
       xa <- HikariTransactor.newHikariTransactor[F](
         "org.postgresql.Driver",                        // driver classname
-        s"jdbc:postgresql://127.0.0.1:5432/ccm",   // connect URL
+        s"jdbc:postgresql://127.0.0.1:${config.port}/ccm",   // connect URL
         config.user.asString,                                   // username
         config.password.asString,                                     // password
         ce,                                     // await connection here
@@ -26,10 +26,10 @@ object DbTransactorResource {
     envF[IO, String]("DB_USER"),
     envF[IO, String]("DB_PASSWORD")
   ){ (username, password) =>
-    SqlConfig(DbUser(username), DbPassword(password))
+    SqlConfig(DbUser(username), DbPassword(password), 5432)
   }.flatMap(x => IO.fromEither(x.leftMap(_.toException).leftWiden))
 }
 
 final case class DbUser(asString: String) extends AnyVal
 final case class DbPassword(asString: String) extends AnyVal
-final case class SqlConfig(user: DbUser, password: DbPassword)
+final case class SqlConfig(user: DbUser, password: DbPassword, port: Int)

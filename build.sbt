@@ -7,7 +7,7 @@ lazy val hamm = project.in(file("."))
     skip in publish := true,
     Settings.commonSettings
   )
-  .aggregate(core, protobuf, automation, server)
+  .aggregate(core, protobuf, automation, server, costUpdater)
 
 val protobuf =
   project

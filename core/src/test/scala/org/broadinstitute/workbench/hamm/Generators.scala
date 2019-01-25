@@ -14,9 +14,9 @@ object Generators {
   val genLabelMap: Gen[Map[String, String]] = Gen.mapOf[String, String](Gen.listOfN(2, Gen.alphaStr).map(x => (x(0), x(1))))
   val genNonEmptyLabelMap: Gen[Map[String, String]] = Gen.nonEmptyMap[String, String](Gen.listOfN(2, Gen.alphaStr.map(x => s"ll$x")).map(x => (x(0), x(1))))
   val genLabel: Gen[Label] = for {
-    name <- Gen.alphaStr.map(x => s"labelName$x")
-    value <- Gen.alphaStr.map(x => s"labelValue$x")
-  } yield Label(name, value)
+    name <- Gen.nonEmptyListOf[Char](Gen.alphaChar)
+    value <- Gen.nonEmptyListOf[Char](Gen.alphaChar)
+  } yield Label(name.mkString(""), value.mkString(""))
 
   val genWorkflowDb = for {
     id <- genWorkflowId
@@ -33,6 +33,7 @@ object Generators {
     label <- genLabel
     workflows <- Gen.nonEmptyListOf(genWorkflowDb)
   } yield workflows.map(x => x.copy(label = Map(label.key -> label.value)))
+
   val genJobCost = for{
     workflowId <- genWorkflowId
     callFqn <- Gen.alphaStr.map(x => CallFqn(s"callFqn$x"))

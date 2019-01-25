@@ -38,10 +38,11 @@
 //          response <- Stream.eval(workflowStub.getWorkflowCost(workflowCostRequest, defaultMetaData))
 //        } yield {
 //          val expectedResponse = WorkflowCostResponse(0.06899999999999999)
-//          response == expectedResponse
+//          assert(response == expectedResponse)
 //        }
 //
 //        res.compile.last.unsafeRunSync().get
+//        true
 //    }
 //  }
 //}

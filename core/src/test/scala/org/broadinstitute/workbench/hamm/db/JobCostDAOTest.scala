@@ -16,7 +16,7 @@ object JobCostDAOTest extends HammTestSuite {
             _ <- jobCostDAO.insert(jobCost)
             retrievedObject <- jobCostDAO.getJobCost(jobCost.uniqueKey)
           } yield {
-            retrievedObject == jobCost
+            assertEquals(retrievedObject, jobCost)
           }
 
           res.unsafeRunSync()
