@@ -9,6 +9,9 @@ final case class Cpu(asString: String) extends AnyVal
 sealed trait MachineType {
   def asString: String
   def asDescriptionString: String
+  def asCPUresourceGroupString: String
+  def asRAMresourceGroupString: String
+  def asMetadataString: String
 }
 
 object MachineType {
@@ -22,34 +25,60 @@ object MachineType {
   final val F1MICRO_DESCRIPTION_STRING = "Micro instance"
   final val G1SMALL_DESCRIPTION_STRING = "Small Instance"
 
+  final val CUSTOM_CPU_RESOURCEGROUP_STRING = "CPU"
+  final val CUSTOM_RAM_RESOURCEGROUP_STRING = "RAM"
+
+  final val CUSTOM_METADATA_STRING = "custom"
+  final val N1STANDARD_METADATA_STRING = "n1-standard"
+  final val F1MICRO_METADATA_STRING = "f1-micro"
+  final val G1SMALL_METADATA_STRING = "g1-small"
 
   final val allMachineTypes = Seq(Custom, N1Standard, F1Micro, G1Small)
 
+//  val resourceGroupToMachineType = Map(
+//    CUSTOM -> Custom,
+//    N1STANDARD -> N1Standard,
+//    F1MICRO -> F1Micro,
+//    G1SMALL -> G1Small)
+
   val stringToMachineType = Map(
-    CUSTOM -> Custom,
-    N1STANDARD -> N1Standard,
-    F1MICRO -> F1Micro,
-    G1SMALL -> G1Small)
+      CUSTOM_METADATA_STRING -> Custom,
+      N1STANDARD_METADATA_STRING -> N1Standard,
+      F1MICRO_METADATA_STRING -> F1Micro,
+      G1SMALL_METADATA_STRING -> G1Small
+  )
 
 
   case object Custom extends MachineType {
     def asString = CUSTOM
-    override def asDescriptionString: String = CUSTOM_DESCRIPTION_STRING
+    def asDescriptionString: String = CUSTOM_DESCRIPTION_STRING
+    def asCPUresourceGroupString: String = CUSTOM_CPU_RESOURCEGROUP_STRING
+    def asRAMresourceGroupString: String = CUSTOM_RAM_RESOURCEGROUP_STRING
+    def asMetadataString: String = CUSTOM_METADATA_STRING
   }
 
   case object N1Standard extends MachineType {
     def asString = N1STANDARD
-    override def asDescriptionString: String = N1STANDARD_DESCRIPTION_STRING
+    def asDescriptionString: String = N1STANDARD_DESCRIPTION_STRING
+    def asCPUresourceGroupString: String = N1STANDARD
+    def asRAMresourceGroupString: String = N1STANDARD
+    def asMetadataString: String = N1STANDARD_METADATA_STRING
   }
 
   case object F1Micro extends MachineType {
     def asString = F1MICRO
-    override def asDescriptionString: String = F1MICRO_DESCRIPTION_STRING
+    def asDescriptionString: String = F1MICRO_DESCRIPTION_STRING
+    def asCPUresourceGroupString: String = F1MICRO
+    def asRAMresourceGroupString: String = F1MICRO
+    def asMetadataString: String = F1MICRO_METADATA_STRING
   }
 
   case object G1Small extends MachineType {
     def asString = G1SMALL
-    override def asDescriptionString: String = G1SMALL_DESCRIPTION_STRING
+    def asDescriptionString: String = G1SMALL_DESCRIPTION_STRING
+    def asCPUresourceGroupString: String = G1SMALL
+    def asRAMresourceGroupString: String = G1SMALL
+    def asMetadataString: String = G1SMALL_METADATA_STRING
   }
 }
 
@@ -136,6 +165,11 @@ object Region {
       SOUTHAMERICAEAST1 -> Southamericaeast1,
       ASIASOUTH1 -> Asiasouth1 )
 
+//  def strToRegion(str: String) = {
+//    val thing = allRegions.filter(region => region.asString.contains(str))
+//
+//  }
+
   case object Global extends Region {
     def asString = GLOBAL
   }
@@ -212,11 +246,19 @@ object Region {
 
 sealed trait DiskType {
   def asString: String
+  def asDescriptionString: String
+  def asResourceGroupString: String
 }
 
 object DiskType {
   final val SSD_STRING = "SSD"
   final val HDD_STRING = "HDD"
+
+  final val SSD_DESCRIPTION_STRING = "SSD"
+  final val HDD_DESCRIPTION_STRING = "PD"
+
+  final val SSD_RESOURCE_GROUP_STRING = "SSD"
+  final val HDD_RESOURCE_GROUP_STRING = "PDStandard"
 
   final val allDiskTypes = Seq(SSD, HDD)
 
@@ -227,10 +269,14 @@ object DiskType {
 
   case object SSD extends DiskType {
     def asString = SSD_STRING
+    def asDescriptionString = SSD_DESCRIPTION_STRING
+    def asResourceGroupString = SSD_RESOURCE_GROUP_STRING
   }
 
   case object HDD extends DiskType {
     def asString = HDD_STRING
+    def asDescriptionString = HDD_DESCRIPTION_STRING
+    def asResourceGroupString = HDD_RESOURCE_GROUP_STRING
   }
 }
 

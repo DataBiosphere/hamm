@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 
 import cats.implicits._
-import io.circe.Decoder
+import io.circe.{Decoder, DecodingFailure}
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
@@ -57,15 +57,14 @@ object JsonCodec {
         executionEvents <- cursor.downField("executionEvents").as[List[ExecutionEvent]]
         isPreemptible <- cursor.downField("preemptible").as[Boolean]
         isCallCaching <- cursor.downField("callCaching").downField("hit").as[Boolean]
-        region <- cursor.downField("jes").downField("zone").as[String]
+        zone <- cursor.downField("jes").downField("zone").as[String]
+        region <- Either.catchNonFatal("-[a-z]\\z".r.replaceAllIn(zone,"")).leftMap(e => DecodingFailure(s"Could not obtain region from zone $zone", List()))
         machineTypeString <- cursor.downField("jes").downField("machineType").as[String]
+        machineType <- Either.catchNonFatal(machineTypeString.split("/").last).leftMap(e => DecodingFailure(s"Could not obtain machine type from $machineTypeString", List()))
         status <- cursor.downField("executionStatus").as[String]
         backend <- cursor.downField("backend").as[String]
         attempt <- cursor.downField("attempt").as[Int]
-      } yield {
-        val machineType = MachineType.stringToMachineType(machineTypeString.split("/", 1).last) //make this better
-          Call(ra, executionEvents, isCallCaching, isPreemptible, Region.stringToRegion(region), Status.stringToStatus(status), machineType, BackEnd.stringToBackEnd(backend), Attempt(attempt))
-      }
+      } yield Call(ra, executionEvents, isCallCaching, isPreemptible, Region.stringToRegion(region), Status.stringToStatus(status), MachineType.stringToMachineType(machineType), BackEnd.stringToBackEnd(backend), Attempt(attempt))
   }
 
   implicit val metadataResponseDecoder: Decoder[MetadataResponse] = Decoder.instance {

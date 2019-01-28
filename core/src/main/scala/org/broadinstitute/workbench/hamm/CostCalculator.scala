@@ -3,12 +3,12 @@ import java.time.{Duration, Instant}
 
 import cats.data.NonEmptyList
 import cats.implicits._
-import org.broadinstitute.workbench.hamm.pricing.{PriceList, PriceListKey, Prices, UsageType}
+import org.broadinstitute.workbench.hamm.pricing.{ComputePriceKey, PriceList, StoragePriceKey, UsageType}
 
 
 object CostCalculator {
 
-  def getPriceOfCall(callMetaDataJson: MetadataResponse, priceList: PriceList): Either[Throwable, Double] = {
+  def getPriceOfWorkflow(callMetaDataJson: MetadataResponse, priceList: PriceList): Either[Throwable, Double] = {
     val ls: List[Either[NonEmptyList[String], Double]] = callMetaDataJson.calls.map { call =>
       getPriceOfCall(call, priceList, Instant.now(), Instant.now()).leftMap(NonEmptyList.one)
     }
@@ -18,11 +18,13 @@ object CostCalculator {
 
   private def getPriceOfCall(call: Call, priceList: PriceList, startTime: Instant, endTime: Instant): Either[String, Double] = {
     for {
-      _ <- if (call.status.asString == "Success") Right(()) else Left(s"Call {name} status was ${call.status.asString}.") // not evaluating workflows that are in flight or Failed or Aborted or whatever
+      _ <- if (Status.terminalStatuses.contains(call.status)) Right(()) else Left(s"Call {name} status was ${call.status.asString}.") // not evaluating calls that are in flight
       diskSize = call.runtimeAttributes.disks.diskSize.asInt + call.runtimeAttributes.bootDiskSizeGb.asInt
       diskType = call.runtimeAttributes.disks.diskType
       usageType = getUsageType(call)
-      priceListItem <- Either.catchNonFatal(priceList.prices.get(PriceListKey(call.region, call.machineType, diskType, usageType, false)).get).leftMap(_ => s"couldn't get prices for region ${call.region}, machineType ${call.machineType}, $diskType, $usageType and non-extended.")
+      computePrices <- Either.catchNonFatal(priceList.compute.computePrices.get(ComputePriceKey(call.region, call.machineType, usageType)).get).leftMap(_ => s"couldn't get compute prices for region ${call.region}, machineType ${call.machineType}, $usageType and non-extended.")
+      storagePrice <-  Either.catchNonFatal(priceList.storage.pricesByDisk.get(StoragePriceKey(call.region, diskType)).get).leftMap(_ => s"couldn't get storage prices for region ${call.region}, and diskType $diskType")
+      // <- Either.catchNonFatal(priceList.prices.get(PriceListKey(call.region, call.machineType, diskType, usageType, false)).get).leftMap(_ => s"couldn't get prices for region ${call.region}, machineType ${call.machineType}, $diskType, $usageType and non-extended.")
     } yield {
       // ToDo: calculate subworkflows
       val wasPreempted = wasCallPreempted(call)
@@ -32,10 +34,10 @@ object CostCalculator {
       // adjust the call duration to account for preemptibility
       // if a VM preempted less than 10 minutes after it is created, user incurs no cost
       val adjustedCallDurationInSeconds = if (usageType == UsageType.Preemptible && wasPreempted && callDurationInSeconds < (10 * 60)) 0 else callDurationInSeconds
-      val cpuCost = adjustedCallDurationInSeconds * priceListItem.CPUPrice
+      val cpuCost = adjustedCallDurationInSeconds * computePrices.cpu
       val diskGbHours = call.runtimeAttributes.disks.diskSize.asInt * (adjustedCallDurationInSeconds)
-      val diskCost = diskGbHours * priceListItem.diskCostPerGbPerHour
-      val memCost = adjustedCallDurationInSeconds * priceListItem.RAMPrice
+      val diskCost = diskGbHours * storagePrice
+      val memCost = adjustedCallDurationInSeconds * computePrices.ram
       cpuCost + diskCost + memCost
     }
   }
