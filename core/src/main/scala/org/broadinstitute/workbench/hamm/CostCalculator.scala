@@ -24,15 +24,12 @@ object CostCalculator {
       usageType = getUsageType(call)
       computePrices <- Either.catchNonFatal(priceList.compute.computePrices.get(ComputePriceKey(call.region, call.machineType, usageType)).get).leftMap(_ => s"couldn't get compute prices for region ${call.region}, machineType ${call.machineType}, $usageType and non-extended.")
       storagePrice <-  Either.catchNonFatal(priceList.storage.pricesByDisk.get(StoragePriceKey(call.region, diskType)).get).leftMap(_ => s"couldn't get storage prices for region ${call.region}, and diskType $diskType")
-      // <- Either.catchNonFatal(priceList.prices.get(PriceListKey(call.region, call.machineType, diskType, usageType, false)).get).leftMap(_ => s"couldn't get prices for region ${call.region}, machineType ${call.machineType}, $diskType, $usageType and non-extended.")
     } yield {
       // ToDo: calculate subworkflows
       val wasPreempted = wasCallPreempted(call)
       // only looking at actual and not requested disk info
       val callDurationInSeconds = getCallDuration(call, startTime, endTime)
-      // ToDo: add calculating prices for non-custom
-      // adjust the call duration to account for preemptibility
-      // if a VM preempted less than 10 minutes after it is created, user incurs no cost
+      // adjust the call duration to account for preemptibility - if a VM preempted less than 10 minutes after it is created, user incurs no cost
       val adjustedCallDurationInSeconds = if (usageType == UsageType.Preemptible && wasPreempted && callDurationInSeconds < (10 * 60)) 0 else callDurationInSeconds
       val cpuCost = adjustedCallDurationInSeconds * computePrices.cpu
       val diskGbHours = call.runtimeAttributes.disks.diskSize.asInt * (adjustedCallDurationInSeconds)
@@ -51,11 +48,9 @@ object CostCalculator {
   private def getUsageType(call: Call): UsageType = {
     if (call.attempt.asInt <= call.runtimeAttributes.preemptibleAttemptsAllowed.asInt)
       UsageType.Preemptible else UsageType.OnDemand
-    // ToDo: Add false result if the metadata does not contain an "attempt" or preemptible info
   }
 
   private def getCallDuration(call: Call, cromwellStartTime: Instant, cromwellEndTime: Instant): Long = {
-    // ToDo: add option to ignore preempted calls and just return 0
     val papiV2 = call.backend.asString.equals("PAPIv2")
 
     def getCromwellStart =  {

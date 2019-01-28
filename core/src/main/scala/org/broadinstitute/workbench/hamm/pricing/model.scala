@@ -42,8 +42,6 @@ object UsageType {
     def asString = COMMIT1YR
     def asDescriptionString: String = COMMIT1YR_DESCRIPTION_STRING
   }
-
-
 }
 
 

@@ -17,8 +17,8 @@ class HammGrpcImp[F[_]: Sync: Logger](pricing: GcpPricing[F]) extends HammFs2Grp
     for {
       //cromwellMetadata: MetadataResponse <- ???
       rawPriceList <- pricing.getGcpPriceList()
-      priceList <-  Sync[F].rethrow(Sync[F].delay[Either[Throwable, PriceList]](GcpPricing.getPriceList(rawPriceList)))
-      result <- Sync[F].rethrow(Sync[F].delay[Either[Throwable, Double]](CostCalculator.getPriceOfCall(sampleMetaData, priceList)))
+      priceList <-  Sync[F].rethrow(Sync[F].delay[Either[Throwable, PriceList]](GcpPricing.getPriceList(rawPriceList, Seq(), Seq())))
+      result <- Sync[F].rethrow(Sync[F].delay[Either[Throwable, Double]](CostCalculator.getPriceOfWorkflow(sampleMetaData, priceList)))
     } yield {
       WorkflowCostResponse(result)
     }
@@ -40,9 +40,9 @@ class HammGrpcImp[F[_]: Sync: Logger](pricing: GcpPricing[F]) extends HammFs2Grp
       List(),
       false,
       true,
-      Region.stringToRegion("us-central1-c"),
+      Region.Uscentral1,
       Status.Done,
-      MachineType.stringToMachineType("us-central1-c/f1-micro"),
+      MachineType.F1Micro,
       BackEnd.Jes,
       Attempt(1))),
     Instant.now,

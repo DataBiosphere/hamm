@@ -1,7 +1,7 @@
 package org.broadinstitute.workbench.hamm
 package pricing
 
-import io.circe.{Decoder, DecodingFailure}
+import io.circe.Decoder
 
 //TODO: this needs to be updated to use https://cloud.google.com/billing/v1/how-tos/catalog-api
 object JsonCodec {
@@ -32,7 +32,6 @@ object JsonCodec {
   }
 
   implicit val googlePriceItemDecoder: Decoder[GooglePriceItem] = Decoder.instance {
-    // put filtering in here!
     cursor =>
       for {
         name <- cursor.downField("name").as[String]

@@ -11,13 +11,6 @@ import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.client.Client
 
 
-//final case class Prices(diskCostPerGbPerHour: Double, CPUPrice: Double, RAMPrice: Double)
-//
-//final case class PriceListKey(region: Region, machineType: MachineType, diskType: DiskType, usageType: UsageType, extended: Boolean)
-//
-//final case class PriceList(prices: Map[PriceListKey, Prices])
-
-//final case class PriceMap(pricesByRegion: Map[Region, PriceList])
 final case class PriceList(compute: ComputePriceList, storage: StoragePriceList)
 
 final case class ComputePriceList(computePrices: Map[ComputePriceKey, ComputePrices])
@@ -68,40 +61,6 @@ object GcpPricing {
       priceItem.pricingInfo.head.tieredRates.filter(rate => rate.startUsageAmount.asInt == 0).head.nanos.asInt.toDouble / 1000000000
     }
 
-//    val thing = Region.allRegions.map { region =>
-    //      MachineType.allMachineTypes.map { machineType =>
-    //        DiskType.allDiskTypes.map { diskType =>
-    //          UsageType.allUsageTypes.map { usageType =>
-    //            for {
-    //              diskCostPerGbMonth <- getPrice(region, ResourceFamily("Storage"), ResourceGroup(diskType.asString), UsageType.OnDemand, None, Some("Regional"))
-    //              cpuPrice <- getPrice(region, ResourceFamily("Compute"), ResourceGroup("CPU"), UsageType.stringToUsageType(usageType.asString), None, None)
-    //              ramPrice <- getPrice(region, ResourceFamily("Compute"), ResourceGroup("RAM"), UsageType.stringToUsageType(usageType.asString), None, Some("Custom Extended"))
-    //            } yield {
-    //              val diskCostPerGbPerHour = diskCostPerGbMonth / (24 * 365 / 12)
-    //              // currently assuming none of the ram is extended
-    //              (PriceListKey(region, machineType, diskType, usageType, false), Prices(diskCostPerGbPerHour, cpuPrice, ramPrice))
-    //            }
-    //          }
-    //        }
-    //      }
-    //    }
-    //    //disk cost (SSD/HDD) does not depend on usage type or machine type
-    //
-    //    val tuples: Seq[Either[String, (PriceListKey, Prices)]] = for {
-    //      region <- Region.allRegions
-    //      machineType <- MachineType.allMachineTypes
-    //      diskType <- DiskType.allDiskTypes
-    //      usageType <- UsageType.allUsageTypes
-    //    } yield {
-    //      for {
-    //        diskCostPerGbMonth <- getPrice(region, ResourceFamily("Storage"), ResourceGroup(diskType.asString), UsageType.stringToUsageType(usageType.asString), None, Some("Regional"))
-    //        cpuPrice <- getPrice(region, ResourceFamily("Compute"), ResourceGroup("CPU"), UsageType.stringToUsageType(usageType.asString), None, None)
-    //        ramPrice <- getPrice(region, ResourceFamily("Compute"), ResourceGroup("RAM"), UsageType.stringToUsageType(usageType.asString), None, Some("Custom Extended"))
-    //      } yield {
-    //        (PriceListKey(region, machineType, diskType, usageType, false), Prices(diskCostPerGbMonth / (24 * 365 / 12), cpuPrice, ramPrice))
-    //      }
-    //    }
-
     def getComputePrices(computePriceKey: ComputePriceKey): Either[String, ComputePrices] = {
       for {
         cpuPrice <- getPrice(computePriceKey.region, ResourceFamily("Compute"), ResourceGroup(computePriceKey.machineType.asCPUresourceGroupString), computePriceKey.usageType, Some(computePriceKey.machineType.asDescriptionString), None)
@@ -129,10 +88,6 @@ object GcpPricing {
       computePricesParseq <- computePrices.toList.parSequence.leftMap(errors => new Exception(errors.toString)).map(x => ComputePriceList(x.toMap))
       storagePricesParseq <- storagePrices.toList.parSequence.leftMap(errors => new Exception(errors.toString)).map(x => StoragePriceList(x.toMap))
     } yield PriceList(computePricesParseq, storagePricesParseq)
-
-//    val list = tuples.toList
-//    println("LIST " + list.toString())
-//    val parseq: Either[Throwable, PriceList] = list.parSequence.leftMap(errors => new Exception(errors.toString)).map(x => PriceList(x.toMap))
   }
 
 }

@@ -16,10 +16,7 @@ object JsonCodec {
   val formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
   implicit val cpuNumberDecoder: Decoder[CpuNumber] = Decoder.decodeString.emap(s => Either.catchNonFatal(s.toInt).leftMap(_.getMessage).map(CpuNumber))
   implicit val bootDiskSizeGbDecoder: Decoder[BootDiskSizeGb] = Decoder.decodeString.emap(x => Either.catchNonFatal(x.toInt).leftMap(_.getMessage).map(BootDiskSizeGb))
-//  implicit val preemptibleDecoder: Decoder[UsageType] = Decoder.decodeString.emap{
-//    s =>
-//      Either.catchNonFatal(s.toInt).leftMap(_.getMessage).map(str => str)
-//  }
+
   implicit val diskNameDecoder: Decoder[Disks] = Decoder.decodeString.emap{
     str =>
       // sample value for str: `local-disk 1 HDD`
