@@ -10,15 +10,6 @@ object JsonCodec {
   implicit val cpuNumberDecoder: Decoder[CpuNumber] = Decoder.decodeString.emap(s => Either.catchNonFatal(s.toInt).leftMap(_.getMessage).map(CpuNumber))
   implicit val bootDiskSizeGbDecoder: Decoder[BootDiskSizeGb] = Decoder.decodeString.emap(x => Either.catchNonFatal(x.toInt).leftMap(_.getMessage).map(BootDiskSizeGb))
 
-  implicit val diskNameDecoder: Decoder[Disk] = Decoder.decodeString.emap{
-    str =>
-      // sample value for str: `local-disk 1 HDD`
-      for{
-        array <- Either.catchNonFatal(str.split(" ")).leftMap(_.getMessage)
-        size <- Either.catchNonFatal(array(1).toInt).leftMap(_.getMessage)
-      } yield Disk(DiskName(array(0)), DiskSize(size), DiskType.stringToDiskType(array(2)))
-  }
-
 
   implicit val runtimeAttributesDecoder: Decoder[RuntimeAttributes] = Decoder.instance {
     cursor =>
@@ -28,6 +19,15 @@ object JsonCodec {
         bootDiskSizeGb <- cursor.downField("bootDiskSizeGb").as[Int]
         preemptibleAttemptsAllowed <- cursor.downField("preemptible").as[Int]
       } yield RuntimeAttributes(CpuNumber(cpuNumber), disks, BootDiskSizeGb(bootDiskSizeGb), PreemptibleAttemptsAllowed(preemptibleAttemptsAllowed))
+  }
+
+  implicit val diskDecoder: Decoder[Disk] = Decoder.decodeString.emap{
+    str =>
+      // sample value for str: `local-disk 1 HDD`
+      for{
+        array <- Either.catchNonFatal(str.split(" ")).leftMap(_.getMessage)
+        size <- Either.catchNonFatal(array(1).toInt).leftMap(_.getMessage)
+      } yield Disk(DiskName(array(0)), DiskSize(size), DiskType.stringToDiskType(array(2)))
   }
 
   implicit val executionEventDecoder: Decoder[ExecutionEvent] = Decoder.instance  { cursor =>

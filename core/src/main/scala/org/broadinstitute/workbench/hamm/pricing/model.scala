@@ -44,14 +44,12 @@ object UsageType {
 
 sealed trait ResourceFamily {
   def asString: String
-  def asDecodingFailureMessage: String
 }
 
 object ResourceFamily {
   private final val COMPUTE_STRING = "Compute"
   private final val STORAGE_STRING = "Storage"
-  private final val COMPUTE_DECODING_FAILURE_MESSAGE = ""
-  private final val STORAGE_DECODING_FAILURE_MESSAGE = ""
+
 
   val stringToResourceFamily = Map(
     COMPUTE_STRING -> Compute,
@@ -60,11 +58,9 @@ object ResourceFamily {
 
   case object Compute extends ResourceFamily {
     def asString = COMPUTE_STRING
-    def asDecodingFailureMessage = ""
   }
   case object Storage extends ResourceFamily {
     def asString = STORAGE_STRING
-    def asDecodingFailureMessage = ""
   }
 }
 
