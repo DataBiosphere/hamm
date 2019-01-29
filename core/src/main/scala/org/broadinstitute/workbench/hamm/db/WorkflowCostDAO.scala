@@ -24,6 +24,8 @@ class WorkflowCostDAO[F[_]: Async](transactor: Transactor[F]) {
 
   def getWorkflowDB(workflowId: WorkflowId): F[WorkflowDB] = getWorkflowDBSql(workflowId).unique.transact[F](transactor)
 
+  def getWorkflowCollectionId(workflowId: WorkflowId): F[WorkflowCollectionId] = getWorkflowCollectionIdSql(workflowId).unique.transact[F](transactor)
+
   def getWorkflowCostWithLabel(label: Label): F[Double] = getWorkflowCostSqlWithLabel(label).unique.transact[F](transactor)
 }
 
@@ -36,6 +38,7 @@ object WorkflowCostDAO {
       workflowIdFragment ++ fr"UUID NOT NULL," ++
       parentWorkflowIdFragment ++ fr"UUID," ++
       rootWorkflowIdFragment ++ fr"UUID," ++
+      workflowCollectionIdFragment ++ fr"UUID NOT NULL," ++
       isSubWorkflowFragment ++ fr"BOOLEAN NOT NULL," ++
       startTimeFragment ++ fr"TIMESTAMPTZ NOT NULL," ++
       endTimeFragment ++ fr"TIMESTAMPTZ NOT NULL," ++
@@ -51,12 +54,13 @@ object WorkflowCostDAO {
                 $workflowIdFieldName,
                 $parentWorkflowIdFieldName,
                 $rootWorkflowIdFieldName,
+                $workflowCollectionIdFieldName,
                 $isSubWorkflowFieldName,
                 $startTimeFieldName,
                 $endTimeFieldName,
                 $labelsFieldName,
                 $costFieldName
-        ) values (?, ?, ?, ?, ?, ?, ?, ?)
+        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?)
       """
 
     Update[WorkflowDB](query).toUpdate0(workflowddb)
@@ -67,6 +71,7 @@ object WorkflowCostDAO {
          workflowIdFragment ++ fr"," ++
          parentWorkflowIdFragment ++ fr"," ++
          rootWorkflowIdFragment ++ fr"," ++
+         workflowCollectionIdFragment ++ fr"," ++
          isSubWorkflowFragment ++ fr"," ++
          startTimeFragment ++ fr"," ++
          endTimeFragment ++ fr"," ++
@@ -82,6 +87,10 @@ object WorkflowCostDAO {
        """
       .query[WorkflowCost]
 
+  def getWorkflowCollectionIdSql(workflowId: WorkflowId): Query0[WorkflowCollectionId] =
+    (fr"select" ++ workflowCollectionIdFragment ++ fr"from" ++ workflowTableName ++ fr"where workflow_id = ${workflowId}")
+      .query[WorkflowCollectionId]
+
   def getWorkflowCostSqlWithLabel(label: Label): Query0[Double] =
     (fr"select sum(cost) from" ++ workflowTableName ++ fr"where" ++ labelsFragment ++ fr"->>${label.key}" ++ fr"=" ++ fr"${label.value}").query[Double]
 }
@@ -90,6 +99,7 @@ final case class WorkflowDB(
     workflowId: WorkflowId,
     parentWorkflow: Option[WorkflowId],
     rootWorkflow: Option[WorkflowId],
+    workflowCollectionId: WorkflowCollectionId,
     isSubWorkflow: Boolean,
     startTime: Instant,
     endTime: Instant,

@@ -42,7 +42,7 @@ before_install:
 ## End Authentication
 #- ./google-cloud-sdk/bin/gcloud container clusters get-credentials ${CLUSTER_NAME_PRD} --zone ${ZONE} --project ${GOOGLE_PROJECT}
 #- sudo netstat -nlp
-- docker run --name postgres -e POSTGRES_PASSWORD=123 -e POSTGRES_USER=ccm -e POSTGRES_DB=ccm -p 5433:5432 -d postgres
+- docker run --name postgres -e POSTGRES_PASSWORD=123 -e POSTGRES_USER=hamm -e POSTGRES_DB=hamm -p 5433:5432 -d postgres
 install:
 #- ./google-cloud-sdk/bin/gcloud config set project ${GOOGLE_PROJECT}
 #- ./google-cloud-sdk/bin/gcloud config set container/cluster $CLUSTER_NAME_PRD --quiet

@@ -11,6 +11,7 @@ object Generators {
   val genWorkflowId = Gen.uuid.map(WorkflowId)
   val genSubmissionId = Gen.uuid.map(SubmissionId)
   val genWorkspaceId = Gen.uuid.map(WorkspaceId)
+  val genWorkflowCollectionId = Gen.uuid.map(WorkflowCollectionId)
   val genLabelMap: Gen[Map[String, String]] = Gen.mapOf[String, String](Gen.listOfN(2, Gen.alphaStr).map(x => (x(0), x(1))))
   val genNonEmptyLabelMap: Gen[Map[String, String]] = Gen.nonEmptyMap[String, String](Gen.listOfN(2, Gen.alphaStr.map(x => s"ll$x")).map(x => (x(0), x(1))))
   val genLabel: Gen[Label] = for {
@@ -22,12 +23,13 @@ object Generators {
     id <- genWorkflowId
     parentWorkflowId <- Gen.option(genWorkflowId)
     rootWorkflowId <- Gen.option(genWorkflowId)
+    workflowCollectionId <- genWorkflowCollectionId
     isSubWorkflow <- Gen.oneOf(true, false)
     startTime <- Gen.const(Instant.now())
     endTime <- Gen.const(Instant.now())
     label <- genLabelMap
     cost <- Gen.posNum[Double]
-  } yield WorkflowDB(id, parentWorkflowId, rootWorkflowId, isSubWorkflow, startTime, endTime, label, cost)
+  } yield WorkflowDB(id, parentWorkflowId, rootWorkflowId, workflowCollectionId, isSubWorkflow, startTime, endTime, label, cost)
 
   val genListOfWorkflowDBWithSameLabel = for {
     label <- genLabel

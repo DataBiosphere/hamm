@@ -17,6 +17,9 @@ package object db {
   implicit val workflowIdMeta: Meta[WorkflowId] = Meta[UUID].timap[WorkflowId](uuid => WorkflowId(uuid))(_.uuid)
   implicit val workflowIdPut: Put[WorkflowId] = workflowIdMeta.put
   implicit val workflowIdGet: Get[WorkflowId] = workflowIdMeta.get
+  implicit val workflowCollectionIdMeta: Meta[WorkflowCollectionId] = Meta[UUID].timap[WorkflowCollectionId](uuid => WorkflowCollectionId(uuid))(_.uuid)
+  implicit val workflowCollectionIdPut: Put[WorkflowCollectionId] = workflowCollectionIdMeta.put
+  implicit val workflowCollectionIdGet: Get[WorkflowCollectionId] = workflowCollectionIdMeta.get
   implicit val callFqnGet: Get[CallFqn] = Get[String].map(CallFqn)
   implicit val listWorkflowPut: Put[Option[NonEmptyList[WorkflowId]]] = Put[List[UUID]].contramap(x => x.fold(List.empty[UUID])(nl => nl.map(_.uuid).toList))
   implicit val listWorkflowGet: Get[List[WorkflowId]] = Get[List[UUID]].map(x => x.map(WorkflowId))
@@ -38,9 +41,9 @@ package object db {
   }
   implicit val labelPut: Put[Map[String, String]] = jsonbMeta.put.contramap[Map[String, String]](x => x.asJson)
   implicit val workflowDBRead: Read[WorkflowDB] =
-    Read[(WorkflowId, Option[WorkflowId], Option[WorkflowId], Boolean, Instant, Instant, Option[Map[String, String]], Double)].map(x => WorkflowDB(x._1, x._2, x._3, x._4, x._5, x._6, x._7.getOrElse(Map.empty), x._8))
+    Read[(WorkflowId, Option[WorkflowId], Option[WorkflowId], WorkflowCollectionId, Boolean, Instant, Instant, Option[Map[String, String]], Double)].map(x => WorkflowDB(x._1, x._2, x._3, x._4, x._5, x._6, x._7, x._8.getOrElse(Map.empty), x._9))
   implicit val workflowDBWrite: Write[WorkflowDB] =
-    Write[(WorkflowId, Option[WorkflowId], Option[WorkflowId], Boolean, Instant, Instant, Map[String, String], Double)].contramap[WorkflowDB](x => WorkflowDB.unapply(x).get)
+    Write[(WorkflowId, Option[WorkflowId], Option[WorkflowId], WorkflowCollectionId, Boolean, Instant, Instant, Map[String, String], Double)].contramap[WorkflowDB](x => WorkflowDB.unapply(x).get)
 
   implicit val workflowCost: Read[WorkflowCost] = Read[(WorkflowId, Double)].map(x => WorkflowCost(x._1, x._2))
 
@@ -50,6 +53,7 @@ package object db {
   val workflowIdFieldName = "WORKFLOW_ID"
   val parentWorkflowIdFieldName = "PARENT_WORKFLOW_ID"
   val rootWorkflowIdFieldName = "ROOT_WORKFLOW_ID"
+  val workflowCollectionIdFieldName = "WORKFLOW_COLLECTION_ID"
   val isSubWorkflowFieldName = "IS_SUB_WORKFLOW"
   val startTimeFieldName = "START_TIME"
   val endTimeFieldName = "END_TIME"
@@ -63,6 +67,7 @@ package object db {
   val workflowIdFragment = Fragment.const(workflowIdFieldName)
   val parentWorkflowIdFragment = Fragment.const(parentWorkflowIdFieldName)
   val rootWorkflowIdFragment = Fragment.const(rootWorkflowIdFieldName)
+  val workflowCollectionIdFragment = Fragment.const(workflowCollectionIdFieldName)
   val isSubWorkflowFragment = Fragment.const(isSubWorkflowFieldName)
   val startTimeFragment = Fragment.const(startTimeFieldName)
   val endTimeFragment = Fragment.const(endTimeFieldName)

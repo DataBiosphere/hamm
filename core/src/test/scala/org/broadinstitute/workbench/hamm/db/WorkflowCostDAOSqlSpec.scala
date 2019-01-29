@@ -21,6 +21,7 @@ object WorkflowCostDAOSqlSpec extends Specification with IOChecker {
   check(insertWorkflowSql(workflowDb))
   check(getWorkflowDBSql(workflowDb.workflowId))
   check(getWorkflowCostSql(workflowDb.workflowId))
+  check(getWorkflowCollectionIdSql(workflowDb.workflowId))
 
   val oneLabel = workflowDb.label.head
   check(getWorkflowCostSqlWithLabel(Label(oneLabel._1, oneLabel._2)))

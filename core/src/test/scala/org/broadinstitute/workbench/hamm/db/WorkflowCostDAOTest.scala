@@ -42,4 +42,20 @@ object WorkflowCostDAOSpec extends HammTestSuite {
       true
     }
   }
+
+  test("WorkflowCostDAO should be able to retrieve workflow_collection_id for a given workflow_id successfully") {
+    implicit val arbWorkflowDb = Arbitrary(genWorkflowDb)
+    checkWithNoShrink1 { (workflowDb: WorkflowDB) =>
+      val res = for {
+        _ <- workflowCostDAO.createTable
+        _ <- workflowCostDAO.insert(workflowDb)
+        retrievedWorkflowCollectionId <- workflowCostDAO.getWorkflowCollectionId(workflowDb.workflowId)
+      } yield {
+        assertEquals(retrievedWorkflowCollectionId, workflowDb.workflowCollectionId)
+      }
+
+      res.unsafeRunSync()
+      true
+    }
+  }
 }
