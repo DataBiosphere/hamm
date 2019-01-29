@@ -10,13 +10,13 @@ object JsonCodec {
   implicit val cpuNumberDecoder: Decoder[CpuNumber] = Decoder.decodeString.emap(s => Either.catchNonFatal(s.toInt).leftMap(_.getMessage).map(CpuNumber))
   implicit val bootDiskSizeGbDecoder: Decoder[BootDiskSizeGb] = Decoder.decodeString.emap(x => Either.catchNonFatal(x.toInt).leftMap(_.getMessage).map(BootDiskSizeGb))
 
-  implicit val diskNameDecoder: Decoder[Disks] = Decoder.decodeString.emap{
+  implicit val diskNameDecoder: Decoder[Disk] = Decoder.decodeString.emap{
     str =>
       // sample value for str: `local-disk 1 HDD`
       for{
         array <- Either.catchNonFatal(str.split(" ")).leftMap(_.getMessage)
         size <- Either.catchNonFatal(array(1).toInt).leftMap(_.getMessage)
-      } yield Disks(DiskName(array(0)), DiskSize(size), DiskType.stringToDiskType(array(2)))
+      } yield Disk(DiskName(array(0)), DiskSize(size), DiskType.stringToDiskType(array(2)))
   }
 
 
@@ -24,7 +24,7 @@ object JsonCodec {
     cursor =>
       for {
         cpuNumber <- cursor.downField("cpu").as[Int]
-        disks <- cursor.downField("disks").as[Disks]
+        disks <- cursor.downField("disks").as[Disk]
         bootDiskSizeGb <- cursor.downField("bootDiskSizeGb").as[Int]
         preemptibleAttemptsAllowed <- cursor.downField("preemptible").as[Int]
       } yield RuntimeAttributes(CpuNumber(cpuNumber), disks, BootDiskSizeGb(bootDiskSizeGb), PreemptibleAttemptsAllowed(preemptibleAttemptsAllowed))
@@ -47,14 +47,36 @@ object JsonCodec {
         executionEvents <- cursor.downField("executionEvents").as[List[ExecutionEvent]]
         isPreemptible <- cursor.downField("preemptible").as[Boolean]
         isCallCaching <- cursor.downField("callCaching").downField("hit").as[Boolean]
-        zone <- cursor.downField("jes").downField("zone").as[String]
-        region <- Either.catchNonFatal("-[a-z]\\z".r.replaceAllIn(zone,"")).leftMap(e => DecodingFailure(s"Could not obtain region from zone $zone", List()))
-        machineTypeString <- cursor.downField("jes").downField("machineType").as[String]
-        machineType <- Either.catchNonFatal(machineTypeString.split("/").last).leftMap(e => DecodingFailure(s"Could not obtain machine type from $machineTypeString", List()))
-        status <- cursor.downField("executionStatus").as[String]
-        backend <- cursor.downField("backend").as[String]
+        region <- cursor.downField("jes").downField("zone").as[Region]
+        machineType <- cursor.downField("jes").downField("machineType").as[MachineType]
+        status <- cursor.downField("executionStatus").as[Status]
+        backend <- cursor.downField("backend").as[BackEnd]
         attempt <- cursor.downField("attempt").as[Int]
-      } yield Call(ra, executionEvents, isCallCaching, isPreemptible, Region.stringToRegion(region), Status.stringToStatus(status), MachineType.stringToMachineType(machineType), BackEnd.stringToBackEnd(backend), Attempt(attempt))
+      } yield Call(ra, executionEvents, isCallCaching, isPreemptible, region, status, machineType, backend, Attempt(attempt))
+  }
+
+  implicit val statusDecoder: Decoder[Status] = Decoder.decodeString.emap{
+    status => Status.stringToStatus.get(status).toRight(s"$status not a valid status")
+  }
+
+  implicit val machineTypeDecoder: Decoder[MachineType] = Decoder.decodeString.emap {
+    machineTypeString =>
+      Either.catchNonFatal(machineTypeString.split("/").last) match {
+        case Left(t) => Left(s"Could not obtain machine type from $machineTypeString")
+        case Right(machineType) => MachineType.stringToMachineType.get(machineType).toRight(s"$machineType is not a valid machine type")
+      }
+  }
+
+  private implicit val regionDecoder: Decoder[Region] = Decoder.decodeString.emap {
+    zone =>
+      Either.catchNonFatal("-[a-z]\\z".r.replaceAllIn(zone,"")) match {
+        case Left(t) => Left(s"Could not obtain region from zone $zone")
+        case Right(region) => Region.stringToRegion.get(region).toRight(s"Region $region obtained from $zone is not a valid region.")
+      }
+  }
+
+  implicit val backEndDecoder: Decoder[BackEnd] = Decoder.decodeString.emap {
+    backEnd => BackEnd.stringToBackEnd.get(backEnd).toRight(s"$backEnd is not a valid back end")
   }
 
   implicit val metadataResponseDecoder: Decoder[MetadataResponse] = Decoder.instance {

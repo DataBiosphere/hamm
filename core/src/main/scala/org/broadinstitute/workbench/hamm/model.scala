@@ -337,8 +337,8 @@ final case class MetadataResponse(calls: List[Call], startTime: Instant, endTime
 
 
 final case class RuntimeAttributes(cpuNumber: CpuNumber,
-                                   disks: Disks,
+                                   disks: Disk,
                                    bootDiskSizeGb: BootDiskSizeGb,
                                    preemptibleAttemptsAllowed: PreemptibleAttemptsAllowed)
 
-final case class Disks(diskName: DiskName, diskSize: DiskSize, diskType: DiskType)
+final case class Disk(diskName: DiskName, diskSize: DiskSize, diskType: DiskType)

@@ -11,8 +11,8 @@ object JsonCodec {
       resourceFamily <- cursor.downField("resourceFamily").as[ResourceFamily]
       serviceDisplayName <- cursor.downField("serviceDisplayName").as[String]
       resourceGroup <- cursor.downField("resourceGroup").as[String]
-      usageType <- cursor.downField("usageType").as[String]
-    } yield Category(ServiceDisplayName(serviceDisplayName), resourceFamily, ResourceGroup(resourceGroup), UsageType.stringToUsageType(usageType))
+      usageType <- cursor.downField("usageType").as[UsageType]
+    } yield Category(ServiceDisplayName(serviceDisplayName), resourceFamily, ResourceGroup(resourceGroup), usageType)
   }
 
   implicit val tieredRateDecoder: Decoder[TieredRate] = Decoder.instance { cursor =>
@@ -38,13 +38,21 @@ object JsonCodec {
         name <- cursor.downField("name").as[String]
         skuId <- cursor.downField("skuId").as[String]
         description <- cursor.downField("description").as[String]
-        regions <- cursor.downField("serviceRegions").as[List[String]]
+        regions <- cursor.downField("serviceRegions").as[List[Region]]
         pricingInfo <- cursor.downField("pricingInfo").as[List[PricingInfo]]
-      } yield GooglePriceItem(SkuName(name), SkuId(skuId), SkuDescription(description), category, regions.map(Region.stringToRegion(_)), pricingInfo)
+      } yield GooglePriceItem(SkuName(name), SkuId(skuId), SkuDescription(description), category, regions, pricingInfo)
   }
 
-  implicit val resourceFamily: Decoder[ResourceFamily] = Decoder.decodeString.emap{
+  implicit val resourceFamilyDecoder: Decoder[ResourceFamily] = Decoder.decodeString.emap{
     resourceFamily => ResourceFamily.stringToResourceFamily.get(resourceFamily).toRight(s"Irrelavent item with resource family $resourceFamily")
+  }
+
+  implicit val usageTypeDecoder: Decoder[UsageType] = Decoder.decodeString.emap{
+    usageType => UsageType.stringToUsageType.get(usageType).toRight(s"Irrelavent item with usage type $usageType")
+  }
+
+  implicit val regionDecoder: Decoder[Region] = Decoder.decodeString.emap{
+    region => Region.stringToRegion.get(region).toRight(s"Irrelavent item with region $region")
   }
 
   implicit val listGooglePriceItemDecoder: Decoder[List[GooglePriceItem]] = Decoder.decodeList(Decoder[GooglePriceItem].either(Decoder[Json])).map {
