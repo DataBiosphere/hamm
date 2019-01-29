@@ -17,7 +17,7 @@ class HammGrpcImp[F[_]: Sync: Logger](pricing: GcpPricing[F]) extends HammFs2Grp
     for {
       //cromwellMetadata: MetadataResponse <- ???
       rawPriceList <- pricing.getGcpPriceList()
-      priceList <-  Sync[F].rethrow(Sync[F].delay[Either[Throwable, PriceList]](GcpPricing.getPriceList(rawPriceList, Seq(), Seq())))
+      priceList <-  Sync[F].rethrow(Sync[F].delay[Either[Throwable, PriceList]](GcpPricing.getPriceList(rawPriceList, List(), List())))
       result <- Sync[F].rethrow(Sync[F].delay[Either[Throwable, Double]](CostCalculator.getPriceOfWorkflow(sampleMetaData, priceList)))
     } yield {
       WorkflowCostResponse(result)

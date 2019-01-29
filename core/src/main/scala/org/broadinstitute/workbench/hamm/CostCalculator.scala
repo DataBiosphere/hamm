@@ -1,16 +1,19 @@
 package org.broadinstitute.workbench.hamm
 import java.time.{Duration, Instant}
+import java.util.concurrent.TimeUnit
 
 import cats.data.NonEmptyList
 import cats.implicits._
 import org.broadinstitute.workbench.hamm.pricing.{ComputePriceKey, PriceList, StoragePriceKey, UsageType}
+
+import scala.concurrent.duration.FiniteDuration
 
 
 object CostCalculator {
 
   def getPriceOfWorkflow(callMetaDataJson: MetadataResponse, priceList: PriceList): Either[Throwable, Double] = {
     val ls: List[Either[NonEmptyList[String], Double]] = callMetaDataJson.calls.map { call =>
-      getPriceOfCall(call, priceList, Instant.now(), Instant.now()).leftMap(NonEmptyList.one)
+      getPriceOfCall(call, priceList, callMetaDataJson.startTime, callMetaDataJson.endTime).leftMap(NonEmptyList.one)
     }
 
     ls.parSequence.leftMap(errors => new Exception(errors.toList.toString)).map(_.sum)
@@ -29,9 +32,9 @@ object CostCalculator {
       // ToDo: calculate subworkflows
       val wasPreempted = wasCallPreempted(call)
       // only looking at actual and not requested disk info
-      val callDurationInSeconds = getCallDuration(call, startTime, endTime)
+      val callDuration = getCallDuration(call, startTime, endTime)
       // adjust the call duration to account for preemptibility - if a VM preempted less than 10 minutes after it is created, user incurs no cost
-      val adjustedCallDurationInSeconds = if (usageType == UsageType.Preemptible && wasPreempted && callDurationInSeconds < (10 * 60)) 0 else callDurationInSeconds
+      val adjustedCallDurationInSeconds = if (usageType == UsageType.Preemptible && wasPreempted && callDuration.toSeconds < (10 * 60)) 0 else callDuration.toSeconds
       val cpuCost = adjustedCallDurationInSeconds * computePrices.cpu
       val diskGbHours = call.runtimeAttributes.disks.diskSize.asInt * (adjustedCallDurationInSeconds)
       val diskCost = diskGbHours * storagePrice
@@ -51,17 +54,17 @@ object CostCalculator {
       UsageType.Preemptible else UsageType.OnDemand
   }
 
-  private def getCallDuration(call: Call, cromwellStartTime: Instant, cromwellEndTime: Instant): Long = {
+  private def getCallDuration(call: Call, cromwellStartTime: Instant, cromwellEndTime: Instant): FiniteDuration = {
     val papiV2 = call.backend.asString.equals("PAPIv2")
 
-    def getCromwellStart =  {
+    lazy val getCromwellStart =  {
       call.executionEvents.find(event => event.description.asString.equals("start")) match {
         case Some(nonPapiV2Event) => nonPapiV2Event.startTime
         case None => cromwellStartTime
       }
     }
 
-    def getCromwellEnd =  {
+    lazy val getCromwellEnd =  {
       call.executionEvents.find(event => event.description.asString.equals("ok")) match {
         case Some(nonPapiV2Event) => nonPapiV2Event.endTime
         case None => cromwellEndTime
@@ -85,6 +88,8 @@ object CostCalculator {
     } else getCromwellEnd
 
     val elapsed = Duration.between(startTime, endTime).getSeconds
-    if (elapsed >= 60) elapsed else 60
+    val seconds = if (elapsed >= 60) elapsed else 60
+
+    FiniteDuration.apply(seconds, TimeUnit.SECONDS)
   }
 }

@@ -1,19 +1,12 @@
 package org.broadinstitute.workbench.hamm
 
-
-import java.time.format.DateTimeFormatter
-import java.time.temporal.{ChronoField, Temporal, TemporalAccessor}
 import java.text.SimpleDateFormat
 import java.time.Instant
 
 import cats.implicits._
 import io.circe.{Decoder, DecodingFailure}
 
-import scala.concurrent.duration.{Duration, FiniteDuration}
-
 object JsonCodec {
-
-  val formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
   implicit val cpuNumberDecoder: Decoder[CpuNumber] = Decoder.decodeString.emap(s => Either.catchNonFatal(s.toInt).leftMap(_.getMessage).map(CpuNumber))
   implicit val bootDiskSizeGbDecoder: Decoder[BootDiskSizeGb] = Decoder.decodeString.emap(x => Either.catchNonFatal(x.toInt).leftMap(_.getMessage).map(BootDiskSizeGb))
 

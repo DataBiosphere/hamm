@@ -35,7 +35,7 @@ object JsonCodec {
     cursor =>
       for {
         resourceFamily <- cursor.downField("category").downField("resourceFamily").as[String]
-        _ <- if (ResourceFamily.allResourceFamilyStrings.contains(resourceFamily)) Right(resourceFamily) else Left(DecodingFailure(s"Irrelavent item with resource family $resourceFamily", List()))
+        _ <- if (ResourceFamily.stringToResourceFamily.keys.toList.contains(resourceFamily)) Right(resourceFamily) else Left(DecodingFailure(s"Irrelavent item with resource family $resourceFamily", List()))
         name <- cursor.downField("name").as[String]
         skuId <- cursor.downField("skuId").as[String]
         description <- cursor.downField("description").as[String]

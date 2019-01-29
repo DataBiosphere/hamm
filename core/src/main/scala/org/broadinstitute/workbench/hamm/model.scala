@@ -15,31 +15,23 @@ sealed trait MachineType {
 }
 
 object MachineType {
-  final val CUSTOM = "custom"
-  final val N1STANDARD = "N1Standard"
-  final val F1MICRO = "F1Micro"
-  final val G1SMALL = "G1Small"
+  private final val CUSTOM = "custom"
+  private final val N1STANDARD = "N1Standard"
+  private final val F1MICRO = "F1Micro"
+  private final val G1SMALL = "G1Small"
 
-  final val CUSTOM_DESCRIPTION_STRING = "Custom Instance"
-  final val N1STANDARD_DESCRIPTION_STRING = "N1 Standard Instance"
-  final val F1MICRO_DESCRIPTION_STRING = "Micro instance"
-  final val G1SMALL_DESCRIPTION_STRING = "Small Instance"
+  private final val CUSTOM_DESCRIPTION_STRING = "Custom Instance"
+  private final val N1STANDARD_DESCRIPTION_STRING = "N1 Standard Instance"
+  private final val F1MICRO_DESCRIPTION_STRING = "Micro instance"
+  private final val G1SMALL_DESCRIPTION_STRING = "Small Instance"
 
-  final val CUSTOM_CPU_RESOURCEGROUP_STRING = "CPU"
-  final val CUSTOM_RAM_RESOURCEGROUP_STRING = "RAM"
+  private final val CUSTOM_CPU_RESOURCEGROUP_STRING = "CPU"
+  private final val CUSTOM_RAM_RESOURCEGROUP_STRING = "RAM"
 
-  final val CUSTOM_METADATA_STRING = "custom"
-  final val N1STANDARD_METADATA_STRING = "n1-standard"
-  final val F1MICRO_METADATA_STRING = "f1-micro"
-  final val G1SMALL_METADATA_STRING = "g1-small"
-
-  final val allMachineTypes = Seq(Custom, N1Standard, F1Micro, G1Small)
-
-//  val resourceGroupToMachineType = Map(
-//    CUSTOM -> Custom,
-//    N1STANDARD -> N1Standard,
-//    F1MICRO -> F1Micro,
-//    G1SMALL -> G1Small)
+  private final val CUSTOM_METADATA_STRING = "custom"
+  private final val N1STANDARD_METADATA_STRING = "n1-standard"
+  private final val F1MICRO_METADATA_STRING = "f1-micro"
+  private final val G1SMALL_METADATA_STRING = "g1-small"
 
   val stringToMachineType = Map(
       CUSTOM_METADATA_STRING -> Custom,
@@ -86,57 +78,30 @@ sealed trait Region {
   def asString: String
 }
 object Region {
-  final val GLOBAL = "global"
-  final val US = "us"
-  final val USCENTRAL1 = "us-central1"
-  final val USEAST1 = "us-east1"
-  final val USWEST4 = "us-east4"
-  final val USWEST1 = "us-west1"
-  final val USWEST2 = "us-west2"
-  final val EUROPE = "europe"
-  final val EUROPEWEST1 = "europe-west1"
-  final val EUROPEWEST2 = "europe-west2"
-  final val EUROPEWEST3 = "europe-west3"
-  final val EUROPEWEST4 = "europe-west4"
-  final val EUROPENORTH1 = "europe-north1"
-  final val NORTHAMERICANORTHEAST1 = "northamerica-northeast1"
-  final val ASIA = "asia"
-  final val ASIAEAST = "asia-east"
-  final val ASIAEAST1 = "asia-east1"
-  final val ASIAEAST2 = "asia-east2"
-  final val ASIANORTHEAST = "asia-northeast"
-  final val ASIASOUTHEAST = "asia-southeast"
-  final val AUSTRALIASOUTHEAST1 = "australia-southeast1"
-  final val AUSTRALIA = "australia"
-  final val SOUTHAMERICAEAST1 = "southamerica-east1"
-  final val ASIASOUTH1 = "asia-south1"
-
-  final val allRegions = Seq(
-    Global,
-    Us,
-    Uscentral1,
-    Useast1,
-    Uswest4,
-    Uswest1,
-    Uswest2,
-    Europe,
-    Europewest1,
-    Europewest2,
-    Europewest3,
-    Europewest4,
-    Europenorth1,
-    Northamericanortheast1,
-    Asia,
-    Asiaeast,
-    Asiaeast1,
-    Asiaeast2,
-    Asianortheast,
-    Asiasoutheast,
-    Australiasoutheast1,
-    Australia,
-    Southamericaeast1,
-    Asiasouth1
-  )
+  private final val GLOBAL = "global"
+  private final val US = "us"
+  private final val USCENTRAL1 = "us-central1"
+  private final val USEAST1 = "us-east1"
+  private final val USWEST4 = "us-east4"
+  private final val USWEST1 = "us-west1"
+  private final val USWEST2 = "us-west2"
+  private final val EUROPE =  "europe"
+  private final val EUROPEWEST1 = "europe-west1"
+  private final val EUROPEWEST2 = "europe-west2"
+  private final val EUROPEWEST3 = "europe-west3"
+  private final val EUROPEWEST4 = "europe-west4"
+  private final val EUROPENORTH1 = "europe-north1"
+  private final val NORTHAMERICANORTHEAST1 = "northamerica-northeast1"
+  private final val ASIA = "asia"
+  private final val ASIAEAST = "asia-east"
+  private final val ASIAEAST1 = "asia-east1"
+  private final val ASIAEAST2 = "asia-east2"
+  private final val ASIANORTHEAST = "asia-northeast"
+  private final val ASIASOUTHEAST = "asia-southeast"
+  private final val AUSTRALIASOUTHEAST1 = "australia-southeast1"
+  private final val AUSTRALIA = "australia"
+  private final val SOUTHAMERICAEAST1 = "southamerica-east1"
+  private final val ASIASOUTH1 = "asia-south1"
 
   //ToDo: string might be in the format "us-central1-c" from Cromwell, handle those cases too
   val stringToRegion = Map(
@@ -246,16 +211,14 @@ sealed trait DiskType {
 }
 
 object DiskType {
-  final val SSD_STRING = "SSD"
-  final val HDD_STRING = "HDD"
+  private final val SSD_STRING = "SSD"
+  private final val HDD_STRING = "HDD"
 
-  final val SSD_DESCRIPTION_STRING = "SSD"
-  final val HDD_DESCRIPTION_STRING = "PD"
+  private final val SSD_DESCRIPTION_STRING = "SSD"
+  private final val HDD_DESCRIPTION_STRING = "PD"
 
-  final val SSD_RESOURCE_GROUP_STRING = "SSD"
-  final val HDD_RESOURCE_GROUP_STRING = "PDStandard"
-
-  final val allDiskTypes = Seq(SSD, HDD)
+  private final val SSD_RESOURCE_GROUP_STRING = "SSD"
+  private final val HDD_RESOURCE_GROUP_STRING = "PDStandard"
 
   val stringToDiskType = Map (
     SSD_STRING -> SSD,
@@ -280,15 +243,14 @@ sealed trait Status {
 }
 
 object Status {
-  final val RUNNING = "Running"
-  final val NOTSTARTED = "NotStarted"
-  final val STARTING = "Starting"
-  final val FAILED = "Failed"
-  final val DONE = "Done"
+  private final val RUNNING = "Running"
+  private final val NOTSTARTED = "NotStarted"
+  private final val STARTING = "Starting"
+  private final val FAILED = "Failed"
+  private final val DONE = "Done"
 
-  final val allStatuses = Seq(Running, NotStarted, Starting, Failed, Done)
-  final val inFlightStatuses = Seq(Running, NotStarted, Starting)
-  final val terminalStatuses = Seq(Failed, Done)
+  final val inFlightStatuses = List(Running, NotStarted, Starting)
+  final val terminalStatuses = List(Failed, Done)
 
   val stringToStatus = Map(
     RUNNING -> Running,
@@ -326,10 +288,8 @@ sealed trait BackEnd {
 }
 
 object BackEnd {
-  final val JES = "JES"
-  final val PAPIV2 = "PAPIV2" //???
-
-  final val allBackEnds = Seq(Jes, PapiV2)
+  private final val JES = "JES"
+  private final val PAPIV2 = "PAPIV2" //???
 
   val stringToBackEnd = Map(
     JES -> Jes,

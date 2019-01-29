@@ -12,16 +12,13 @@ sealed trait UsageType {
 }
 
 object UsageType {
-  final val PREEMPTIBLE = "Preemptible"
-  final val ONDEMAND = "OnDemand"
-  final val COMMIT1YR = "Commit1Yr"
+  private final val PREEMPTIBLE = "Preemptible"
+  private final val ONDEMAND = "OnDemand"
+  private final val COMMIT1YR = "Commit1Yr"
 
-  final val PREEMPTIBLE_DESCRIPTION_STRING = "Preemptible"
-  final val ONDEMAND_DESCRIPTION_STRING = ""
-  final val COMMIT1YR_DESCRIPTION_STRING = "Commitment v1:"
-
-
-  final val allUsageTypes = Seq(Preemptible, OnDemand, Commit1Yr)
+  private final val PREEMPTIBLE_DESCRIPTION_STRING = "Preemptible"
+  private final val ONDEMAND_DESCRIPTION_STRING = ""
+  private final val COMMIT1YR_DESCRIPTION_STRING = "Commitment v1:"
 
   val stringToUsageType = Map(
     PREEMPTIBLE -> Preemptible,
@@ -51,12 +48,10 @@ sealed trait ResourceFamily {
 }
 
 object ResourceFamily {
-  final val COMPUTE_STRING = "Compute"
-  final val STORAGE_STRING = "Storage"
-  final val COMPUTE_DECODING_FAILURE_MESSAGE = ""
-  final val STORAGE_DECODING_FAILURE_MESSAGE = ""
-
-  val allResourceFamilyStrings = Seq(COMPUTE_STRING, STORAGE_STRING)
+  private final val COMPUTE_STRING = "Compute"
+  private final val STORAGE_STRING = "Storage"
+  private final val COMPUTE_DECODING_FAILURE_MESSAGE = ""
+  private final val STORAGE_DECODING_FAILURE_MESSAGE = ""
 
   val stringToResourceFamily = Map(
     COMPUTE_STRING -> Compute,
@@ -91,20 +86,6 @@ final case class TieredRate(startUsageAmount: StartUsageAmount, currencyCode: Cu
 final case class PricingInfo(usageUnit: UsageUnit, tieredRates: List[TieredRate])
 final case class Category(serviceDisplayName: ServiceDisplayName, resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType)
 final case class GooglePriceItem(name: SkuName, skuId: SkuId, description: SkuDescription, category: Category, regions: List[Region], pricingInfo: List[PricingInfo])
-final case class GooglePriceList(priceItems: List[GooglePriceItem]) {
-
-//object GooglePriceItem {
-//
-//  case class  RelevantGooglePriceItem(name: SkuName, skuId: SkuId, description: SkuDescription, category: Category, regions: List[Region], pricingInfo: List[PricingInfo]) extends GooglePriceItem
-//  case object IrrelevantGooglePriceItem extends GooglePriceItem
-//}
-
-//final case class GooglePriceList(priceItems: List[GooglePriceItem.RelevantGooglePriceItem]) {
-//
-//  def filterByResourceFamily(resourceFamilies: NonEmptyList[String]): GooglePriceList = {
-//    GooglePriceList(this.priceItems.filter(priceItems => resourceFamilies.map(resourceFamily=> priceItems.category.resourceFamily.asString.equals(resourceFamily))
-//      .reduce((a:Boolean, b:Boolean) => a||b)))
-//  }
-}
+final case class GooglePriceList(priceItems: List[GooglePriceItem])
 
 

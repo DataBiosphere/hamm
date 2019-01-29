@@ -11,16 +11,6 @@ import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.client.Client
 
 
-final case class PriceList(compute: ComputePriceList, storage: StoragePriceList)
-
-final case class ComputePriceList(computePrices: Map[ComputePriceKey, ComputePrices])
-final case class ComputePriceKey(region: Region, machineType: MachineType, usageType: UsageType)  //add extended here?
-final case class ComputePrices(ram: Double, cpu: Double)
-
-
-final case class StoragePriceList(pricesByDisk: Map[StoragePriceKey, Double])
-final case class StoragePriceKey(region: Region, diskType: DiskType)
-
 
 class GcpPricing[F[_]: Sync](httpClient: Client[F], uri: Uri) {
 
@@ -34,7 +24,7 @@ class GcpPricing[F[_]: Sync](httpClient: Client[F], uri: Uri) {
 
 object GcpPricing {
 
-  def getPriceList(googlePriceList: GooglePriceList, computePriceKeys: Seq[ComputePriceKey], storagePriceKeys: Seq[StoragePriceKey]): Either[Throwable, PriceList] = {
+  def getPriceList(googlePriceList: GooglePriceList, computePriceKeys: List[ComputePriceKey], storagePriceKeys: List[StoragePriceKey]): Either[Throwable, PriceList] = {
 
     def getPrice(region: Region, resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType, descriptionShouldInclude: Option[String], descriptionShouldNotInclude: Option[String]): Either[String, Double] = {
       val sku = googlePriceList.priceItems.filter { priceItem =>
@@ -51,14 +41,17 @@ object GcpPricing {
       }
       sku.length match {
         case 0  => Left(s"No SKUs matched with region $region, resourceFamily $resourceFamily, resourceGroup $resourceGroup, $usageType usageType, and description including $descriptionShouldInclude and notIncluding $descriptionShouldNotInclude in the following price list: ${googlePriceList.priceItems}")
-        case 1 => Right(getPriceFromSku(sku.head))
+        case 1 => getPriceFromSku(sku.head)
         case tooMany => Left(s"$tooMany SKUs matched with region $region, resourceFamily $resourceFamily, resourceGroup $resourceGroup, $usageType usageType, and description including $descriptionShouldInclude and notIncluding $descriptionShouldNotInclude. ${sku.toString} were in the following price list: ${googlePriceList.priceItems}")
       }
     }
 
-    def getPriceFromSku(priceItem: GooglePriceItem): Double = {
+    def getPriceFromSku(priceItem: GooglePriceItem): Either[String, Double] = {
       // ToDo: Currently just takes first, make it take either most recent or make it dependent on when the call ran
-      priceItem.pricingInfo.head.tieredRates.filter(rate => rate.startUsageAmount.asInt == 0).head.nanos.asInt.toDouble / 1000000000
+      priceItem.pricingInfo.headOption match {
+        case None => Left(s"Price Item $priceItem had no pricing info")
+        case Some(head) => Right(head.tieredRates.filter(rate => rate.startUsageAmount.asInt == 0).head.nanos.asInt.toDouble / 1000000000)
+      }
     }
 
     def getComputePrices(computePriceKey: ComputePriceKey): Either[String, ComputePrices] = {
@@ -72,7 +65,7 @@ object GcpPricing {
         getPrice(storagePriceKey.region, ResourceFamily.Storage, ResourceGroup(storagePriceKey.diskType.asString), UsageType.OnDemand, None, Some("Regional"))
     }
 
-    val computePrices: Seq[Either[String, (ComputePriceKey, ComputePrices)]] = computePriceKeys.map { key =>
+    val computePrices: Seq[Either[String, (ComputePriceKey, ComputePrices)]] = computePriceKeys.map{ key =>
       for {
         prices <- getComputePrices(key)
       } yield (key, prices)
@@ -91,3 +84,12 @@ object GcpPricing {
   }
 
 }
+
+final case class PriceList(compute: ComputePriceList, storage: StoragePriceList)
+
+final case class ComputePriceList(computePrices: Map[ComputePriceKey, ComputePrices])
+final case class ComputePriceKey(region: Region, machineType: MachineType, usageType: UsageType)
+final case class ComputePrices(ram: Double, cpu: Double)
+
+final case class StoragePriceList(pricesByDisk: Map[StoragePriceKey, Double])
+final case class StoragePriceKey(region: Region, diskType: DiskType)
