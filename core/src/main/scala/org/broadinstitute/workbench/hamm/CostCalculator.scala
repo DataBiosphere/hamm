@@ -19,6 +19,7 @@ object CostCalculator {
   private def getPriceOfCall(call: Call, priceList: PriceList, startTime: Instant, endTime: Instant): Either[String, Double] = {
     for {
       _ <- if (Status.terminalStatuses.contains(call.status)) Right(()) else Left(s"Call {name} status was ${call.status.asString}.") // not evaluating calls that are in flight
+      // ToDo: handle multiple disks in one call
       diskSize = call.runtimeAttributes.disks.diskSize.asInt + call.runtimeAttributes.bootDiskSizeGb.asInt
       diskType = call.runtimeAttributes.disks.diskType
       usageType = getUsageType(call)

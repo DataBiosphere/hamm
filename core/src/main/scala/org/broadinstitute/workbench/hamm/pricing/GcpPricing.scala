@@ -27,7 +27,7 @@ class GcpPricing[F[_]: Sync](httpClient: Client[F], uri: Uri) {
   def getGcpPriceList(): F[GooglePriceList] = {
     for {
       googlePriceList <- httpClient.expect[GooglePriceList](uri)
-    } yield googlePriceList.filterByResourceFamily(NonEmptyList.of("Compute", "Storage"))
+    } yield googlePriceList
   }
 }
 
@@ -63,13 +63,13 @@ object GcpPricing {
 
     def getComputePrices(computePriceKey: ComputePriceKey): Either[String, ComputePrices] = {
       for {
-        cpuPrice <- getPrice(computePriceKey.region, ResourceFamily("Compute"), ResourceGroup(computePriceKey.machineType.asCPUresourceGroupString), computePriceKey.usageType, Some(computePriceKey.machineType.asDescriptionString), None)
-        ramPrice <- getPrice(computePriceKey.region, ResourceFamily("Compute"), ResourceGroup(computePriceKey.machineType.asRAMresourceGroupString), computePriceKey.usageType, Some(computePriceKey.machineType.asDescriptionString), None)
+        cpuPrice <- getPrice(computePriceKey.region, ResourceFamily.Compute, ResourceGroup(computePriceKey.machineType.asCPUresourceGroupString), computePriceKey.usageType, Some(computePriceKey.machineType.asDescriptionString), None)
+        ramPrice <- getPrice(computePriceKey.region, ResourceFamily.Compute, ResourceGroup(computePriceKey.machineType.asRAMresourceGroupString), computePriceKey.usageType, Some(computePriceKey.machineType.asDescriptionString), None)
       }  yield ComputePrices(cpuPrice, ramPrice)
     }
 
     def getStoragePrice(storagePriceKey: StoragePriceKey): Either[String, Double] = {
-        getPrice(storagePriceKey.region, ResourceFamily("Storage"), ResourceGroup(storagePriceKey.diskType.asString), UsageType.OnDemand, None, Some("Regional"))
+        getPrice(storagePriceKey.region, ResourceFamily.Storage, ResourceGroup(storagePriceKey.diskType.asString), UsageType.OnDemand, None, Some("Regional"))
     }
 
     val computePrices: Seq[Either[String, (ComputePriceKey, ComputePrices)]] = computePriceKeys.map { key =>

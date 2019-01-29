@@ -3,6 +3,7 @@ package org.broadinstitute.workbench.hamm.pricing
 import cats.data.NonEmptyList
 import io.circe.Decoder
 import org.broadinstitute.workbench.hamm.Region
+import org.broadinstitute.workbench.hamm.pricing.UsageType.{COMMIT1YR, ONDEMAND, PREEMPTIBLE}
 
 
 sealed trait UsageType {
@@ -44,13 +45,40 @@ object UsageType {
   }
 }
 
+sealed trait ResourceFamily {
+  def asString: String
+  def asDecodingFailureMessage: String
+}
+
+object ResourceFamily {
+  final val COMPUTE_STRING = "Compute"
+  final val STORAGE_STRING = "Storage"
+  final val COMPUTE_DECODING_FAILURE_MESSAGE = ""
+  final val STORAGE_DECODING_FAILURE_MESSAGE = ""
+
+  val allResourceFamilyStrings = Seq(COMPUTE_STRING, STORAGE_STRING)
+
+  val stringToResourceFamily = Map(
+    COMPUTE_STRING -> Compute,
+    STORAGE_STRING -> Storage
+  )
+
+  case object Compute extends ResourceFamily {
+    def asString = COMPUTE_STRING
+    def asDecodingFailureMessage = ""
+  }
+  case object Storage extends ResourceFamily {
+    def asString = STORAGE_STRING
+    def asDecodingFailureMessage = ""
+  }
+}
+
 
 
 final case class SkuName(asString: String) extends AnyVal
 final case class SkuId(asString: String) extends AnyVal
 final case class SkuDescription(asString: String) extends AnyVal
 final case class ServiceDisplayName(asString: String) extends AnyVal
-final case class ResourceFamily(asString: String) extends AnyVal
 final case class ResourceGroup(asString: String) extends AnyVal
 final case class UsageUnit(asString: String) extends AnyVal
 final case class StartUsageAmount(asInt: Int) extends AnyVal
@@ -65,10 +93,18 @@ final case class Category(serviceDisplayName: ServiceDisplayName, resourceFamily
 final case class GooglePriceItem(name: SkuName, skuId: SkuId, description: SkuDescription, category: Category, regions: List[Region], pricingInfo: List[PricingInfo])
 final case class GooglePriceList(priceItems: List[GooglePriceItem]) {
 
-  def filterByResourceFamily(resourceFamilies: NonEmptyList[String]): GooglePriceList = {
-    GooglePriceList(this.priceItems.filter(priceItems => resourceFamilies.map(resourceFamily=> priceItems.category.resourceFamily.asString.equals(resourceFamily))
-      .reduce((a:Boolean, b:Boolean) => a||b)))
-  }
+//object GooglePriceItem {
+//
+//  case class  RelevantGooglePriceItem(name: SkuName, skuId: SkuId, description: SkuDescription, category: Category, regions: List[Region], pricingInfo: List[PricingInfo]) extends GooglePriceItem
+//  case object IrrelevantGooglePriceItem extends GooglePriceItem
+//}
+
+//final case class GooglePriceList(priceItems: List[GooglePriceItem.RelevantGooglePriceItem]) {
+//
+//  def filterByResourceFamily(resourceFamilies: NonEmptyList[String]): GooglePriceList = {
+//    GooglePriceList(this.priceItems.filter(priceItems => resourceFamilies.map(resourceFamily=> priceItems.category.resourceFamily.asString.equals(resourceFamily))
+//      .reduce((a:Boolean, b:Boolean) => a||b)))
+//  }
 }
 
 
