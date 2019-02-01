@@ -1,10 +1,8 @@
 package org.broadinstitute.workbench.hamm
 package pricing
 
-import cats.data.NonEmptyList
 import cats.effect.Sync
 import cats.implicits._
-import io.circe.Json
 import org.broadinstitute.workbench.hamm.pricing.JsonCodec._
 import org.http4s.Uri
 import org.http4s.circe.CirceEntityDecoder._

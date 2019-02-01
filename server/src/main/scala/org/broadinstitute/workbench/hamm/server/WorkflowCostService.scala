@@ -8,7 +8,6 @@ import cats.implicits._
 import io.chrisdavenport.log4cats.Logger
 import io.grpc.Metadata
 import org.broadinstitute.workbench.hamm.CostCalculator
-import org.broadinstitute.workbench.hamm.pricing.JsonCodec._
 import org.broadinstitute.workbench.hamm.pricing.{GcpPricing, PriceList}
 import org.broadinstitute.workbench.hamm.protos.hamm._
 

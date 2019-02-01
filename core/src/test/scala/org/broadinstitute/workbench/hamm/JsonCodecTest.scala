@@ -1,14 +1,12 @@
 package org.broadinstitute.workbench.hamm
 
+import java.time.Instant
 import io.circe.parser._
 import JsonCodec._
 
-import scala.concurrent.duration.Duration
 
 object JsonCodecTest extends HammTestSuite {
   test("metadataResponseDecoder should be able to decode MetadataResponse"){
-    val formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-    def toInstant(time: String): Instant = formatter.parse(time).toInstant
     val res = for {
       json <- parse(sampleTest)
       r <- json.as[MetadataResponse]

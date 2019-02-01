@@ -1,9 +1,7 @@
 package org.broadinstitute.workbench.hamm.pricing
 
-import minitest.SimpleTestSuite
 import io.circe.parser._
 import JsonCodec._
-import org.broadinstitute.workbench.hamm.pricing.UsageType.{Commit1Yr, OnDemand}
 import org.broadinstitute.workbench.hamm._
 
 object JsonCodecTest extends HammTestSuite {
@@ -28,7 +26,7 @@ object JsonCodecTest extends HammTestSuite {
 
           GooglePriceItem(
             SkuName("services/6F81-5844-456A/skus/9420-2C0D-17F3"),
-            SkuId("9420-2C 0D-17F3"),
+            SkuId("9420-2C0D-17F3"),
             SkuDescription("Preemptible Custom Ram running globally"),
             Category(ServiceDisplayName("Compute Engine"),
               ResourceFamily.Storage,

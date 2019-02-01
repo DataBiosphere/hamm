@@ -1,10 +1,8 @@
 package org.broadinstitute.workbench.hamm
 
-import java.text.SimpleDateFormat
 import java.time.Instant
-
 import cats.implicits._
-import io.circe.{Decoder, DecodingFailure}
+import io.circe.Decoder
 
 object JsonCodec {
   implicit val cpuNumberDecoder: Decoder[CpuNumber] = Decoder.decodeString.emap(s => Either.catchNonFatal(s.toInt).leftMap(_.getMessage).map(CpuNumber))

@@ -1,9 +1,6 @@
 package org.broadinstitute.workbench.hamm.pricing
 
-import cats.data.NonEmptyList
-import io.circe.Decoder
 import org.broadinstitute.workbench.hamm.Region
-import org.broadinstitute.workbench.hamm.pricing.UsageType.{COMMIT1YR, ONDEMAND, PREEMPTIBLE}
 
 
 sealed trait UsageType {
