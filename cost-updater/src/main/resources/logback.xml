@@ -1,0 +1,25 @@
+<configuration>
+  <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>WARN</level>
+    </filter>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>application.log</file>
+
+    <encoder>
+      <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="org.broadinstitute.workbench.ccm" level="INFO" additivity="false">
+    <appender-ref ref="FILE" />
+  </logger>
+
+  <root level="DEBUG">
+    <appender-ref ref="FILE" />
+    <appender-ref ref="Sentry"/>
+  </root>
+
+</configuration>

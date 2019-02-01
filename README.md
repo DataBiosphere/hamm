@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/broadinstitute/cloud-cost-management.png?branch=master)](https://travis-ci.org/broadinstitute/cloud-cost-management)
+[![Build Status](https://travis-ci.com/DataBiosphere/hamm.png?branch=master)](https://travis-ci.org/broadinstitute/cloud-cost-management)
 [![Coverage Status](https://coveralls.io/repos/github/broadinstitute/cloud-cost-management/badge.svg?branch=master)](https://coveralls.io/github/broadinstitute/cloud-cost-management?branch=master)
-TODO: fix these 2 badges
+TODO: fix coverall badge
 
 # Try it out
 * Start gRPC server `sbt server/run`
@@ -30,7 +30,7 @@ curl -k https://localhost/status
 
 # Development
 
-## To build 
+## Using git secrets
 Make sure git secrets is installed:
 ```bash
 brew install git-secrets
@@ -42,18 +42,22 @@ cp -r hooks/ .git/hooks/
 chmod 755 .git/hooks/apply-git-secrets.sh
 ```
 
-TODO
+## Connecting to Cloud SQL locally
+https://codelabs.developers.google.com/codelabs/cloud-postgresql-gke-memegen/#5
+
+* Download cloud_sql_proxy: `curl -o cloud_sql_proxy https://dl.google.com/cloudsql/cloud_sql_proxy.darwin.amd64`
+
+* ./cloud_sql_proxy -instances=[INSTANCE_CONNECTION_NAME]=tcp:5432 -credential_file=key.json &
+
+## Use postgres container for local development
+```bash
+docker run --name postgres -e POSTGRES_PASSWORD=123 -e POSTGRES_USER=ccm -e POSTGRES_DB=cmm -p 5433:5432 -d postgres
+```
 
 
 Maybe TODO
-* Build (google cloud build)
 * Deployment
 - Deploy docker image to google with cloud build
 * Set up automation tests in CI (deploy a server and then run automation tests against that)
-* Dockerize
 * Publish client jar
 * Config sentry DSN
-
-Questions for cromwell team
-1. How cromwell will interact with ccm. Contract
-2. cost components

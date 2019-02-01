@@ -73,10 +73,10 @@ object Settings {
     "-Ywarn-nullary-override", // Warn when non-nullary `def f()' overrides nullary `def f'.
     "-Ywarn-numeric-widen", // Warn when numerics are widened.
     "-Ywarn-unused:implicits", // Warn if an implicit parameter is unused.
-//    "-Ywarn-unused:imports", // Warn if an import selector is not referenced.
+    "-Ywarn-unused:imports", // Warn if an import selector is not referenced.
     "-language:postfixOps",
-    "-language:higherKinds"
-    //  "-Ywarn-value-discard" // Warn when non-Unit expression results are unused.
+    "-language:higherKinds",
+    "-Ywarn-value-discard" // Warn when non-Unit expression results are unused.
   )
 
   //common settings for all sbt subprojects
@@ -92,19 +92,18 @@ object Settings {
       testFrameworks += new TestFramework("minitest.runner.Framework")
     )
 
-
   lazy val serverDockerSetting = List(
     mainClass in Compile := Some("org.broadinstitute.workbench.hamm.server.Main"),
     maintainer := "workbench@broadinstitute.org",
-    dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc10",
-    packageName in Docker := "workbench-firestore/cloud-cost-management", //TODO: use appropriate project name
+    dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc11",
+    packageName in Docker := "workbench-firestore/hamm-server", //TODO: use appropriate project name
     dockerRepository := Some("us.gcr.io"),
     dockerExposedPorts := Seq(9999),
     dockerUpdateLatest := true,
     dockerAlias :=  DockerAlias(
       Some("us.gcr.io"),
       None,
-      "workbench-firestore/cloud-cost-management", //TODO change this to real project container registry
+      "workbench-firestore/hamm-server", //TODO change this to real project container registry
       git.gitHeadCommit.value.map(_.substring(0, 10))
     ),
     dockerCommands ++= List(
@@ -113,4 +112,25 @@ object Settings {
   )
 
   lazy val serverSettings = commonSettings ++ serverDockerSetting
+
+  lazy val costUpdaterDockerSetting = List(
+    mainClass in Compile := Some("org.broadinstitute.workbench.hamm.costUpdater.Main"),
+    maintainer := "workbench@broadinstitute.org",
+    dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc11",
+    packageName in Docker := "workbench-firestore/hamm-cost-updater", //TODO: use appropriate project name
+    dockerRepository := Some("us.gcr.io"),
+    dockerExposedPorts := Seq(9999), //TODO: is this necessary?
+    dockerUpdateLatest := true,
+    dockerAlias :=  DockerAlias(
+      Some("us.gcr.io"),
+      None,
+      "workbench-firestore/hamm-cost-updater", //TODO change this to real project container registry
+      git.gitHeadCommit.value.map(_.substring(0, 10))
+    ),
+    dockerCommands ++= List(
+      ExecCmd("CMD", "export", "CLASSPATH=lib/*jar")
+    )
+  )
+
+  lazy val costUpdaterSettings = commonSettings ++ costUpdaterDockerSetting
 }

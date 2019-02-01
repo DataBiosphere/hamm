@@ -1,7 +1,5 @@
 package org.broadinstitute.workbench.hamm.pricing
 
-import io.circe.Decoder
-
 final case class CpuCost(asDouble: Double) extends AnyVal
 final case class RamCost(asDouble: Double) extends AnyVal
 

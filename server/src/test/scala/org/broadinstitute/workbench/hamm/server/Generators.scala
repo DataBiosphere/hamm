@@ -1,5 +1,4 @@
-package org.broadinstitute.workbench.hamm
-package server
+package org.broadinstitute.workbench.hamm.server
 
 import org.broadinstitute.workbench.hamm.protos.hamm.WorkflowCostRequest
 import org.scalacheck.{Arbitrary, Gen}

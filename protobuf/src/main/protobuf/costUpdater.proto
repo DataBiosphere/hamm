@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package org.broadinstitute.workbench.hamm.protos;
+
+// The cloud-cost-management service definition.
+service CostUpdater {
+    rpc status (CostUpdaterStatusRequest) returns (CostUpdaterStatusResponse) {}
+}
+
+// Have to define a message for method parameters
+message CostUpdaterStatusRequest {
+}
+
+message CostUpdaterStatusResponse {
+    string scalaVersion = 1;
+    string sbtVersion = 2;
+    string gitCommit = 3;
+    string buildTime = 4;
+    string description = 5;
+}
