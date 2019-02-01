@@ -22,19 +22,19 @@ object JsonCodecTest extends HammTestSuite {
             Category(ServiceDisplayName("Compute Engine"),
               ResourceFamily.Compute,
               ResourceGroup("CPU"),
-              UsageType.stringToUsageType("Preemptible")),
-            List(Region.stringToRegion("global")),
+              UsageType.Preemptible),
+            List(Region.Global),
             List(PricingInfo(UsageUnit("h"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(6986000)))))),
 
           GooglePriceItem(
             SkuName("services/6F81-5844-456A/skus/9420-2C0D-17F3"),
-            SkuId("9420-2C0D-17F3"),
+            SkuId("9420-2C 0D-17F3"),
             SkuDescription("Preemptible Custom Ram running globally"),
             Category(ServiceDisplayName("Compute Engine"),
               ResourceFamily.Storage,
               ResourceGroup("SSD"),
-              UsageType.stringToUsageType("Preemptible")),
-            List(Region.stringToRegion("global")),
+              UsageType.Preemptible),
+            List(Region.Global),
             List(PricingInfo(UsageUnit("GiBy.h"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(20931000)))))),
 
           GooglePriceItem(
@@ -44,8 +44,8 @@ object JsonCodecTest extends HammTestSuite {
             Category(ServiceDisplayName("Compute Engine"),
               ResourceFamily.Compute,
               ResourceGroup("RAM"),
-              UsageType.stringToUsageType("OnDemand")),
-            List(Region.stringToRegion("us-west2")),
+              UsageType.OnDemand),
+            List(Region.USwest2),
             List(PricingInfo(UsageUnit("GiBy.h"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(10931000)))))),
 
           //i think this one might be wrong
@@ -56,8 +56,8 @@ object JsonCodecTest extends HammTestSuite {
             Category(ServiceDisplayName("Compute Engine"),
               ResourceFamily.Compute,
               ResourceGroup("RAM"),
-              UsageType.stringToUsageType("Preemptible")),
-            List(Region.stringToRegion("us-west2")),
+              UsageType.Preemptible),
+            List(Region.USwest2),
             List(PricingInfo(UsageUnit("GiBy.h"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(1076000)))))),
 
 
@@ -68,8 +68,8 @@ object JsonCodecTest extends HammTestSuite {
             Category(ServiceDisplayName("Compute Engine"),
               ResourceFamily.Compute,
               ResourceGroup("CPU"),
-              UsageType.stringToUsageType("Preemptible")),
-            List(Region.stringToRegion("us-west2")),
+              UsageType.Preemptible),
+            List(Region.USwest2),
             List(PricingInfo(UsageUnit("h"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(7986000)))))),
 
           GooglePriceItem(
@@ -79,8 +79,8 @@ object JsonCodecTest extends HammTestSuite {
             Category(ServiceDisplayName("Compute Engine"),
               ResourceFamily.Compute,
               ResourceGroup("RAM"),
-              UsageType.stringToUsageType("OnDemand")),
-            List(Region.stringToRegion("us-west2")),
+              UsageType.OnDemand),
+            List(Region.USwest2),
             List(PricingInfo(UsageUnit("GiBy.h"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(1076000)))))),
 
           GooglePriceItem(
@@ -90,8 +90,8 @@ object JsonCodecTest extends HammTestSuite {
             Category(ServiceDisplayName("Compute Engine"),
               ResourceFamily.Compute,
               ResourceGroup("CPU"),
-              UsageType.stringToUsageType("OnDemand")),
-            List(Region.stringToRegion("us-west2")),
+              UsageType.OnDemand),
+            List(Region.USwest2),
             List(PricingInfo(UsageUnit("h"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(37970000)))))),
 
 
@@ -102,8 +102,8 @@ object JsonCodecTest extends HammTestSuite {
             Category(ServiceDisplayName("Compute Engine"),
               ResourceFamily.Storage,
               ResourceGroup("PDStandard"),
-              UsageType.stringToUsageType("OnDemand")),
-            List(Region.stringToRegion("us-west2")),
+              UsageType.OnDemand),
+            List(Region.USwest2),
             List(PricingInfo(UsageUnit("GiBy.mo"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(96000000)))))),
 
           GooglePriceItem(
@@ -113,8 +113,8 @@ object JsonCodecTest extends HammTestSuite {
             Category(ServiceDisplayName("Compute Engine"),
               ResourceFamily.Compute,
               ResourceGroup("CPU"),
-              UsageType.stringToUsageType("Commit1Yr")),
-            List(Region.stringToRegion("northamerica-northeast1")),
+              UsageType.Commit1Yr),
+            List(Region.Northamericanortheast1),
             List(PricingInfo(UsageUnit("h"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(21925000)))))),
 
           GooglePriceItem(
@@ -124,8 +124,8 @@ object JsonCodecTest extends HammTestSuite {
             Category(ServiceDisplayName("Compute Engine"),
               ResourceFamily.Storage,
               ResourceGroup("SSD"),
-              UsageType.stringToUsageType("OnDemand")),
-            List(Region.stringToRegion("us-west2")),
+              UsageType.OnDemand),
+            List(Region.USwest2),
             List(PricingInfo(UsageUnit("GiBy.mo"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(204000000)))))),
 
           GooglePriceItem(
@@ -135,8 +135,8 @@ object JsonCodecTest extends HammTestSuite {
             Category(ServiceDisplayName("Compute Engine"),
               ResourceFamily.Compute,
               ResourceGroup("CPU"),
-              UsageType.stringToUsageType("Preemptible")),
-            List(Region.stringToRegion("australia-southeast1")),
+              UsageType.Preemptible),
+            List(Region.Australiasoutheast1),
             List(PricingInfo(UsageUnit("h"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(8980000))))))))
 
       assertEquals(r, expectedResponse)
@@ -150,11 +150,11 @@ object JsonCodecTest extends HammTestSuite {
     val res = for {
       json <- parse(TestData.sampleGooglePriceJson)
       googlePriceList <- json.as[GooglePriceList]
-      r <- GcpPricing.getPriceList(googlePriceList, List(ComputePriceKey(region, machineType, UsageType.Preemptible)), List(StoragePriceKey(region, DiskType.SSD)))
+      r <- GcpPricing.parsePriceList(googlePriceList, List(ComputePriceKey(region, machineType, UsageType.Preemptible)), List(StoragePriceKey(region, DiskType.SSD)))
     } yield {
       val expectedResponse = PriceList(
-        ComputePriceList(Map(ComputePriceKey(Region.Uswest2,MachineType.Custom,UsageType.Preemptible) -> ComputePrices(0.007986,0.001076))),
-        StoragePriceList(Map(StoragePriceKey(Region.Uswest2,DiskType.SSD) -> .0002794520547945205)))
+        ComputePriceList(Map(ComputePriceKey(Region.USwest2,MachineType.Custom,UsageType.Preemptible) -> ComputePrices(0.007986,0.001076))),
+        StoragePriceList(Map(StoragePriceKey(Region.USwest2,DiskType.SSD) -> .0002794520547945205)))
       assertEquals(r, expectedResponse)
     }
     res.fold[Unit](e => throw e, identity)

@@ -24,7 +24,7 @@ class GcpPricing[F[_]: Sync](httpClient: Client[F], uri: Uri) {
 
 object GcpPricing {
 
-  def getPriceList(googlePriceList: GooglePriceList, computePriceKeys: List[ComputePriceKey], storagePriceKeys: List[StoragePriceKey]): Either[Throwable, PriceList] = {
+  def parsePriceList(googlePriceList: GooglePriceList, computePriceKeys: List[ComputePriceKey], storagePriceKeys: List[StoragePriceKey]): Either[Throwable, PriceList] = {
 
     def getPrice(region: Region, resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType, descriptionShouldInclude: Option[String], descriptionShouldNotInclude: Option[String]): Either[String, Double] = {
       val sku = googlePriceList.priceItems.filter { priceItem =>
@@ -71,7 +71,7 @@ object GcpPricing {
       } yield (key, prices)
     }
 
-    def storagePrices = storagePriceKeys.map { key =>
+    val storagePrices = storagePriceKeys.map { key =>
       for {
         price <- getStoragePrice(key)
       } yield (key, price / (24 * 365 / 12)) // price we get is per month, we want per hour

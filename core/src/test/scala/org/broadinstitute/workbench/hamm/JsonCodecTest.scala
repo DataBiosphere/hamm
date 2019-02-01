@@ -35,7 +35,7 @@ object JsonCodecTest extends HammTestSuite {
                ExecutionEvent(ExecutionEventDescription("PreparingJob"),             Instant.parse("2019-01-02T22:10:13.979Z"),       Instant.parse("2019-01-02T22:11:02.874Z"))),
           false,
           true,
-          Region.Uscentral1,
+          Region.UScentral1,
           Status.Done,
           MachineType.F1Micro,
           BackEnd.Jes,

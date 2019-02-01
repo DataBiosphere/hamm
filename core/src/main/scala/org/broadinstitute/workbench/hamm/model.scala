@@ -79,7 +79,7 @@ sealed trait Region {
 }
 object Region {
   private final val GLOBAL = "global"
-  private final val US = "us"
+  private final val US_STRING = "us"
   private final val USCENTRAL1 = "us-central1"
   private final val USEAST1 = "us-east1"
   private final val USWEST4 = "us-east4"
@@ -106,12 +106,12 @@ object Region {
   //ToDo: string might be in the format "us-central1-c" from Cromwell, handle those cases too
   val stringToRegion = Map(
       GLOBAL -> Global,
-      US -> Us,
-      USCENTRAL1 -> Uscentral1,
-      USEAST1 -> Useast1,
-      USWEST4 -> Uswest4,
-      USWEST1 -> Uswest1,
-      USWEST2 -> Uswest2,
+      US_STRING -> US,
+      USCENTRAL1 -> UScentral1,
+      USEAST1 -> USeast1,
+      USWEST4 -> USwest4,
+      USWEST1 -> USwest1,
+      USWEST2 -> USwest2,
       EUROPE -> Europe,
       EUROPEWEST1 -> Europewest1,
       EUROPEWEST2 -> Europewest2,
@@ -133,22 +133,22 @@ object Region {
   case object Global extends Region {
     def asString = GLOBAL
   }
-  case object Us extends Region {
-    def asString = US
+  case object US extends Region {
+    def asString = US_STRING
   }
-  case object Uscentral1 extends Region {
+  case object UScentral1 extends Region {
     def asString = USCENTRAL1
   }
-  case object Useast1 extends Region {
+  case object USeast1 extends Region {
     def asString = USEAST1
   }
-  case object Uswest4 extends Region {
+  case object USwest4 extends Region {
     def asString = USWEST4
   }
-  case object Uswest1 extends Region {
+  case object USwest1 extends Region {
     def asString = USWEST1
   }
-  case object Uswest2 extends Region {
+  case object USwest2 extends Region {
     def asString = USWEST2
   }
   case object Europe extends Region {
@@ -287,9 +287,12 @@ sealed trait BackEnd {
   def asString: String
 }
 
+// Leaving this here for now - "backend" is something user specified so we can't be sure it'll
+//   be either JES or PAPIV2 - currently we're calculating without taking PAPI versions into account
+//   but in the future we might want to find a better way to differentiate these
 object BackEnd {
   private final val JES = "JES"
-  private final val PAPIV2 = "PAPIV2" //???
+  private final val PAPIV2 = "PAPIv2"
 
   val stringToBackEnd = Map(
     JES -> Jes,

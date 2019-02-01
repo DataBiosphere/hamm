@@ -12,12 +12,12 @@ import org.broadinstitute.workbench.hamm.pricing.JsonCodec._
 import org.broadinstitute.workbench.hamm.pricing.{GcpPricing, PriceList}
 import org.broadinstitute.workbench.hamm.protos.hamm._
 
-class HammGrpcImp[F[_]: Sync: Logger](pricing: GcpPricing[F]) extends HammFs2Grpc[F] {
+class WorkflowCostService[F[_]: Sync: Logger](pricing: GcpPricing[F]) extends HammFs2Grpc[F] {
   override def getWorkflowCost(request: WorkflowCostRequest, clientHeaders: Metadata): F[WorkflowCostResponse] = {
     for {
       //cromwellMetadata: MetadataResponse <- ???
       rawPriceList <- pricing.getGcpPriceList()
-      priceList <-  Sync[F].rethrow(Sync[F].delay[Either[Throwable, PriceList]](GcpPricing.getPriceList(rawPriceList, List(), List())))
+      priceList <-  Sync[F].rethrow(Sync[F].delay[Either[Throwable, PriceList]](GcpPricing.parsePriceList(rawPriceList, List(), List())))
       result <- Sync[F].rethrow(Sync[F].delay[Either[Throwable, Double]](CostCalculator.getPriceOfWorkflow(sampleMetaData, priceList)))
     } yield {
       WorkflowCostResponse(result)
@@ -40,7 +40,7 @@ class HammGrpcImp[F[_]: Sync: Logger](pricing: GcpPricing[F]) extends HammFs2Grp
       List(),
       false,
       true,
-      Region.Uscentral1,
+      Region.UScentral1,
       Status.Done,
       MachineType.F1Micro,
       BackEnd.Jes,

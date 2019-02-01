@@ -36,7 +36,7 @@ object CostCalculator {
       // adjust the call duration to account for preemptibility - if a VM preempted less than 10 minutes after it is created, user incurs no cost
       val adjustedCallDurationInSeconds = if (usageType == UsageType.Preemptible && wasPreempted && callDuration.toSeconds < (10 * 60)) 0 else callDuration.toSeconds
       val cpuCost = adjustedCallDurationInSeconds * computePrices.cpu
-      val diskGbHours = call.runtimeAttributes.disks.diskSize.asInt * (adjustedCallDurationInSeconds)
+      val diskGbHours = diskSize * (adjustedCallDurationInSeconds)
       val diskCost = diskGbHours * storagePrice
       val memCost = adjustedCallDurationInSeconds * computePrices.ram
       cpuCost + diskCost + memCost
@@ -55,7 +55,7 @@ object CostCalculator {
   }
 
   private def getCallDuration(call: Call, cromwellStartTime: Instant, cromwellEndTime: Instant): FiniteDuration = {
-    val papiV2 = call.backend.asString.equals("PAPIv2")
+    //val papiV2 = call.backend.asString.equals("PAPIv2")
 
     lazy val getCromwellStart =  {
       call.executionEvents.find(event => event.description.asString.equals("start")) match {
@@ -71,21 +71,15 @@ object CostCalculator {
       }
     }
 
-    val startTime = if (papiV2) {
-      val startOption = call.executionEvents.find(event => event.description.asString.contains("Preparing Job"))
-      startOption match {
+    val startTime = call.executionEvents.find(event => event.description.asString.contains("Preparing Job")) match {
         case Some(event) => event.startTime
         case None => getCromwellStart
       }
-    } else getCromwellStart
 
-    val endTime = if (papiV2) {
-      val endOption = call.executionEvents.find(event => event.description.asString.contains("Worker Released"))
-      endOption match {
+    val endTime = call.executionEvents.find(event => event.description.asString.contains("Worker Released")) match {
         case Some(event) => event.endTime
         case None => getCromwellEnd
       }
-    } else getCromwellEnd
 
     val elapsed = Duration.between(startTime, endTime).getSeconds
     val seconds = if (elapsed >= 60) elapsed else 60
