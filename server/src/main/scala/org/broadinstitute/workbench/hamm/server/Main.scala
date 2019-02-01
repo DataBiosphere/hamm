@@ -22,7 +22,7 @@ object Main extends IOApp {
       _ <- Stream.eval(logger.info("Starting Cloud Cost Management Grpc server"))
       httpClient <- BlazeClientBuilder[IO](global).stream
       pricing = new GcpPricing[IO](httpClient, appConfig.pricingGoogleUrl)
-      ccmService: ServerServiceDefinition = HammFs2Grpc.bindService(new HammGrpcImp[IO](pricing))
+      ccmService: ServerServiceDefinition = HammFs2Grpc.bindService(new WorkflowCostService[IO](pricing))
       _ <- ServerBuilder.forPort(9999)
         .addService(ccmService)
         .addService(ProtoReflectionService.newInstance())
