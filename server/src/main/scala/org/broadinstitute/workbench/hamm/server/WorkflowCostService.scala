@@ -7,8 +7,8 @@ import cats.effect.Sync
 import cats.implicits._
 import io.chrisdavenport.log4cats.Logger
 import io.grpc.Metadata
+import org.broadinstitute.workbench.hamm.dao.GooglePriceListDAO
 import org.broadinstitute.workbench.hamm.model._
-import org.broadinstitute.workbench.hamm.dao.{GooglePriceListDAO, PriceList}
 import org.broadinstitute.workbench.hamm.protos.hamm._
 
 class WorkflowCostService[F[_]: Sync: Logger](pricing: GooglePriceListDAO[F]) extends HammFs2Grpc[F] {
