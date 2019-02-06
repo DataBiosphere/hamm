@@ -1,11 +1,13 @@
-package org.broadinstitute.workbench.hamm
+package org.broadinstitute.workbench.hamm.model
 
 import java.time.Instant
+
 import io.circe.parser._
-import JsonCodec._
+import org.broadinstitute.workbench.hamm.HammTestSuite
+import org.broadinstitute.workbench.hamm.model.CromwellMetadataJsonCodec._
 
 
-object JsonCodecTest extends HammTestSuite {
+object CromwellMetadataJsonCodecTest extends HammTestSuite {
   test("metadataResponseDecoder should be able to decode MetadataResponse"){
     val res = for {
       json <- parse(sampleTest)

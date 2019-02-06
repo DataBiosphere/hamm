@@ -9,6 +9,7 @@ import cats.data._
 import cats.implicits._
 import io.circe._
 import io.circe.syntax._
+import org.broadinstitute.workbench.hamm.model._
 import org.postgresql.util.PGobject
 
 package object db {

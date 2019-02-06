@@ -1,10 +1,9 @@
-package org.broadinstitute.workbench.hamm
-package pricing
+package org.broadinstitute.workbench.hamm.model
 
 import io.circe.{Decoder, Json}
 
 //TODO: this needs to be updated to use https://cloud.google.com/billing/v1/how-tos/catalog-api
-object JsonCodec {
+object GooglePriceListJsonCodec {
 
   implicit val categoryDecoder: Decoder[Category] = Decoder.instance { cursor =>
     for {

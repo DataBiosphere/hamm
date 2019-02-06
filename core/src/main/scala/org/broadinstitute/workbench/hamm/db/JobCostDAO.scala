@@ -6,9 +6,9 @@ import cats.implicits._
 import cats.effect.Async
 import doobie._
 import doobie.implicits._
-import org.broadinstitute.workbench.hamm.WorkflowId
 import JobCostDAO._
 import doobie.free.connection
+import org.broadinstitute.workbench.hamm.model._
 
 class JobCostDAO[F[_]: Async](transactor: Transactor[F]) {
   val createTable: F[Unit] = {

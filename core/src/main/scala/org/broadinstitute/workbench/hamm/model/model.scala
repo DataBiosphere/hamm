@@ -1,9 +1,87 @@
-package org.broadinstitute.workbench.hamm
+package org.broadinstitute.workbench.hamm.model
 
 import java.time.Instant
-
-
 import java.util.UUID
+
+
+sealed trait UsageType {
+  def asString: String
+  def asDescriptionString: String
+}
+
+object UsageType {
+  private final val PREEMPTIBLE = "Preemptible"
+  private final val ONDEMAND = "OnDemand"
+  private final val COMMIT1YR = "Commit1Yr"
+
+  private final val PREEMPTIBLE_DESCRIPTION_STRING = "Preemptible"
+  private final val ONDEMAND_DESCRIPTION_STRING = ""
+  private final val COMMIT1YR_DESCRIPTION_STRING = "Commitment v1:"
+
+  val stringToUsageType = Map(
+    PREEMPTIBLE -> Preemptible,
+    ONDEMAND -> OnDemand,
+    COMMIT1YR -> Commit1Yr
+  )
+
+  case object Preemptible extends UsageType {
+    def asString = PREEMPTIBLE
+    def asDescriptionString: String = PREEMPTIBLE_DESCRIPTION_STRING
+  }
+
+  case object OnDemand extends UsageType {
+    def asString = ONDEMAND
+    def asDescriptionString: String = ONDEMAND_DESCRIPTION_STRING
+  }
+
+  case object Commit1Yr extends UsageType {
+    def asString = COMMIT1YR
+    def asDescriptionString: String = COMMIT1YR_DESCRIPTION_STRING
+  }
+}
+
+sealed trait ResourceFamily {
+  def asString: String
+}
+
+object ResourceFamily {
+  private final val COMPUTE_STRING = "Compute"
+  private final val STORAGE_STRING = "Storage"
+
+
+  val stringToResourceFamily = Map(
+    COMPUTE_STRING -> Compute,
+    STORAGE_STRING -> Storage
+  )
+
+  case object Compute extends ResourceFamily {
+    def asString = COMPUTE_STRING
+  }
+  case object Storage extends ResourceFamily {
+    def asString = STORAGE_STRING
+  }
+}
+
+
+
+final case class SkuName(asString: String) extends AnyVal
+final case class SkuId(asString: String) extends AnyVal
+final case class SkuDescription(asString: String) extends AnyVal
+final case class ServiceDisplayName(asString: String) extends AnyVal
+final case class ResourceGroup(asString: String) extends AnyVal
+final case class UsageUnit(asString: String) extends AnyVal
+final case class StartUsageAmount(asInt: Int) extends AnyVal
+final case class CurrencyCode(asString: String) extends AnyVal
+final case class Units(asInt: Int) extends AnyVal
+final case class Nanos(asInt: Int) extends AnyVal
+
+
+final case class TieredRate(startUsageAmount: StartUsageAmount, currencyCode: CurrencyCode, units: Units, nanos: Nanos)
+final case class PricingInfo(usageUnit: UsageUnit, tieredRates: List[TieredRate])
+final case class Category(serviceDisplayName: ServiceDisplayName, resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType)
+final case class GooglePriceItem(name: SkuName, skuId: SkuId, description: SkuDescription, category: Category, regions: List[Region], pricingInfo: List[PricingInfo])
+final case class GooglePriceList(priceItems: List[GooglePriceItem])
+
 
 final case class Cpu(asString: String) extends AnyVal
 sealed trait MachineType {
@@ -34,10 +112,10 @@ object MachineType {
   private final val G1SMALL_METADATA_STRING = "g1-small"
 
   val stringToMachineType = Map(
-      CUSTOM_METADATA_STRING -> Custom,
-      N1STANDARD_METADATA_STRING -> N1Standard,
-      F1MICRO_METADATA_STRING -> F1Micro,
-      G1SMALL_METADATA_STRING -> G1Small
+    CUSTOM_METADATA_STRING -> Custom,
+    N1STANDARD_METADATA_STRING -> N1Standard,
+    F1MICRO_METADATA_STRING -> F1Micro,
+    G1SMALL_METADATA_STRING -> G1Small
   )
 
 
@@ -105,30 +183,30 @@ object Region {
 
   //ToDo: string might be in the format "us-central1-c" from Cromwell, handle those cases too
   val stringToRegion = Map(
-      GLOBAL -> Global,
-      US_STRING -> US,
-      USCENTRAL1 -> UScentral1,
-      USEAST1 -> USeast1,
-      USWEST4 -> USwest4,
-      USWEST1 -> USwest1,
-      USWEST2 -> USwest2,
-      EUROPE -> Europe,
-      EUROPEWEST1 -> Europewest1,
-      EUROPEWEST2 -> Europewest2,
-      EUROPEWEST3 -> Europewest3,
-      EUROPEWEST4 -> Europewest4,
-      EUROPENORTH1 -> Europenorth1,
-      NORTHAMERICANORTHEAST1 -> Northamericanortheast1,
-      ASIA -> Asia,
-      ASIAEAST -> Asiaeast,
-      ASIAEAST1 -> Asiaeast1,
-      ASIAEAST2 -> Asiaeast2,
-      ASIANORTHEAST -> Asianortheast,
-      ASIASOUTHEAST -> Asiasoutheast,
-      AUSTRALIASOUTHEAST1 -> Australiasoutheast1,
-      AUSTRALIA -> Australia,
-      SOUTHAMERICAEAST1 -> Southamericaeast1,
-      ASIASOUTH1 -> Asiasouth1 )
+    GLOBAL -> Global,
+    US_STRING -> US,
+    USCENTRAL1 -> UScentral1,
+    USEAST1 -> USeast1,
+    USWEST4 -> USwest4,
+    USWEST1 -> USwest1,
+    USWEST2 -> USwest2,
+    EUROPE -> Europe,
+    EUROPEWEST1 -> Europewest1,
+    EUROPEWEST2 -> Europewest2,
+    EUROPEWEST3 -> Europewest3,
+    EUROPEWEST4 -> Europewest4,
+    EUROPENORTH1 -> Europenorth1,
+    NORTHAMERICANORTHEAST1 -> Northamericanortheast1,
+    ASIA -> Asia,
+    ASIAEAST -> Asiaeast,
+    ASIAEAST1 -> Asiaeast1,
+    ASIAEAST2 -> Asiaeast2,
+    ASIANORTHEAST -> Asianortheast,
+    ASIASOUTHEAST -> Asiasoutheast,
+    AUSTRALIASOUTHEAST1 -> Australiasoutheast1,
+    AUSTRALIA -> Australia,
+    SOUTHAMERICAEAST1 -> Southamericaeast1,
+    ASIASOUTH1 -> Asiasouth1 )
 
   case object Global extends Region {
     def asString = GLOBAL
@@ -269,7 +347,7 @@ object Status {
   }
 
   case object NotStarted extends Status {
-     def asString = NOTSTARTED
+    def asString = NOTSTARTED
   }
 
   case object Starting extends Status {
