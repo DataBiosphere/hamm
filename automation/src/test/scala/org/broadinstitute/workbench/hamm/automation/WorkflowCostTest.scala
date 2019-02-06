@@ -6,6 +6,7 @@
 //import io.grpc.Metadata
 //import minitest.laws.Checkers
 //import org.broadinstitute.workbench.hamm.protos.hamm._
+//import org.lyranthe.fs2_grpc.java_runtime.implicits._
 //import server.Generators._
 //
 //object WorkflowCostTest extends HammTestSuite with Checkers {
@@ -22,11 +23,8 @@
 //      ccmStub = HammFs2Grpc.stub[IO](managedChannel)
 //      response <- Stream.eval(ccmStub.status(StatusRequest(), defaultMetaData))
 //    } yield {
-//      println(response.toString)
 //      assert(response.sbtVersion.contains("1.2.8"))
 //    }
-//    println("DEFAULTMETADATA: " + defaultMetaData)
-//    println("managedChannelResource: " + TestDependencies.managedChannelResource.toString)
 //
 //    res.compile.last.unsafeRunSync().get
 //  }
