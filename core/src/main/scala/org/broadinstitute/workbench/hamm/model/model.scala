@@ -423,3 +423,12 @@ final case class RuntimeAttributes(cpuNumber: CpuNumber,
                                    preemptibleAttemptsAllowed: PreemptibleAttemptsAllowed)
 
 final case class Disk(diskName: DiskName, diskSize: DiskSize, diskType: DiskType)
+
+final case class PriceList(compute: ComputePriceList, storage: StoragePriceList)
+
+final case class ComputePriceList(computePrices: Map[ComputePriceKey, ComputePrices])
+final case class ComputePriceKey(region: Region, machineType: MachineType, usageType: UsageType)
+final case class ComputePrices(ram: Double, cpu: Double)
+
+final case class StoragePriceList(pricesByDisk: Map[StoragePriceKey, Double])
+final case class StoragePriceKey(region: Region, diskType: DiskType)
