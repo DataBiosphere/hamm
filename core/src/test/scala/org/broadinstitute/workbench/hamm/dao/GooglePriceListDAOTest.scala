@@ -2,7 +2,6 @@ package org.broadinstitute.workbench.hamm.dao
 
 import io.circe.parser._
 import org.broadinstitute.workbench.hamm._
-import org.broadinstitute.workbench.hamm.dao.GooglePriceListDAO
 import org.broadinstitute.workbench.hamm.model.GooglePriceListJsonCodec._
 import org.broadinstitute.workbench.hamm.model._
 
