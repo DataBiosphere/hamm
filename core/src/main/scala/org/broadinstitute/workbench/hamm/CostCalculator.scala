@@ -1,10 +1,10 @@
 package org.broadinstitute.workbench.hamm
-
 import java.time.{Duration, Instant}
 import java.util.concurrent.TimeUnit
 
 import cats.data.NonEmptyList
 import cats.implicits._
+import org.broadinstitute.workbench.hamm.dao._
 import org.broadinstitute.workbench.hamm.model._
 
 import scala.concurrent.duration.FiniteDuration
