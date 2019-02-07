@@ -13,7 +13,7 @@ object DummyDbTransactor {
 
   def transactor(config: SqlConfig = dbConfig)(implicit cs: ContextShift[IO]): Transactor[IO] = Transactor.fromDriverManager[IO](
     "org.postgresql.Driver",                        // driver classname
-    s"jdbc:postgresql://127.0.0.1:${config.port}/hamm",   // connect URL
+    s"jdbc:postgresql://localhost:${config.port}/hamm",   // connect URL
     config.user.asString,                                   // username
     config.password.asString                                     // password
   )

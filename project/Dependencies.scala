@@ -7,6 +7,7 @@ object Dependencies {
   val grpcNettyVersion = "1.18.0"
   val cirisVersion = "0.12.1"
   val doobieVersion = "0.7.0-M2"
+  val scalikejdbcVersion = "3.3.2"
 
   val common = List(
     "io.grpc" % "grpc-netty" % grpcNettyVersion,
@@ -20,9 +21,12 @@ object Dependencies {
     "com.github.pureconfig" %% "pureconfig" % "0.10.1",
     "io.sentry" % "sentry-logback" % "1.7.16", // see doc https://docs.sentry.io/clients/java/modules/logback/
     "org.tpolecat" %% "doobie-core" % doobieVersion,
-    "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
-    "org.tpolecat" %% "doobie-hikari"    % doobieVersion,
-    "org.tpolecat" %% "doobie-specs2"   % doobieVersion % "test"
+    "org.tpolecat" %% "doobie-postgres" % doobieVersion,
+    "org.tpolecat" %% "doobie-hikari" % doobieVersion,
+    "org.tpolecat" %% "doobie-specs2" % doobieVersion % "test",
+    "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
+    "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
+    "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % "test"
   )
 
   val automation = common ++ List(
