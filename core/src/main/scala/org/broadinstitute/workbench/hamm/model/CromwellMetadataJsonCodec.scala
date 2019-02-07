@@ -1,10 +1,11 @@
-package org.broadinstitute.workbench.hamm
+package org.broadinstitute.workbench.hamm.model
 
 import java.time.Instant
+
 import cats.implicits._
 import io.circe.Decoder
 
-object JsonCodec {
+object CromwellMetadataJsonCodec {
   implicit val cpuNumberDecoder: Decoder[CpuNumber] = Decoder.decodeString.emap(s => Either.catchNonFatal(s.toInt).leftMap(_.getMessage).map(CpuNumber))
   implicit val bootDiskSizeGbDecoder: Decoder[BootDiskSizeGb] = Decoder.decodeString.emap(x => Either.catchNonFatal(x.toInt).leftMap(_.getMessage).map(BootDiskSizeGb))
 

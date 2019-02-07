@@ -2,7 +2,8 @@ package org.broadinstitute.workbench.hamm
 
 import java.time.Instant
 
-import org.broadinstitute.workbench.hamm.db.{CallFqn, JobCost, Label, WorkflowDB}
+import org.broadinstitute.workbench.hamm.db._
+import org.broadinstitute.workbench.hamm.model._
 import org.scalacheck.{Arbitrary, Gen}
 
 object Generators {

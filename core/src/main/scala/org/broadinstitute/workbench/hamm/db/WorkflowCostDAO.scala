@@ -8,6 +8,8 @@ import doobie._
 import doobie.free.connection
 import doobie.implicits._
 import org.broadinstitute.workbench.hamm.db.WorkflowCostDAO._
+import org.broadinstitute.workbench.hamm.model._
+
 
 class WorkflowCostDAO[F[_]: Async](transactor: Transactor[F]) {
   val createTable: F[Unit] = {

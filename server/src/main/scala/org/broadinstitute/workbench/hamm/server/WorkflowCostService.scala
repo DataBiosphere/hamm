@@ -7,16 +7,16 @@ import cats.effect.Sync
 import cats.implicits._
 import io.chrisdavenport.log4cats.Logger
 import io.grpc.Metadata
-import org.broadinstitute.workbench.hamm.CostCalculator
-import org.broadinstitute.workbench.hamm.pricing.{GcpPricing, PriceList}
+import org.broadinstitute.workbench.hamm.dao.GooglePriceListDAO
+import org.broadinstitute.workbench.hamm.model._
 import org.broadinstitute.workbench.hamm.protos.hamm._
 
-class WorkflowCostService[F[_]: Sync: Logger](pricing: GcpPricing[F]) extends HammFs2Grpc[F] {
+class WorkflowCostService[F[_]: Sync: Logger](pricing: GooglePriceListDAO[F]) extends HammFs2Grpc[F] {
   override def getWorkflowCost(request: WorkflowCostRequest, clientHeaders: Metadata): F[WorkflowCostResponse] = {
     for {
       //cromwellMetadata: MetadataResponse <- ???
       rawPriceList <- pricing.getGcpPriceList()
-      priceList <-  Sync[F].rethrow(Sync[F].delay[Either[Throwable, PriceList]](GcpPricing.parsePriceList(rawPriceList, List(), List())))
+      priceList <-  Sync[F].rethrow(Sync[F].delay[Either[Throwable, PriceList]](GooglePriceListDAO.parsePriceList(rawPriceList, List(), List())))
       result <- Sync[F].rethrow(Sync[F].delay[Either[Throwable, Double]](CostCalculator.getPriceOfWorkflow(sampleMetaData, priceList)))
     } yield {
       WorkflowCostResponse(result)

@@ -1,16 +1,16 @@
-package org.broadinstitute.workbench.hamm
-package pricing
+package org.broadinstitute.workbench.hamm.dao
 
 import cats.effect.Sync
 import cats.implicits._
-import org.broadinstitute.workbench.hamm.pricing.JsonCodec._
+import org.broadinstitute.workbench.hamm.model.GooglePriceListJsonCodec._
+import org.broadinstitute.workbench.hamm.model._
 import org.http4s.Uri
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.client.Client
 
 
 
-class GcpPricing[F[_]: Sync](httpClient: Client[F], uri: Uri) {
+class GooglePriceListDAO[F[_]: Sync](httpClient: Client[F], uri: Uri) {
 
   def getGcpPriceList(): F[GooglePriceList] = {
     for {
@@ -20,7 +20,7 @@ class GcpPricing[F[_]: Sync](httpClient: Client[F], uri: Uri) {
 }
 
 
-object GcpPricing {
+object GooglePriceListDAO {
 
   def parsePriceList(googlePriceList: GooglePriceList, computePriceKeys: List[ComputePriceKey], storagePriceKeys: List[StoragePriceKey]): Either[Throwable, PriceList] = {
 
@@ -82,12 +82,3 @@ object GcpPricing {
   }
 
 }
-
-final case class PriceList(compute: ComputePriceList, storage: StoragePriceList)
-
-final case class ComputePriceList(computePrices: Map[ComputePriceKey, ComputePrices])
-final case class ComputePriceKey(region: Region, machineType: MachineType, usageType: UsageType)
-final case class ComputePrices(ram: Double, cpu: Double)
-
-final case class StoragePriceList(pricesByDisk: Map[StoragePriceKey, Double])
-final case class StoragePriceKey(region: Region, diskType: DiskType)

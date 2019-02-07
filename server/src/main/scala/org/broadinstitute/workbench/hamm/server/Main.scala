@@ -9,8 +9,9 @@ import org.lyranthe.fs2_grpc.java_runtime.implicits._
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 import io.grpc.protobuf.services.ProtoReflectionService
 import fs2._
-import org.broadinstitute.workbench.hamm.pricing.GcpPricing
+import org.broadinstitute.workbench.hamm.dao.GooglePriceListDAO
 import org.http4s.client.blaze._
+
 import scala.concurrent.ExecutionContext.Implicits.global //use better thread pool
 
 object Main extends IOApp {
@@ -21,7 +22,7 @@ object Main extends IOApp {
       appConfig <- Stream.fromEither[IO](Config.appConfig)
       _ <- Stream.eval(logger.info("Starting Cloud Cost Management Grpc server"))
       httpClient <- BlazeClientBuilder[IO](global).stream
-      pricing = new GcpPricing[IO](httpClient, appConfig.pricingGoogleUrl)
+      pricing = new GooglePriceListDAO[IO](httpClient, appConfig.pricingGoogleUrl)
       ccmService: ServerServiceDefinition = HammFs2Grpc.bindService(new WorkflowCostService[IO](pricing))
       _ <- ServerBuilder.forPort(9999)
         .addService(ccmService)

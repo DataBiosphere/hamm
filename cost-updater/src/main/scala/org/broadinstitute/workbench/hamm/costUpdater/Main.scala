@@ -11,8 +11,9 @@ import io.grpc.protobuf.services.ProtoReflectionService
 import fs2._
 import fs2.concurrent.Queue
 import org.broadinstitute.dsde.workbench.google2.{Event, GoogleSubscriber}
+import org.broadinstitute.workbench.hamm.model._
+import org.broadinstitute.workbench.hamm.model.CromwellMetadataJsonCodec.metadataResponseDecoder
 import org.broadinstitute.workbench.hamm.protos.costUpdater._
-import JsonCodec._
 
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =  {
