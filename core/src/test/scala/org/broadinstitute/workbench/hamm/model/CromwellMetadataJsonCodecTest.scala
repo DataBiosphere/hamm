@@ -1,6 +1,7 @@
 package org.broadinstitute.workbench.hamm.model
 
 import java.time.Instant
+import java.util.UUID
 
 import io.circe.parser._
 import org.broadinstitute.workbench.hamm.HammTestSuite
@@ -41,7 +42,10 @@ object CromwellMetadataJsonCodecTest extends HammTestSuite {
           BackEnd.Jes,
           Attempt(1))),
         Instant.parse("2019-01-02T22:10:07.088Z"),
-        Instant.parse("2019-01-02T22:14:47.266Z")
+        Instant.parse("2019-01-02T22:14:47.266Z"),
+        WorkflowCollectionId(UUID.fromString("2d3fd356-e3be-4953-92f1-60af623e6fa5")),
+        Map("cromwell-workflow-id" -> "cromwell-0942e6dc-2a2e-4912-86e2-b91fdaf06c44",
+          "caas-collection-name" -> "2d3fd356-e3be-4953-92f1-60af623e6fa5")
       )
       assertEquals(r, expectedResponse)
     }
@@ -60,7 +64,7 @@ object CromwellMetadataJsonCodecTest extends HammTestSuite {
       |        "attempt": 1,
       |        "backend": "JES",
       |        "backendLabels": {
-      |          "cromwell-workflow-id": "cromwell-c5b6ee46-1f09-4830-91a8-fd814866d664",
+      |          "cromwell-workflow-id": "cromwell-0942e6dc-2a2e-4912-86e2-b91fdaf06c44",
       |          "wdl-task-name": "echo-files"
       |        },
       |        "backendLogs": {
@@ -215,7 +219,7 @@ object CromwellMetadataJsonCodecTest extends HammTestSuite {
       |        },
       |        "jobId": "operations/EPPx-oSBLRjSnvm_gou-nUUghYCXpboJKg9wcm9kdWN0aW9uUXVldWU",
       |        "labels": {
-      |          "cromwell-workflow-id": "cromwell-c5b6ee46-1f09-4830-91a8-fd814866d664",
+      |          "cromwell-workflow-id": "cromwell-0942e6dc-2a2e-4912-86e2-b91fdaf06c44",
       |          "wdl-task-name": "echo_files"
       |        },
       |        "outputs": {
@@ -246,7 +250,7 @@ object CromwellMetadataJsonCodecTest extends HammTestSuite {
       |    ]
       |  },
       |  "end": "2019-01-02T22:14:47.266Z",
-      |  "id": "c5b6ee46-1f09-4830-91a8-fd814866d664",
+      |  "id": "0942e6dc-2a2e-4912-86e2-b91fdaf06c44",
       |  "inputs": {
       |    "echo_strings.echo_files.input1": "gs://fc-d28aeae4-30cc-46ca-986d-2ffda410f47c/sampleA.txt",
       |    "echo_strings.echo_files.input10": "gs://fc-d28aeae4-30cc-46ca-986d-2ffda410f47c/sampleA.txt",
@@ -260,7 +264,8 @@ object CromwellMetadataJsonCodecTest extends HammTestSuite {
       |    "echo_strings.echo_files.input9": "gs://fc-d28aeae4-30cc-46ca-986d-2ffda410f47c/sampleA.txt"
       |  },
       |  "labels": {
-      |    "cromwell-workflow-id": "cromwell-c5b6ee46-1f09-4830-91a8-fd814866d664"
+      |    "cromwell-workflow-id": "cromwell-0942e6dc-2a2e-4912-86e2-b91fdaf06c44",
+      |    "caas-collection-name": "2d3fd356-e3be-4953-92f1-60af623e6fa5"
       |  },
       |  "outputs": {
       |    "echo_strings.echo_files.out": "result: 0.024049579999999997"

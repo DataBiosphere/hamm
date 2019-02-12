@@ -1,7 +1,6 @@
 package org.broadinstitute.workbench.hamm.model
 
 import java.time.Instant
-
 import cats.implicits._
 import io.circe.Decoder
 
@@ -13,8 +12,8 @@ object CromwellMetadataJsonCodec {
   implicit val runtimeAttributesDecoder: Decoder[RuntimeAttributes] = Decoder.instance {
     cursor =>
       for {
-        cpuNumber <- cursor.downField("cpu").as[Int]
-        disks <- cursor.downField("disks").as[Disk]
+        cpuNumber      <- cursor.downField("cpu").as[Int]
+        disks          <- cursor.downField("disks").as[Disk]
         bootDiskSizeGb <- cursor.downField("bootDiskSizeGb").as[Int]
         preemptibleAttemptsAllowed <- cursor.downField("preemptible").as[Int]
       } yield RuntimeAttributes(CpuNumber(cpuNumber), disks, BootDiskSizeGb(bootDiskSizeGb), PreemptibleAttemptsAllowed(preemptibleAttemptsAllowed))
@@ -25,7 +24,7 @@ object CromwellMetadataJsonCodec {
       // sample value for str: `local-disk 1 HDD`
       for{
         array <- Either.catchNonFatal(str.split(" ")).leftMap(_.getMessage)
-        size <- Either.catchNonFatal(array(1).toInt).leftMap(_.getMessage)
+        size  <- Either.catchNonFatal(array(1).toInt).leftMap(_.getMessage)
       } yield Disk(DiskName(array(0)), DiskSize(size), DiskType.stringToDiskType(array(2)))
   }
 
@@ -33,8 +32,8 @@ object CromwellMetadataJsonCodec {
 
     for {
       description <- cursor.downField("description").as[String]
-      startTime <- cursor.downField("startTime").as[Instant]
-      endTime <- cursor.downField("endTime").as[Instant]
+      startTime   <- cursor.downField("startTime").as[Instant]
+      endTime     <- cursor.downField("endTime").as[Instant]
     } yield ExecutionEvent(ExecutionEventDescription(description), startTime, endTime)
 
   }
@@ -42,15 +41,15 @@ object CromwellMetadataJsonCodec {
   implicit val callDecoder: Decoder[Call] = Decoder.instance {
     cursor =>
       for {
-        ra <- cursor.downField("runtimeAttributes").as[RuntimeAttributes]
+        ra              <- cursor.downField("runtimeAttributes").as[RuntimeAttributes]
         executionEvents <- cursor.downField("executionEvents").as[List[ExecutionEvent]]
-        isPreemptible <- cursor.downField("preemptible").as[Boolean]
-        isCallCaching <- cursor.downField("callCaching").downField("hit").as[Boolean]
-        region <- cursor.downField("jes").downField("zone").as[Region]
-        machineType <- cursor.downField("jes").downField("machineType").as[MachineType]
-        status <- cursor.downField("executionStatus").as[Status]
-        backend <- cursor.downField("backend").as[BackEnd]
-        attempt <- cursor.downField("attempt").as[Int]
+        isPreemptible   <- cursor.downField("preemptible").as[Boolean]
+        isCallCaching   <- cursor.downField("callCaching").downField("hit").as[Boolean]
+        region          <- cursor.downField("jes").downField("zone").as[Region]
+        machineType     <- cursor.downField("jes").downField("machineType").as[MachineType]
+        status          <- cursor.downField("executionStatus").as[Status]
+        backend         <- cursor.downField("backend").as[BackEnd]
+        attempt         <- cursor.downField("attempt").as[Int]
       } yield Call(ra, executionEvents, isCallCaching, isPreemptible, region, status, machineType, backend, Attempt(attempt))
   }
 
@@ -81,11 +80,10 @@ object CromwellMetadataJsonCodec {
   implicit val metadataResponseDecoder: Decoder[MetadataResponse] = Decoder.instance {
     cursor =>
       for {
-        calls <- cursor.downField("calls").as[Map[String, List[Call]]].map(x => (x.values.flatten.toList))
-        start <- cursor.downField("start").as[Instant]
-        end <- cursor.downField("end").as[Instant]
-      } yield MetadataResponse(calls, start, end)
+        calls  <- cursor.downField("calls").as[Map[String, List[Call]]].map(x => (x.values.flatten.toList))
+        start  <- cursor.downField("start").as[Instant]
+        end    <- cursor.downField("end").as[Instant]
+        labels <- cursor.downField("labels").as[Map[String, String]]
+      } yield MetadataResponse.apply(calls, start, end, labels)
   }
-
-
 }
