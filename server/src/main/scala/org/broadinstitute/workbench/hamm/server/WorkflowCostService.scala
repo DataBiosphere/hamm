@@ -17,10 +17,9 @@ class WorkflowCostService[F[_]: Sync: Logger](pricing: GooglePriceListDAO[F],
                                               samDAO: HttpSamDAO[F]) extends HammFs2Grpc[F] {
 
   override def getWorkflowCost(request: WorkflowCostRequest, clientHeaders: Metadata): F[WorkflowCostResponse] = {
- //   withAuthenticatedUser(clientHeaders) { userInfo =>
+    withAuthenticatedUser(clientHeaders) { userInfo =>
       //ToDo: some work here to make this less messy
       for {
-        userInfo <- withAuthenticatedUser(clientHeaders)
         cromwellMetadata: MetadataResponse <- workflowDAO.getMetadata(WorkflowId(UUID.fromString(request.id)))
         _ <- checkAuthorization(cromwellMetadata.workflowCollectionId, "get_cost", userInfo.token)
         rawPriceList <- pricing.getGcpPriceList()
@@ -29,7 +28,7 @@ class WorkflowCostService[F[_]: Sync: Logger](pricing: GooglePriceListDAO[F],
       } yield {
         WorkflowCostResponse(result)
       }
-   // }
+    }
   }
 
   override def status(request: StatusRequest, clientHeaders: Metadata): F[StatusResponse] =  {
@@ -41,8 +40,6 @@ class WorkflowCostService[F[_]: Sync: Logger](pricing: GooglePriceListDAO[F],
       BuildInfo.toString
     ))
   }
-
-
 
   private def getComputePriceKeysFromMetadata(metadata: MetadataResponse): List[ComputePriceKey] = {
     metadata.calls.map { call =>
@@ -65,21 +62,12 @@ class WorkflowCostService[F[_]: Sync: Logger](pricing: GooglePriceListDAO[F],
     }
   }
 
-  //  def withAuthenticatedUser[T](clientHeaders: Metadata)(f: UserInfo => F[T]): F[T] = {
-  //    val token = clientHeaders.get(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER))
-  //    for {
-  //      status <- samDAO.getUserStatus(token)
-  //    } yield {
-  //      f(UserInfo.apply(status, token))
-  //    }
-  //  }
+   private def withAuthenticatedUser[T](clientHeaders: Metadata)(f: UserInfo => F[T]): F[T] = {
+     val token = clientHeaders.get(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER))
+     for {
+       status <- samDAO.getUserStatus(token)
+       thing <- f(UserInfo.apply(status, token))
+     } yield thing
+   }
 
-  private def withAuthenticatedUser(clientHeaders: Metadata): F[UserInfo] = {
-    val token = clientHeaders.get(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER))
-    for {
-      status <- samDAO.getUserStatus(token)
-    } yield {
-      UserInfo.apply(status, token)
-    }
-  }
 }
