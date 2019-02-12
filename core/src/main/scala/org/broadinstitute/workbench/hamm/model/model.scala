@@ -24,6 +24,11 @@ object UsageType {
     COMMIT1YR -> Commit1Yr
   )
 
+  val booleanToUsageType = Map(
+    true -> Preemptible,
+    false -> OnDemand
+  )
+
   case object Preemptible extends UsageType {
     def asString = PREEMPTIBLE
     def asDescriptionString: String = PREEMPTIBLE_DESCRIPTION_STRING

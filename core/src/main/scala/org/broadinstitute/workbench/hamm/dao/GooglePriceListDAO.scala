@@ -13,12 +13,13 @@ import org.http4s.client.Client
 class GooglePriceListDAO[F[_]: Sync](httpClient: Client[F], uri: Uri) {
 
   def getGcpPriceList(): F[GooglePriceList] = {
+    val serviceId = "6F81-5844-456A"
+    val key = "[KEY]"
     for {
-      googlePriceList <- httpClient.expect[GooglePriceList]("https://cloudbilling.googleapis.com/v1/services/6F81-5844-456A/skus?key=AIzaSyCWbeI33AMZINdULiZy1hS_gHGGZrF-nrs")
-    } yield {
-      googlePriceList
-    }
+      googlePriceList <- httpClient.expect[GooglePriceList](uri + s"/v1/services/$serviceId/skus?key=$key")
+    } yield googlePriceList
   }
+
 }
 
 

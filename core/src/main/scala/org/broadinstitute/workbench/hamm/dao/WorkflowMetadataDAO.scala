@@ -4,6 +4,7 @@ import cats.effect.Sync
 import org.broadinstitute.workbench.hamm.model.CromwellMetadataJsonCodec._
 import org.broadinstitute.workbench.hamm.model.{MetadataResponse, WorkflowId}
 import org.http4s.Method._
+import org.http4s.Uri
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.client.Client
 import org.http4s.client.dsl.Http4sClientDsl
@@ -11,7 +12,7 @@ import org.http4s.headers._
 import org.http4s.{AuthScheme, Credentials, Uri}
 
 // This is fallback for serving cost API when we don't find cost info in database
-class WorkflowMetadataDAO[F[_]: Sync](httpClient: Client[F]) extends Http4sClientDsl[F] {
+class WorkflowMetadataDAO[F[_]: Sync](httpClient: Client[F], uri: Uri) extends Http4sClientDsl[F] {
   def getMetadata(workflowId: WorkflowId): F[MetadataResponse] = {
     val uri = Uri.unsafeFromString(s"https://cromwell.dsde-alpha.broadinstitute.org/api/workflows/v1/${workflowId.uuid}/metadata")
         .withQueryParam("includeKey", List(
