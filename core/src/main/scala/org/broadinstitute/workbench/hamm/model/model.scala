@@ -42,12 +42,15 @@ object UsageType {
 
 sealed trait ResourceFamily {
   def asString: String
+  def asDescriptionString: String
 }
 
 object ResourceFamily {
   private final val COMPUTE_STRING = "Compute"
   private final val STORAGE_STRING = "Storage"
 
+  private final val COMPUTE_DESCRIPTION_STRING = "Core"
+  private final val STORAGE_DESCRIPTION_STRING = "Ram"
 
   val stringToResourceFamily = Map(
     COMPUTE_STRING -> Compute,
@@ -56,9 +59,11 @@ object ResourceFamily {
 
   case object Compute extends ResourceFamily {
     def asString = COMPUTE_STRING
+    def asDescriptionString = COMPUTE_DESCRIPTION_STRING
   }
   case object Storage extends ResourceFamily {
     def asString = STORAGE_STRING
+     def asDescriptionString = STORAGE_DESCRIPTION_STRING
   }
 }
 
@@ -414,8 +419,16 @@ final case class Call(runtimeAttributes: RuntimeAttributes,
                       backend: BackEnd,
                       attempt: Attempt)
 
-final case class MetadataResponse(calls: List[Call], startTime: Instant, endTime: Instant)
+final case class MetadataResponse(calls: List[Call], startTime: Instant, endTime: Instant, workflowCollectionId: WorkflowCollectionId, labels: Map[String, String])
 
+object MetadataResponse {
+  def apply(calls: List[Call], startTime: Instant, endTime: Instant, labels: Map[String, String]): MetadataResponse = {
+    labels.get("caas-collection-name") match {
+      case Some(c) => MetadataResponse(calls, startTime, endTime, WorkflowCollectionId(UUID.fromString(c)), labels)
+      case None => throw new Exception(s"Workflow did not have a collection associated with it.")
+    }
+  }
+}
 
 final case class RuntimeAttributes(cpuNumber: CpuNumber,
                                    disks: Disk,
@@ -432,3 +445,17 @@ final case class ComputePrices(ram: Double, cpu: Double)
 
 final case class StoragePriceList(pricesByDisk: Map[StoragePriceKey, Double])
 final case class StoragePriceKey(region: Region, diskType: DiskType)
+
+final case class SamUserInfoResponse(userSubjectId: String, userEmail: String, enabled: Boolean)
+
+final case class SamResource(resourceName: String)
+final case class UserInfo(subjectId: String, email: String, enabled: Boolean, token: String)
+
+object UserInfo {
+  def apply(samUserInfo: SamUserInfoResponse, token: String): UserInfo =
+    UserInfo(
+      samUserInfo.userSubjectId,
+      samUserInfo.userEmail,
+      samUserInfo.enabled,
+      token)
+}
