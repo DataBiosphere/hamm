@@ -14,9 +14,12 @@ object Dependencies {
     "io.monix" %% "minitest-laws" % minitestVersion % "test",
     "io.chrisdavenport" %% "log4cats-slf4j"   % "0.2.0",
     "io.circe" %% "circe-core" % circeVersion,
+    "io.circe" %% "circe-generic" % circeVersion,
     "io.circe" %% "circe-parser" % circeVersion,
     "org.http4s" %% "http4s-circe" % http4sVersion,
     "org.http4s" %% "http4s-blaze-client" % http4sVersion,
+    "org.http4s" %% "http4s-dsl" % http4sVersion,
+    "org.http4s" %% "http4s-blaze-server" % http4sVersion,
     "com.github.pureconfig" %% "pureconfig" % "0.10.1",
     "io.sentry" % "sentry-logback" % "1.7.16", // see doc https://docs.sentry.io/clients/java/modules/logback/
     "org.tpolecat" %% "doobie-core" % doobieVersion,
