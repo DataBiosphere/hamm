@@ -47,9 +47,9 @@ object CromwellMetadataJsonCodec {
         isPreemptible <- cursor.downField("preemptible").as[Boolean]
         isCallCaching <- cursor.downField("callCaching").downField("hit").as[Boolean]
         region <- cursor.downField("jes").downField("zone").as[Region]
-        machineType <- cursor.downField("jes").downField("machineType").as[MachineType]
         status <- cursor.downField("executionStatus").as[Status]
         backend <- cursor.downField("backend").as[BackEnd]
+        machineType <- cursor.downField(backend.asString.toLowerCase).downField("machineType").as[MachineType]
         attempt <- cursor.downField("attempt").as[Int]
       } yield Call(ra, executionEvents, isCallCaching, isPreemptible, region, status, machineType, backend, Attempt(attempt))
   }
