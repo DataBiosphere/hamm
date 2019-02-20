@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
   val minitestVersion = "2.2.2"
   val circeVersion = "0.10.0"
-  val http4sVersion = "0.20.0-M4"
+  val http4sVersion = "0.20.0-M5"
   val grpcNettyVersion = "1.18.0"
   val cirisVersion = "0.12.1"
   val doobieVersion = "0.7.0-M2"
@@ -21,6 +21,7 @@ object Dependencies {
     "org.http4s" %% "http4s-dsl" % http4sVersion,
     "org.http4s" %% "http4s-blaze-server" % http4sVersion,
     "com.github.pureconfig" %% "pureconfig" % "0.10.1",
+    "org.log4s" %% "log4s" % "1.7.0",
     "io.sentry" % "sentry-logback" % "1.7.16", // see doc https://docs.sentry.io/clients/java/modules/logback/
     "org.tpolecat" %% "doobie-core" % doobieVersion,
     "org.tpolecat" %% "doobie-postgres"  % doobieVersion,

@@ -11,12 +11,17 @@ import scala.concurrent.duration.FiniteDuration
 
 object CostCalculator {
 
-  def getPriceOfWorkflow(callMetaDataJson: MetadataResponse, priceList: PriceList): Either[Throwable, Double] = {
+  def getPriceOfWorkflow(callMetaDataJson: MetadataResponse, priceList: PriceList): Double = {
     val ls: List[Either[NonEmptyList[String], Double]] = callMetaDataJson.calls.map { call =>
       getPriceOfCall(call, priceList, callMetaDataJson.startTime, callMetaDataJson.endTime).leftMap(NonEmptyList.one)
     }
 
-    ls.parSequence.leftMap(errors => new Exception(errors.toList.toString)).map(_.sum)
+    val thing: Either[Throwable, Double] = ls.parSequence.leftMap(errors => new Exception(errors.toList.toString)).map(_.sum)
+
+    thing match {
+      case Left(throwable) => throw throwable
+      case Right(sum) => sum
+    }
   }
 
   private def getPriceOfCall(call: Call, priceList: PriceList, startTime: Instant, endTime: Instant): Either[String, Double] = {

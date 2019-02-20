@@ -1,29 +1,34 @@
 package org.broadinstitute.workbench.hamm.service
 
-import cats.effect.Sync
-import cats.implicits._
-import io.chrisdavenport.log4cats.Logger
 import org.broadinstitute.workbench.hamm.CostCalculator
 import org.broadinstitute.workbench.hamm.auth.HttpSamDAO
 import org.broadinstitute.workbench.hamm.dao.{GooglePriceListDAO, WorkflowMetadataDAO}
 import org.broadinstitute.workbench.hamm.model._
 
-class WorkflowCostService[F[_]: Sync: Logger](pricing: GooglePriceListDAO[F],
-                                              workflowDAO: WorkflowMetadataDAO[F],
-                                              samDAO: HttpSamDAO[F]) extends AuthedService(samDAO) {
+class WorkflowCostService(pricing: GooglePriceListDAO,
+                          workflowDAO: WorkflowMetadataDAO,
+                          samDAO: HttpSamDAO) {
 
-  def getWorkflowCost(workflowId: WorkflowId): F[WorkflowCostResponse] = {
-    withAuthenticatedUser(clientHeaders) { userInfo =>
-      //ToDo: some work here to make this less messy
-      for {
-        cromwellMetadata: MetadataResponse <- workflowDAO.getMetadata(workflowId)
-        _ <- checkAuthorization(cromwellMetadata.workflowCollectionId, "get_cost", userInfo.token)
-        rawPriceList <- pricing.getGcpPriceList()
-        priceList <- Sync[F].rethrow(Sync[F].delay[Either[Throwable, PriceList]](GooglePriceListDAO.parsePriceList(rawPriceList, getComputePriceKeysFromMetadata(cromwellMetadata), getStoragePriceKeysFromMetadata(cromwellMetadata))))
-        result <- Sync[F].rethrow(Sync[F].delay[Either[Throwable, Double]](CostCalculator.getPriceOfWorkflow(cromwellMetadata, priceList)))
-      } yield {
-        WorkflowCostResponse(result)
-      }
+  def getWorkflowCost(userInfo: UserInfo, workflowId: WorkflowId): WorkflowCostResponse = {
+    // ToDo: some work here to make this less messy
+    val cromwellMetadata = workflowDAO.getMetadata(userInfo, workflowId)
+    val authResponse     = samDAO.queryAction(userInfo.token, SamResource(cromwellMetadata.workflowCollectionId.uuid.toString), "get_cost") // throw on this
+    val rawPriceList     = pricing.getGcpPriceList()
+    val priceList        = GooglePriceListDAO.parsePriceList(rawPriceList, getComputePriceKeysFromMetadata(cromwellMetadata), getStoragePriceKeysFromMetadata(cromwellMetadata))
+    val result           = CostCalculator.getPriceOfWorkflow(cromwellMetadata, priceList)
+
+    WorkflowCostResponse(result)
+  }
+
+  private def getComputePriceKeysFromMetadata(metadata: MetadataResponse): List[ComputePriceKey] = {
+    metadata.calls.map { call =>
+      ComputePriceKey(call.region, call.machineType, UsageType.booleanToUsageType(call.preemptible))
+    }
+  }
+
+  private def getStoragePriceKeysFromMetadata(metadata: MetadataResponse): List[StoragePriceKey] = {
+    metadata.calls.map { call =>
+      StoragePriceKey(call.region, call.runtimeAttributes.disks.diskType)
     }
   }
 }

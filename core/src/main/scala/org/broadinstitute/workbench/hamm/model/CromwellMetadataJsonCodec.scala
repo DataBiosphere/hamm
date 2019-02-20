@@ -1,9 +1,15 @@
 package org.broadinstitute.workbench.hamm.model
 
 import java.time.Instant
+
+import cats.effect.IO
 import cats.implicits._
 import io.circe.Decoder
+import org.http4s.EntityDecoder
+import org.http4s.circe.jsonOf
 
+// ToDo: Currently, this handles only completed workflows, as running workflows will not have an end time
+// ToDo:   and may lack other information like execution events
 object CromwellMetadataJsonCodec {
   implicit val cpuNumberDecoder: Decoder[CpuNumber] = Decoder.decodeString.emap(s => Either.catchNonFatal(s.toInt).leftMap(_.getMessage).map(CpuNumber))
   implicit val bootDiskSizeGbDecoder: Decoder[BootDiskSizeGb] = Decoder.decodeString.emap(x => Either.catchNonFatal(x.toInt).leftMap(_.getMessage).map(BootDiskSizeGb))
@@ -16,7 +22,13 @@ object CromwellMetadataJsonCodec {
         disks          <- cursor.downField("disks").as[Disk]
         bootDiskSizeGb <- cursor.downField("bootDiskSizeGb").as[Int]
         preemptibleAttemptsAllowed <- cursor.downField("preemptible").as[Int]
-      } yield RuntimeAttributes(CpuNumber(cpuNumber), disks, BootDiskSizeGb(bootDiskSizeGb), PreemptibleAttemptsAllowed(preemptibleAttemptsAllowed))
+      } yield {
+        //println("metadata codec cpuNumber      : " + cpuNumber      .toString)
+        //println("metadata codec disks          : " + disks          .toString)
+        //println("metadata codec bootDiskSizeGb : " + bootDiskSizeGb .toString)
+        //println("metadata codec preemptibleAttemptsAllowed : " + preemptibleAttemptsAllowed.toString)
+        RuntimeAttributes(CpuNumber(cpuNumber), disks, BootDiskSizeGb(bootDiskSizeGb), PreemptibleAttemptsAllowed(preemptibleAttemptsAllowed))
+      }
   }
 
   implicit val diskDecoder: Decoder[Disk] = Decoder.decodeString.emap{
@@ -34,23 +46,43 @@ object CromwellMetadataJsonCodec {
       description <- cursor.downField("description").as[String]
       startTime   <- cursor.downField("startTime").as[Instant]
       endTime     <- cursor.downField("endTime").as[Instant]
-    } yield ExecutionEvent(ExecutionEventDescription(description), startTime, endTime)
+    } yield {
+      //println("metadata codec description : " + description .toString)
+      //println("metadata codec startTime   : " + startTime   .toString)
+      //println("metadata codec endTime     : " + endTime     .toString)
+      ExecutionEvent(ExecutionEventDescription(description), startTime, endTime)
+    }
 
   }
 
   implicit val callDecoder: Decoder[Call] = Decoder.instance {
     cursor =>
       for {
-        ra              <- cursor.downField("runtimeAttributes").as[RuntimeAttributes]
-        executionEvents <- cursor.downField("executionEvents").as[List[ExecutionEvent]]
-        isPreemptible   <- cursor.downField("preemptible").as[Boolean]
-        isCallCaching   <- cursor.downField("callCaching").downField("hit").as[Boolean]
-        region          <- cursor.downField("jes").downField("zone").as[Region]
-        machineType     <- cursor.downField("jes").downField("machineType").as[MachineType]
-        status          <- cursor.downField("executionStatus").as[Status]
-        backend         <- cursor.downField("backend").as[BackEnd]
-        attempt         <- cursor.downField("attempt").as[Int]
-      } yield Call(ra, executionEvents, isCallCaching, isPreemptible, region, status, machineType, backend, Attempt(attempt))
+        ra                  <- cursor.downField("runtimeAttributes").as[RuntimeAttributes]
+        executionEvents     <- cursor.downField("executionEvents").as[List[ExecutionEvent]]
+        isCallCachingOption <- cursor.downField("callCaching").downField("hit").as[Option[Boolean]]
+        isPreemptible       <- cursor.downField("preemptible").as[Boolean]
+        region              <- cursor.downField("jes").downField("zone").as[Region]
+        status              <- cursor.downField("executionStatus").as[Status]
+        machineType         <- cursor.downField("jes").downField("machineType").as[MachineType]
+        backend             <- cursor.downField("backend").as[BackEnd]
+        attempt             <- cursor.downField("attempt").as[Int]
+      } yield{
+        //println("metadata codec ra                  : " + ra                  .toString)
+        //println("metadata codec executionEvents     : " + executionEvents     .toString)
+        //println("metadata codec isPreemptible       : " + isPreemptible       .toString)
+        //println("metadata codec isCallCachingOption : " + isCallCachingOption .toString)
+        //println("metadata codec region              : " + region              .toString)
+        //println("metadata codec machineType         : " + machineType         .toString)
+        //println("metadata codec status              : " + status              .toString)
+        //println("metadata codec backend             : " + backend             .toString)
+        //println("metadata codec attempt             : " + attempt             .toString)
+        val isCallCaching = isCallCachingOption match {
+          case Some(result) => result
+          case None => false
+        }
+        Call(ra, executionEvents, isCallCaching, isPreemptible, region, status, machineType, backend, Attempt(attempt))
+      }
   }
 
   implicit val statusDecoder: Decoder[Status] = Decoder.decodeString.emap{
@@ -61,7 +93,8 @@ object CromwellMetadataJsonCodec {
     machineTypeString =>
       Either.catchNonFatal(machineTypeString.split("/").last) match {
         case Left(t) => Left(s"Could not obtain machine type from $machineTypeString")
-        case Right(machineType) => MachineType.stringToMachineType.get(machineType).toRight(s"$machineType is not a valid machine type")
+        case Right(machineType) => Right(MachineType.partialStringToMachineType(machineType))//.toRight(s"$machineType is not a valid machine type")
+
       }
   }
 
@@ -84,6 +117,11 @@ object CromwellMetadataJsonCodec {
         start  <- cursor.downField("start").as[Instant]
         end    <- cursor.downField("end").as[Instant]
         labels <- cursor.downField("labels").as[Map[String, String]]
-      } yield MetadataResponse.apply(calls, start, end, labels)
+      } yield {
+        MetadataResponse.apply(calls, start, end, labels)
+      }
   }
+
+  implicit val http4sMetadataResponseDecoder: EntityDecoder[IO, MetadataResponse] = jsonOf[IO, MetadataResponse]
+
 }

@@ -1,14 +1,23 @@
 package org.broadinstitute.workbench.hamm.dao
 
-import cats.effect.Sync
-import org.broadinstitute.workbench.hamm.model.CromwellMetadataJsonCodec._
-import org.broadinstitute.workbench.hamm.model.{MetadataResponse, WorkflowId}
-import org.http4s.Uri
-import org.http4s.circe.CirceEntityDecoder._
-import org.http4s.client.Client
 
-class WorkflowMetadataDAO[F[_]: Sync](httpClient: Client[F], uri: Uri) {
-  def getMetadata(workflowId: WorkflowId): F[MetadataResponse] = {
-    httpClient.expect[MetadataResponse](uri + s"/${workflowId.uuid}/metadata") //TODO: figure out how to get the url properly
+import cats.effect.IO
+import org.broadinstitute.workbench.hamm.model.CromwellMetadataJsonCodec.http4sMetadataResponseDecoder
+import org.broadinstitute.workbench.hamm.model.{MetadataResponse, UserInfo, WorkflowId}
+import org.http4s.{AuthScheme, Credentials, Uri}
+import cats.effect._
+import org.http4s._
+import org.http4s.client.Client
+import org.http4s.client.dsl.io._
+import org.http4s.headers._
+import org.http4s.MediaType
+import org.http4s.dsl.io._
+import org.http4s.headers.{Accept, Authorization}
+
+class WorkflowMetadataDAO(httpClient: Client[IO], uri: Uri) {
+  def getMetadata(userInfo: UserInfo, workflowId: WorkflowId): MetadataResponse = {
+    val url = uri + "/" + workflowId.uuid.toString + "/metadata"
+    val request = GET(uri = Uri.unsafeFromString(url), Authorization(Credentials.Token(AuthScheme.Bearer, userInfo.token)), Accept(MediaType.application.json))
+    httpClient.expect[MetadataResponse](request)(http4sMetadataResponseDecoder).unsafeRunSync()
   }
 }

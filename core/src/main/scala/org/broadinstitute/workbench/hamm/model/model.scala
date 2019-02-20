@@ -128,6 +128,11 @@ object MachineType {
     G1SMALL_METADATA_STRING -> G1Small
   )
 
+  def partialStringToMachineType(str: String): MachineType = {
+    stringToMachineType.keys.find(key => str.contains(key))
+      .flatMap { machineTypeString => stringToMachineType.get(machineTypeString) }
+      .getOrElse(throw new Exception(s"Could not get machine type from $str"))
+  }
 
   case object Custom extends MachineType {
     def asString = CUSTOM
@@ -422,7 +427,8 @@ final case class Call(runtimeAttributes: RuntimeAttributes,
                       status: Status,
                       machineType: MachineType,
                       backend: BackEnd,
-                      attempt: Attempt)
+                      attempt: Attempt
+                     )
 
 final case class MetadataResponse(calls: List[Call], startTime: Instant, endTime: Instant, workflowCollectionId: WorkflowCollectionId, labels: Map[String, String])
 
