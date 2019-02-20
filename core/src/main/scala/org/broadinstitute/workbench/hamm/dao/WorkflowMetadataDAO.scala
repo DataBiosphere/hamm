@@ -28,13 +28,14 @@ class WorkflowMetadataDAO[F[_]: Sync](httpClient: Client[F]) extends Http4sClien
           "jes",
           "papi2",
           "executionStatus",
+          "attempt",
           "backend")
         )
         .withQueryParam("expandSubWorkflows", true)
 
     val request = GET(
       uri,
-      Authorization(Credentials.Token(AuthScheme.Bearer, "ya29.Gl2xBueI7wZeIyZ7pOOnMqf-sVum_dF3mbdzzS4ZnSVlcEC6TDA17Z_fWqWnAJIY1GFD7zWTrfGdRZXe5TKru8EymyT9NFnJVNniGbimkC2-DejAI6zNTHxJlA17T3s")) //TODO: figure out proper authentication
+      Authorization(Credentials.Token(AuthScheme.Bearer, "")) //TODO: remove this file
     )
     httpClient.expect[MetadataResponse](request)
   }
