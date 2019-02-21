@@ -6,3 +6,6 @@ target/
 .bloop/
 project/.bloop/
 nginx*
+terraform/.terraform/*
+*.tfstate
+*.tfstate.backup

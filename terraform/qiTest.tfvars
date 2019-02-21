@@ -1,0 +1,7 @@
+region = "us-central1"
+zone = "us-central1-b"
+env = "test"
+hamm-cromwell-metadata-notification-creater-service-account-name = "hamm-cromwell-metadata-notification-creater-qiTest"
+project = "workbench-firestore"
+topic-name = "qi_test"
+metadata-bucket-name = "cromwell_metadata"
