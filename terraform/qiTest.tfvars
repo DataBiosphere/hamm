@@ -1,0 +1,8 @@
+region = "us-central1"
+network = "default"
+zone = "us-central1-b"
+postgresql_version = "POSTGRES_9_6"
+network_name = "hamm-postgres"
+cromwell_metadata_bucket_name = "cromwell_metadata"
+cromwell_metadata_pubsub_topic_name = "cromwell-metadata-topic"
+# cromwell_metadata_bucket_name = "cromwell-metadata-clientxxx"
