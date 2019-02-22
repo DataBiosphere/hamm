@@ -27,7 +27,7 @@ object DbTransactorResource {
     envF[IO, String]("DB_PASSWORD")
   ){ (username, password) =>
     SqlConfig(DbUser(username), DbPassword(password), 5432)
-  }.flatMap(x => IO.fromEither(x.leftMap(_.toException).leftWiden))
+  }.result.flatMap(x => IO.fromEither(x.leftMap(_.toException).leftWiden))
 }
 
 final case class DbUser(asString: String) extends AnyVal

@@ -3,6 +3,7 @@ coverageMinimum := 15 //Update this once there're more tests
 coverageFailOnMinimum := true
 
 lazy val hamm = project.in(file("."))
+  .enablePlugins(BuildInfoPlugin)
   .settings(
     skip in publish := true,
     Settings.commonSettings
@@ -18,13 +19,32 @@ val protobuf =
       PB.protocOptions in Compile += "--descriptor_set_out=./protobuf/target/hamm.pb"
     )
 
-val core =
+lazy val core =
   project
     .in(file("core"))
+     .enablePlugins(BuildInfoPlugin)
     .settings(
-      libraryDependencies ++= Dependencies.automation,
+      libraryDependencies ++= Dependencies.common,
       Settings.commonSettings,
-      Settings.buildInfoSettings
+//    This is not ideal, but BuildInfoPlugin doesn't work as expected for core
+      sourceGenerators in Compile += Def.task {
+        val outDir = (sourceManaged in Compile).value / "hammBuildInfo"
+        val outFile = new File(outDir, "buildinfo.scala")
+        outDir.mkdirs
+        val v = version.value
+        val t = System.currentTimeMillis
+        IO.write(outFile,
+          s"""|package org.broadinstitute.workbench.hamm.core
+              |
+            |/** Auto-generated build information. */
+              |object BuildInfo {
+              |  val version = "$v"
+              |  val buildTime    = new java.util.Date(${t}L)
+              |  val gitHeadCommit = "${git.gitHeadCommit.value.getOrElse("")}"
+              |}
+              |""".stripMargin)
+        Seq(outFile)
+      }.taskValue
     )
 
 lazy val server =
@@ -41,14 +61,13 @@ lazy val server =
 lazy val costUpdater =
   project
     .in(file("cost-updater"))
-    .enablePlugins(JavaAppPackaging)
+    .enablePlugins(JavaAppPackaging, BuildInfoPlugin)
     .settings(
       libraryDependencies ++= Dependencies.costUpdater,
-      Settings.costUpdaterSettings
+      Settings.costUpdaterSettings,
+      Settings.buildInfoSettings
     )
-    .dependsOn(protobuf)
     .dependsOn(core % "test->test;compile->compile")
-
 
 lazy val automation =
   project

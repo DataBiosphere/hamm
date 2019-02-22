@@ -15,7 +15,7 @@ object AutomationTestConfig {
     val grpcPort = grpcPortOpt.getOrElse(9999)
 
     AutomationTestConfig(host, grpcPort)
-  }.flatMap(x => IO.fromEither(x.leftMap(_.toException).leftWiden))
+  }.result.flatMap(x => IO.fromEither(x.leftMap(_.toException).leftWiden))
 }
 
 final case class AutomationTestConfig(host: String, grpcPort: Int)
