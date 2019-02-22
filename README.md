@@ -3,26 +3,28 @@
 TODO: fix coverall badge
 
 # Try it out
-* Start gRPC server `sbt server/run`
+## Hamm-Api-Server
+* Start hamm-api-server `sbt server/run`
 * Run automation tests against the running server `sbt automation/test`
-* In deployed service, we expose Json/HTTP REST API in addition to gRPC. 
 
+## Hamm-Cost-Updater
+* Start hamm-api-server `sbt costUpdater/run`
+* Run automation tests against the running server `sbt automation/test`
 
 # APIs
 * [API doc](https://endpointsportal.workbench-firestore.cloud.goog/docs/ccm.endpoints.workbench-firestore.cloud.goog/g/overview)
 * Both gRPC and REST http doc is generated based on [proto3](protobuf/src/main/protobuf/ccm.proto)
 
-# Publish grpc docker image to Google container registry
+# Publish container image to Google container registry
 * Set up auth for publishing docker image to GCR
 `gcloud auth configure-docker`
-* Publish
+* Publish hamm-api-server
 `sbt server/docker:publish` (or `sbt server/docker:publishLocal` for local development)
+* Publish hamm-cost-updater
+`sbt costUpdater/docker:publish` (or `sbt server/docker:publishLocal` for local development)
 
-# Generating cert
-https://cloud.google.com/endpoints/docs/grpc/enabling-ssl
-       
 # /status
-Information about the server
+Both `hamm-cost-updater` and `hamm-api-server` provides /status endpoint.
 ```bash
 curl -k https://localhost/status
 {"scalaVersion":"2.12.7","sbtVersion":"1.2.8","gitCommit":"350b74fc073550b1262609f918583eae10774ecc","buildTime":"2019-01-05T11:33:00.564"}%
@@ -56,8 +58,5 @@ docker run --name postgres -e POSTGRES_PASSWORD=123 -e POSTGRES_USER=ccm -e POST
 
 
 Maybe TODO
-* Deployment
-- Deploy docker image to google with cloud build
 * Set up automation tests in CI (deploy a server and then run automation tests against that)
-* Publish client jar
 * Config sentry DSN
