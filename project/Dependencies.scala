@@ -7,6 +7,7 @@ object Dependencies {
   val grpcNettyVersion = "1.18.0"
   val cirisVersion = "0.12.1"
   val doobieVersion = "0.7.0-M2"
+  val samV =  "1.0-5cdffb4"
 
   val common = List(
     "io.grpc" % "grpc-netty" % grpcNettyVersion,
@@ -26,7 +27,10 @@ object Dependencies {
     "org.tpolecat" %% "doobie-core" % doobieVersion,
     "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
     "org.tpolecat" %% "doobie-hikari"    % doobieVersion,
-    "org.tpolecat" %% "doobie-specs2"   % doobieVersion % "test"
+    "org.tpolecat" %% "doobie-specs2"   % doobieVersion % "test",
+    "org.webjars" % "webjars-locator" % "0.34",
+    "org.webjars" % "swagger-ui"      % "3.17.3",
+    "org.broadinstitute.dsde.sam-client" %% "sam" % samV
   )
 
   val automation = common ++ List(

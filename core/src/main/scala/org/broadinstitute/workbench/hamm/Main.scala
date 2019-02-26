@@ -4,7 +4,7 @@ import cats.effect._
 import cats.implicits._
 import fs2._
 import org.broadinstitute.workbench.hamm.api.HammRoutes
-import org.broadinstitute.workbench.hamm.auth.HttpSamDAO
+import org.broadinstitute.workbench.hamm.auth.SamAuthProvider
 import org.broadinstitute.workbench.hamm.dao.{GooglePriceListDAO, WorkflowMetadataDAO}
 import org.broadinstitute.workbench.hamm.service.{StatusService, WorkflowCostService}
 import org.http4s.Uri
@@ -22,12 +22,12 @@ object Main extends IOApp with HammLogger {
       //pricing             = new GooglePriceListDAO[IO](httpClient, appConfig.pricingGoogleUrl)
       pricing             = new GooglePriceListDAO(httpClient, Uri.unsafeFromString("https://cloudbilling.googleapis.com")) // ToDo: put this in config
       metadataDAO         = new WorkflowMetadataDAO(httpClient, Uri.unsafeFromString("https://cromwell.dsde-dev.broadinstitute.org/api/workflows/v1")) // ToDo: put this in config
-      samDAO              = new HttpSamDAO(httpClient, Uri.unsafeFromString("https://sam.dsde-dev.broadinstitute.org")) // ToDo: put this in config
-      workflowCostService = new WorkflowCostService(pricing, metadataDAO, samDAO)
+      samAuthProvider     = new SamAuthProvider(Uri.unsafeFromString("https://sam.dsde-dev.broadinstitute.org:443")) // ToDo: put this in config
+      workflowCostService = new WorkflowCostService(pricing, metadataDAO, samAuthProvider)
       statusService       = new StatusService
-      hammRoutes          = new HammRoutes(samDAO, workflowCostService, statusService)
+      hammRoutes          = new HammRoutes(samAuthProvider, workflowCostService, statusService)
       routes              = hammRoutes.routes
-      server              <- BlazeServerBuilder[IO].bindHttp(8080, "localhost").withHttpApp(routes).serve    //.compile.drain.as(ExitCode.Success)  // new WorkflowCostService[IO](pricing, metadataDAO, samDAO)).start
+      server              <- BlazeServerBuilder[IO].bindHttp(8080, "localhost").withHttpApp(routes).serve    //.compile.drain.as(ExitCode.Success)  // new WorkflowCostService[IO](pricing, metadataDAO, samAuthProvider)).start
     } yield ()
 
     app.handleErrorWith(error => Stream.emit(logger.error(error)("Failed to start server")))

@@ -8,10 +8,10 @@ import org.scalacheck.{Arbitrary, Gen}
 
 object Generators {
   val genBootDiskSizedGb = Gen.posNum[Int].map(BootDiskSizeGb)
-  val genWorkflowId = Gen.uuid.map(WorkflowId)
+  val genWorkflowId = Gen.alphaLowerStr.map(WorkflowId)
   val genSubmissionId = Gen.uuid.map(SubmissionId)
   val genWorkspaceId = Gen.uuid.map(WorkspaceId)
-  val genWorkflowCollectionId = Gen.uuid.map(WorkflowCollectionId)
+  val genWorkflowCollectionId = Gen.alphaLowerStr.map(WorkflowCollectionId)
   val genLabelMap: Gen[Map[String, String]] = Gen.mapOf[String, String](Gen.listOfN(2, Gen.alphaStr).map(x => (x(0), x(1))))
   val genNonEmptyLabelMap: Gen[Map[String, String]] = Gen.nonEmptyMap[String, String](Gen.listOfN(2, Gen.alphaStr.map(x => s"ll$x")).map(x => (x(0), x(1))))
   val genLabel: Gen[Label] = for {

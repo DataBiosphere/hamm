@@ -1,7 +1,6 @@
 package org.broadinstitute.workbench.hamm
 
 import java.time.Instant
-import java.util.UUID
 
 import doobie._
 import doobie.postgres.implicits._
@@ -15,15 +14,15 @@ import org.postgresql.util.PGobject
 package object db {
   implicit val instantPut: Put[Instant] = Meta[Instant].put
   implicit val instantGet: Get[Instant] = Meta[Instant].get
-  implicit val workflowIdMeta: Meta[WorkflowId] = Meta[UUID].timap[WorkflowId](uuid => WorkflowId(uuid))(_.uuid)
+  implicit val workflowIdMeta: Meta[WorkflowId] = Meta[String].timap[WorkflowId](id => WorkflowId(id))(_.id)
   implicit val workflowIdPut: Put[WorkflowId] = workflowIdMeta.put
   implicit val workflowIdGet: Get[WorkflowId] = workflowIdMeta.get
-  implicit val workflowCollectionIdMeta: Meta[WorkflowCollectionId] = Meta[UUID].timap[WorkflowCollectionId](uuid => WorkflowCollectionId(uuid))(_.uuid)
+  implicit val workflowCollectionIdMeta: Meta[WorkflowCollectionId] = Meta[String].timap[WorkflowCollectionId](id => WorkflowCollectionId(id))(_.id)
   implicit val workflowCollectionIdPut: Put[WorkflowCollectionId] = workflowCollectionIdMeta.put
   implicit val workflowCollectionIdGet: Get[WorkflowCollectionId] = workflowCollectionIdMeta.get
   implicit val callFqnGet: Get[CallFqn] = Get[String].map(CallFqn)
-  implicit val listWorkflowPut: Put[Option[NonEmptyList[WorkflowId]]] = Put[List[UUID]].contramap(x => x.fold(List.empty[UUID])(nl => nl.map(_.uuid).toList))
-  implicit val listWorkflowGet: Get[List[WorkflowId]] = Get[List[UUID]].map(x => x.map(WorkflowId))
+  implicit val listWorkflowPut: Put[Option[NonEmptyList[WorkflowId]]] = Put[List[String]].contramap(x => x.fold(List.empty[String])(nl => nl.map(_.id).toList))
+  implicit val listWorkflowGet: Get[List[WorkflowId]] = Get[List[String]].map(x => x.map(WorkflowId))
   val jsonbMeta: Meta[Json] = Meta
     .Advanced
     .other[PGobject]("jsonb")

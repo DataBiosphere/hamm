@@ -404,8 +404,8 @@ object BackEnd {
 
 final case class CpuNumber(asInt: Int) extends AnyVal
 final case class BootDiskSizeGb(asInt: Int) extends AnyVal
-final case class WorkflowId(uuid: UUID) extends AnyVal
-final case class WorkflowCollectionId(uuid: UUID) extends AnyVal
+final case class WorkflowId(id: String) extends AnyVal
+final case class WorkflowCollectionId(id: String) extends AnyVal
 final case class SubmissionId(uuid: UUID) extends AnyVal
 final case class WorkspaceId(uuid: UUID) extends AnyVal
 final case class DiskName(asString: String) extends AnyVal
@@ -435,7 +435,7 @@ final case class MetadataResponse(calls: List[Call], startTime: Instant, endTime
 object MetadataResponse {
   def apply(calls: List[Call], startTime: Instant, endTime: Instant, labels: Map[String, String]): MetadataResponse = {
     labels.get("caas-collection-name") match {
-      case Some(c) => MetadataResponse(calls, startTime, endTime, WorkflowCollectionId(UUID.fromString(c)), labels)
+      case Some(c) => MetadataResponse(calls, startTime, endTime, WorkflowCollectionId(c), labels)
       case None => throw new Exception(s"Workflow did not have a collection associated with it.")
     }
   }

@@ -1,23 +1,26 @@
 package org.broadinstitute.workbench.hamm.service
 
-import org.broadinstitute.workbench.hamm.CostCalculator
-import org.broadinstitute.workbench.hamm.auth.HttpSamDAO
+import org.broadinstitute.workbench.hamm.{CostCalculator, HammLogger}
+import org.broadinstitute.workbench.hamm.auth.SamAuthProvider
 import org.broadinstitute.workbench.hamm.dao.{GooglePriceListDAO, WorkflowMetadataDAO}
 import org.broadinstitute.workbench.hamm.model._
 
 class WorkflowCostService(pricing: GooglePriceListDAO,
                           workflowDAO: WorkflowMetadataDAO,
-                          samDAO: HttpSamDAO) {
+                          samAuthProvider: SamAuthProvider) extends HammLogger {
 
-  def getWorkflowCost(userInfo: UserInfo, workflowId: WorkflowId): WorkflowCostResponse = {
+  def getWorkflowCost(token: String, workflowId: WorkflowId): WorkflowCostResponse = {
     // ToDo: some work here to make this less messy
-    val cromwellMetadata = workflowDAO.getMetadata(userInfo, workflowId)
-    val authResponse     = samDAO.queryAction(userInfo.token, SamResource(cromwellMetadata.workflowCollectionId.uuid.toString), "get_cost") // throw on this
+    logger.info("GETWORKFLOWCOST")
+    val cromwellMetadata = workflowDAO.getMetadata(token, workflowId)
+    logger.info("CROMWELL METADATA" + cromwellMetadata.toString)
+    val authResponse     = samAuthProvider.hasWorkflowCollectionPermission(token, SamResource(cromwellMetadata.workflowCollectionId.id)) // ToDo: throw on this!!!
+    logger.info("AUTH RESPONSE " + authResponse.toString)
     val rawPriceList     = pricing.getGcpPriceList()
     val priceList        = GooglePriceListDAO.parsePriceList(rawPriceList, getComputePriceKeysFromMetadata(cromwellMetadata), getStoragePriceKeysFromMetadata(cromwellMetadata))
     val result           = CostCalculator.getPriceOfWorkflow(cromwellMetadata, priceList)
 
-    WorkflowCostResponse(result)
+    WorkflowCostResponse(workflowId, result)
   }
 
   private def getComputePriceKeysFromMetadata(metadata: MetadataResponse): List[ComputePriceKey] = {
@@ -33,4 +36,4 @@ class WorkflowCostService(pricing: GooglePriceListDAO,
   }
 }
 
-final case class WorkflowCostResponse(cost: Double)
+final case class WorkflowCostResponse(workflowId: WorkflowId, cost: Double)
