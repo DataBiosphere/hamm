@@ -41,23 +41,11 @@ class HammRoutes(samDAO: SamAuthProvider, workflowCostService: WorkflowCostServi
 
   def workflowRoutes = HttpRoutes.of[IO] {
     case GET -> Root / workflowId =>
-      logger.info("WE'RE HERE")
       Ok(IO { workflowCostService.getWorkflowCost(token, WorkflowId(workflowId)) })
     case _ -> Root =>
       MethodNotAllowed(Allow(GET))
   }
 
-
-//  // ToDo: Move the auth stuff to an object
-//  val authUser: Kleisli[OptionT[IO, ?], Request[IO], UserInfo] =
-//    Kleisli(req => OptionT.liftF(IO {
-//      val token = req.headers.get(CaseInsensitiveString("authorization")).getOrElse(throw HammException(401, "can't find auth header")).value.split(" ").last // ToDo: fix this
-//      val samResponse = samDAO.getUserStatus(token)
-//      UserInfo(samResponse, token)
-//    }))
-//
-//  val authorize: AuthMiddleware[IO, UserInfo] = AuthMiddleware(authUser)
-//
 
 
 

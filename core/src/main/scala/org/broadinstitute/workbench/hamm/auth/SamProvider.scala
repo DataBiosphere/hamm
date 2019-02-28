@@ -1,10 +1,10 @@
 package org.broadinstitute.workbench.hamm.auth
 
-import org.http4s.Uri
+import org.broadinstitute.workbench.hamm.config.SamConfig
 
 trait SamProvider {
-  val samServer: Uri
+  val config: SamConfig
 
-  protected lazy val samClient = new SamSwaggerClient(samServer)
+  protected lazy val samClient = new SamSwaggerClient(config.samUrl)
 
 }

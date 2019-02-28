@@ -1,21 +1,18 @@
 package org.broadinstitute.workbench.hamm.dao
 
 import cats.effect.IO
-//import cats.implicits._
+import org.broadinstitute.workbench.hamm.config.GoogleConfig
 import org.broadinstitute.workbench.hamm.model.GooglePriceListJsonCodec._
 import org.broadinstitute.workbench.hamm.model._
-import org.http4s.Uri
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.client.Client
 
 
 
-class GooglePriceListDAO(httpClient: Client[IO], uri: Uri) {
+class GooglePriceListDAO(httpClient: Client[IO], config: GoogleConfig) {
 
   def getGcpPriceList(): GooglePriceList = {
-    val serviceId = "6F81-5844-456A"
-    val key = "AIzaSyC0vtjlARSiq5YA2REEpwAus6cQB7YVND8"
-    httpClient.expect[GooglePriceList](uri + s"/v1/services/$serviceId/skus?key=$key").unsafeRunSync()
+    httpClient.expect[GooglePriceList](config.googleCloudBillingUrl + s"/v1/services/${config.serviceId}/skus?key=${config.serviceKey}").unsafeRunSync()
   }
 
 }
@@ -71,11 +68,8 @@ object GooglePriceListDAO {
         getPrice(storagePriceKey.region, ResourceFamily.Storage, ResourceGroup(storagePriceKey.diskType.asResourceGroupString), UsageType.OnDemand, List(), List("Regional"))
     }
 
-    //println("parsePriceList start")
-
     val computePrices: List[(ComputePriceKey, ComputePrices)] = computePriceKeys.map{ key => (key, getComputePrices(key))}
 
-    //println("computePrices " + computePrices.toString)
     // price we get is per month, we want per hour
     val storagePrices: List[(StoragePriceKey, Double)] = storagePriceKeys.map { key => (key, getStoragePrice(key) / (24 * 365 / 12))}
 

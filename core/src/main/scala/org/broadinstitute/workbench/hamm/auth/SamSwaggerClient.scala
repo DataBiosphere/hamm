@@ -1,7 +1,8 @@
 package org.broadinstitute.workbench.hamm.auth
 
-import io.swagger.client.ApiClient
-import io.swagger.client.api.ResourcesApi
+
+import org.broadinstitute.dsde.workbench.client.sam.api.ResourcesApi
+import org.broadinstitute.dsde.workbench.client.sam.ApiClient
 import org.broadinstitute.workbench.hamm.HammLogger
 import org.http4s.Uri
 
@@ -17,7 +18,9 @@ class SamSwaggerClient(samBasePath: Uri) extends HammLogger {
 
   def checkResourceAction(token: String, samResourceType: String, samResource: String, action: String):Boolean = {
     val samResourceApi = samResourcesApi(token)
-    samResourceApi.resourceAction(samResourceType, samResource, action)
+    val result = samResourceApi.resourceAction(samResourceType, samResource, action)
+    logger.info("CHECK RESOURCE ACTION: " + result)
+    result
   }
 
 

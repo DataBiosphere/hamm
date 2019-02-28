@@ -7,7 +7,7 @@ lazy val hamm = project.in(file("."))
     skip in publish := true,
     Settings.commonSettings
   )
-  .aggregate(core)
+  .aggregate(core, costUpdater)
 
 
 val core =
@@ -18,3 +18,26 @@ val core =
       Settings.commonSettings,
       Settings.buildInfoSettings
     )
+
+lazy val costUpdater =
+  project
+    .in(file("cost-updater"))
+    .enablePlugins(JavaAppPackaging)
+    .settings(
+      libraryDependencies ++= Dependencies.costUpdater,
+      Settings.costUpdaterSettings
+    )
+//    .dependsOn(protobuf)
+    .dependsOn(core % "test->test;compile->compile")
+
+lazy val automation =
+  project
+    .in(file("automation"))
+    .settings(
+      libraryDependencies ++= Dependencies.automation,
+      Settings.commonSettings,
+      Settings.buildInfoSettings
+    )
+//    .dependsOn(protobuf)
+    .dependsOn(core)
+ //   .dependsOn(server % "test->test;compile->compile")

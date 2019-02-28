@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog logicalFilePath="hamm" xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet logicalFilePath="hamm" author="ansingh" id="workflow">
+        <createTable tableName="WORKFLOW">
+            <column name="ID" type="SERIAL"></column>
+            <column name="WORKFLOW_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PARENT_WORKFLOW_ID" type="VARCHAR(255)"></column>
+            <column name="ROOT_WORKFLOW_ID" type="VARCHAR(255)"></column>
+            <column name="WORKFLOW_COLLECTION_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="IS_SUBWORKFLOW" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="START_TIME" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+            <column name="END_TIME" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LABELS" type="JSONB"></column>
+            <column name="COST" type="FLOAT8">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
