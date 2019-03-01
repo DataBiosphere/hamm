@@ -3,7 +3,7 @@ package org.broadinstitute.workbench.hamm.service
 import org.broadinstitute.workbench.hamm.{CostCalculator, HammLogger}
 import org.broadinstitute.workbench.hamm.auth.SamAuthProvider
 import org.broadinstitute.workbench.hamm.dao.{GooglePriceListDAO, WorkflowMetadataDAO}
-import org.broadinstitute.workbench.hamm.db.{DbReference, WorkflowTableQueries}
+import org.broadinstitute.workbench.hamm.db.DbReference
 import org.broadinstitute.workbench.hamm.model._
 
 class WorkflowCostService(pricing: GooglePriceListDAO,

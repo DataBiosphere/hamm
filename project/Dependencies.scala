@@ -20,6 +20,7 @@ object Dependencies {
     "io.circe"                          %% "circe-core"          % circeVersion,
     "io.circe"                          %% "circe-generic"       % circeVersion,
     "io.circe"                          %% "circe-parser"        % circeVersion,
+    "io.grpc"                           % "grpc-netty"           % grpcNettyVersion,
     "io.monix"                          %% "minitest"            % minitestVersion    % "test",
     "io.monix"                          %% "minitest-laws"       % minitestVersion    % "test",
     "io.sentry"                         %  "sentry-logback"      % "1.7.16",          // see doc https://docs.sentry.io/clients/java/modules/logback/
