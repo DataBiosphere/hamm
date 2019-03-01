@@ -32,8 +32,9 @@ object Dependencies {
 
   val costUpdater = common ++ List(
     "org.http4s" %% "http4s-blaze-server" % http4sVersion,
-    "org.broadinstitute.dsde.workbench" %% "workbench-google2" % "0.1-326ebf4",
-    "io.grpc" % "grpc-core" % "1.17.1"
+    "org.broadinstitute.dsde.workbench" %% "workbench-google2" % "0.1-7ae5c6d-SNAP" % "test->test;compile->compile",
+    "io.grpc" % "grpc-core" % "1.17.1",
+    "io.circe" %% "circe-fs2" % "0.11.0"
   )
   
   val server = common ++ List(

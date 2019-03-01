@@ -1,19 +1,17 @@
 package org.broadinstitute.workbench.hamm
 package costUpdater
 
-import cats.implicits._
 import cats.effect.Sync
+import cats.implicits._
+import fs2.concurrent.InspectableQueue
 import io.chrisdavenport.log4cats.Logger
 import io.circe.Encoder
-import org.http4s.HttpRoutes
-import org.http4s.dsl.Http4sDsl
-import org.http4s.circe.CirceEntityEncoder._
-import fs2.concurrent.InspectableQueue
-import org.broadinstitute.dsde.workbench.google2.Event
 import org.broadinstitute.workbench.hamm.core.BuildInfo
-import org.broadinstitute.workbench.hamm.model.MetadataResponse
+import org.http4s.HttpRoutes
+import org.http4s.circe.CirceEntityEncoder._
+import org.http4s.dsl.Http4sDsl
 
-class CostUpdaterService[F[_]: Sync: Logger](queue: InspectableQueue[F, Event[MetadataResponse]]) extends Http4sDsl[F] {
+class CostUpdaterService[F[_]: Sync: Logger, A](queue: InspectableQueue[F, A]) extends Http4sDsl[F] {
   implicit def costUpdaterEncoder: Encoder[CostUpdaterStatusResponse] = Encoder.forProduct3(
     "buildTime",
     "gitHeadCommit",
@@ -36,7 +34,7 @@ class CostUpdaterService[F[_]: Sync: Logger](queue: InspectableQueue[F, Event[Me
 }
 
 object CostUpdaterService {
-  def apply[F[_]: Sync: Logger](queue: InspectableQueue[F, Event[MetadataResponse]]): CostUpdaterService[F] = new CostUpdaterService[F](queue)
+  def apply[F[_]: Sync: Logger, A](queue: InspectableQueue[F, A]): CostUpdaterService[F, A] = new CostUpdaterService[F, A](queue)
 }
 
 final case class CostUpdaterStatusResponse(
