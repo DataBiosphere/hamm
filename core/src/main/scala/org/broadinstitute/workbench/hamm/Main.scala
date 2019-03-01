@@ -28,11 +28,10 @@ object Main extends IOApp with HammLogger {
     val app: Stream[IO, Unit] = for {
       //appConfig           <- Stream.fromEither[IO](Config.appConfig)
       httpClient          <- BlazeClientBuilder[IO](global).stream
-      //pricing             = new GooglePriceListDAO[IO](httpClient, appConfig.pricingGoogleUrl)
       pricing             = new GooglePriceListDAO(httpClient, googleConfig)
       metadataDAO         = new WorkflowMetadataDAO(httpClient, cromwellConfig)
       samAuthProvider     = new SamAuthProvider(samConfig)
-      workflowCostService = new WorkflowCostService(pricing, metadataDAO, samAuthProvider)
+      workflowCostService = new WorkflowCostService(pricing, metadataDAO, samAuthProvider, dbRef)
       statusService       = new StatusService
       hammRoutes          = new HammRoutes(samAuthProvider, workflowCostService, statusService)
       routes              = hammRoutes.routes

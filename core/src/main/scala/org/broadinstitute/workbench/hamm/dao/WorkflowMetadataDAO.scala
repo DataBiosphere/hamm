@@ -18,10 +18,8 @@ import org.http4s.headers.{Accept, Authorization}
 
 class WorkflowMetadataDAO(httpClient: Client[IO], config: CromwellConfig) extends HammLogger {
   def getMetadata(token: String, workflowId: WorkflowId): MetadataResponse = {
-    val url = config.cromwellUrl + "/" + workflowId.id + "/metadata"
+    val url = config.cromwellUrl + "/api/workflows/v1/" + workflowId.id + "/metadata"
     val request = GET(uri = Uri.unsafeFromString(url), Authorization(Credentials.Token(AuthScheme.Bearer, token)), Accept(MediaType.application.json))
-    logger.info("URL: " + url)
-    logger.info("REQUEST: " + request.toString)
     httpClient.expect[MetadataResponse](request)(http4sMetadataResponseDecoder).unsafeRunSync()
   }
 }

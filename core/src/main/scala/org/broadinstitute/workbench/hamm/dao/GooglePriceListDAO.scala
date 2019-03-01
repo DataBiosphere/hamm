@@ -11,6 +11,7 @@ import org.http4s.client.Client
 
 class GooglePriceListDAO(httpClient: Client[IO], config: GoogleConfig) {
 
+  // ToDo: Switch this over to using the billing API client
   def getGcpPriceList(): GooglePriceList = {
     httpClient.expect[GooglePriceList](config.googleCloudBillingUrl + s"/v1/services/${config.serviceId}/skus?key=${config.serviceKey}").unsafeRunSync()
   }

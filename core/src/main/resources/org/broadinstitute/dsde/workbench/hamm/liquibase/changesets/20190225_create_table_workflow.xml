@@ -11,7 +11,7 @@
             <column name="WORKFLOW_COLLECTION_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="IS_SUBWORKFLOW" type="BOOLEAN">
+            <column name="IS_SUB_WORKFLOW" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
             <column name="START_TIME" type="TIMESTAMPTZ">

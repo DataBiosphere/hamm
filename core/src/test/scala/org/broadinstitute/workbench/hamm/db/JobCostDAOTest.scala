@@ -7,22 +7,22 @@ import scalikejdbc.DB
 import scalikejdbc.config.DBs
 
 object JobCostDAOTest extends HammTestSuite {
-  val transactor = DummyDbTransactor.transactor()
-  val jobCostDAO = JobCostDAO
+//  val transactor = DummyDbTransactor.transactor()
+  val jobCostDAO = JobTableQueries
 
   test("sqllike") {
     check1 {
       DBs.setupAll()
 
-      (jobCost: JobCost) =>
+      (jobCost: Job) =>
 
       println(jobCost)
 
       DB.autoCommit { implicit session =>
-        JobCostDAO.insertCallCostSql(jobCost)
+        JobTableQueries.insertCallSql(jobCost)
       }
       val result = DB.readOnly { implicit session =>
-        JobCostDAO.getCallCostSql(jobCost.uniqueKey)
+        JobTableQueries.getCallSql(jobCost.uniqueKey)
       }
 
       println(result)

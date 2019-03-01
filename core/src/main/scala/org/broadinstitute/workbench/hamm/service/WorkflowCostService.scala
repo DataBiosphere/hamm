@@ -3,19 +3,19 @@ package org.broadinstitute.workbench.hamm.service
 import org.broadinstitute.workbench.hamm.{CostCalculator, HammLogger}
 import org.broadinstitute.workbench.hamm.auth.SamAuthProvider
 import org.broadinstitute.workbench.hamm.dao.{GooglePriceListDAO, WorkflowMetadataDAO}
+import org.broadinstitute.workbench.hamm.db.{DbReference, WorkflowTableQueries}
 import org.broadinstitute.workbench.hamm.model._
 
 class WorkflowCostService(pricing: GooglePriceListDAO,
                           workflowDAO: WorkflowMetadataDAO,
-                          samAuthProvider: SamAuthProvider) extends HammLogger {
+                          samAuthProvider: SamAuthProvider,
+                          dbRef: DbReference) extends HammLogger {
 
   def getWorkflowCost(token: String, workflowId: WorkflowId): WorkflowCostResponse = {
     // ToDo: some work here to make this less messy
-    logger.info("GETWORKFLOWCOST")
+
     val cromwellMetadata = workflowDAO.getMetadata(token, workflowId)
-    logger.info("CROMWELL METADATA" + cromwellMetadata.toString)
-    val authResponse     = samAuthProvider.hasWorkflowCollectionPermission(token, SamResource(cromwellMetadata.workflowCollectionId.id)) // ToDo: throw on this!!!
-    logger.info("AUTH RESPONSE " + authResponse.toString)
+    val authResponse     = samAuthProvider.hasWorkflowCollectionPermission(token, SamResource(cromwellMetadata.workflowCollectionId.asString)) // ToDo: throw on this!!!
     val rawPriceList     = pricing.getGcpPriceList()
     val priceList        = GooglePriceListDAO.parsePriceList(rawPriceList, getComputePriceKeysFromMetadata(cromwellMetadata), getStoragePriceKeysFromMetadata(cromwellMetadata))
     val result           = CostCalculator.getPriceOfWorkflow(cromwellMetadata, priceList)

@@ -9,7 +9,6 @@ import org.http4s.Uri
 class SamSwaggerClient(samBasePath: Uri) extends HammLogger {
 
   private[auth] def samResourcesApi(accessToken: String): ResourcesApi = {
-    logger.info("samBasePath.renderString " + samBasePath.renderString)
     val apiClient = new ApiClient()
     apiClient.setAccessToken(accessToken)
     apiClient.setBasePath(samBasePath.renderString)

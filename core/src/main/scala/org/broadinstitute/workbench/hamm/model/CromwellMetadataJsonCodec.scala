@@ -23,10 +23,6 @@ object CromwellMetadataJsonCodec {
         bootDiskSizeGb <- cursor.downField("bootDiskSizeGb").as[Int]
         preemptibleAttemptsAllowed <- cursor.downField("preemptible").as[Int]
       } yield {
-        //println("metadata codec cpuNumber      : " + cpuNumber      .toString)
-        //println("metadata codec disks          : " + disks          .toString)
-        //println("metadata codec bootDiskSizeGb : " + bootDiskSizeGb .toString)
-        //println("metadata codec preemptibleAttemptsAllowed : " + preemptibleAttemptsAllowed.toString)
         RuntimeAttributes(CpuNumber(cpuNumber), disks, BootDiskSizeGb(bootDiskSizeGb), PreemptibleAttemptsAllowed(preemptibleAttemptsAllowed))
       }
   }
@@ -47,9 +43,6 @@ object CromwellMetadataJsonCodec {
       startTime   <- cursor.downField("startTime").as[Instant]
       endTime     <- cursor.downField("endTime").as[Instant]
     } yield {
-      //println("metadata codec description : " + description .toString)
-      //println("metadata codec startTime   : " + startTime   .toString)
-      //println("metadata codec endTime     : " + endTime     .toString)
       ExecutionEvent(ExecutionEventDescription(description), startTime, endTime)
     }
 
@@ -68,15 +61,6 @@ object CromwellMetadataJsonCodec {
         backend             <- cursor.downField("backend").as[BackEnd]
         attempt             <- cursor.downField("attempt").as[Int]
       } yield{
-        //println("metadata codec ra                  : " + ra                  .toString)
-        //println("metadata codec executionEvents     : " + executionEvents     .toString)
-        //println("metadata codec isPreemptible       : " + isPreemptible       .toString)
-        //println("metadata codec isCallCachingOption : " + isCallCachingOption .toString)
-        //println("metadata codec region              : " + region              .toString)
-        //println("metadata codec machineType         : " + machineType         .toString)
-        //println("metadata codec status              : " + status              .toString)
-        //println("metadata codec backend             : " + backend             .toString)
-        //println("metadata codec attempt             : " + attempt             .toString)
         val isCallCaching = isCallCachingOption match {
           case Some(result) => result
           case None => false
