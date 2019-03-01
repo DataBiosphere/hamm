@@ -13,13 +13,12 @@ import org.broadinstitute.workbench.hamm.model.MetadataResponse
 class MessageProcessor[F[_]: Logger: Concurrent](subscriber: GoogleSubscriber[F, NotificationMessage], storage: GoogleStorageService[F]) {
   private[hamm] def parseNotification(notificationMessage: NotificationMessage): Stream[F, MetadataResponse] = {
     val metadataStream = storage.getObject(notificationMessage.bucketAndObject.bucketName, notificationMessage.bucketAndObject.blobName)
-    metadataStream through io.circe.fs2.byteStreamParser through io.circe.fs2.decoder[F, MetadataResponse]
+    metadataStream through fs2.compress.gunzip(2048) through io.circe.fs2.byteStreamParser through io.circe.fs2.decoder[F, MetadataResponse]
   }
 
   private val updateCost: Pipe[F, Event[NotificationMessage], Unit] = in => {
     in.flatMap {
       event =>
-        val metadataStream = storage.getObject(event.msg.bucketAndObject.bucketName, event.msg.bucketAndObject.blobName)
         for {
           metadata <- parseNotification(event.msg)
           //TODO: calculate cost and persist to database

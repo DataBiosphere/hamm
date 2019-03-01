@@ -31,7 +31,7 @@ object MessageProcessorTest extends HammTestSuite {
   }
 
   test("MessageProcessor should be able to parse NotificationMessage to metadata"){
-    check1{
+    check1 {
       (notificationMessage: NotificationMessage) =>
         val messageProcessor = MessageProcessor[IO](fakeSubScriber, fakeStorage)
         val result = messageProcessor.parseNotification(notificationMessage).compile.lastOrError.unsafeRunSync()
@@ -47,7 +47,8 @@ object MessageProcessorTest extends HammTestSuite {
     override def storeObject(bucketName: GcsBucketName, objectName: GcsBlobName, objectContents: Array[Byte], objectType: String): IO[Unit] = ???
     override def setBucketLifecycle(bucketName: GcsBucketName, lifecycleRules: List[BucketInfo.LifecycleRule]): IO[Unit] = ???
     override def unsafeGetObject(bucketName: GcsBucketName, blobName: GcsBlobName): IO[Option[String]] = ???
-    override def getObject(bucketName: GcsBucketName, blobName: GcsBlobName): Stream[IO, Byte] = Stream.emits(CromwellMetadataJsonCodecTest.sampleTest.getBytes("UTF-8")).covary[IO]
+    override def getObject(bucketName: GcsBucketName, blobName: GcsBlobName): Stream[IO, Byte] =
+      Stream.emits(CromwellMetadataJsonCodecTest.sampleTest.getBytes("UTF-8")).covary[IO] through fs2.compress.gzip(2048)
     override def removeObject(bucketName: GcsBucketName, objectName: GcsBlobName): IO[RemoveObjectResult] = ???
     override def createBucket(billingProject: GoogleProject, bucketName: GcsBucketName, acl: List[Acl]): IO[Unit] = ???
   }

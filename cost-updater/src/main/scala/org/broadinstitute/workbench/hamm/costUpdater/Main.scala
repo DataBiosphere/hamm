@@ -23,7 +23,7 @@ object Main extends IOApp {
       _ <- Stream.eval(logger.info("Starting Hamm Cost Updater Grpc server"))
 
       credential <- Stream.resource(org.broadinstitute.dsde.workbench.google2.credentialResource[IO](appConfig.google.subscriber.pathToCredentialJson))
-      blockingExecutionContext <- Stream.resource(ExecutionContexts.fixedThreadPool[IO](24)) //TODO: use fixed threadpool for now. Revist later
+      blockingExecutionContext <- Stream.resource(ExecutionContexts.fixedThreadPool[IO](256)) //scala.concurrent.blocking has default max extra thread number 256, so use this number to start with
       storage <- Stream.resource(GoogleStorageService.resource(appConfig.google.subscriber.pathToCredentialJson, blockingExecutionContext))
 
       queue <- Stream.eval(InspectableQueue.bounded[IO, Event[NotificationMessage]](10))
