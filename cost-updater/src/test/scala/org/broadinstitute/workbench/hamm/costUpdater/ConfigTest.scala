@@ -2,9 +2,7 @@ package org.broadinstitute.workbench.hamm.costUpdater
 
 import com.google.pubsub.v1.ProjectTopicName
 import org.broadinstitute.dsde.workbench.google2.SubscriberConfig
-import org.broadinstitute.dsde.workbench.model.google.GcsBucketName
 import org.broadinstitute.workbench.hamm.HammTestSuite
-import org.http4s.Uri
 
 import scala.concurrent.duration._
 
@@ -17,9 +15,7 @@ object ConfigTest extends HammTestSuite {
         ProjectTopicName.of("fakeProjectName", "fakeTopicName"),
         30 seconds,
         None
-      ),
-      MetadataNotificationCreaterConfig("fakePathToSubscriberCredential", Uri.unsafeFromString("https://www.googleapis.com"), GcsBucketName("cromwell-metadata"))
-    ))
+      )))
     assertEquals(config, Right(expectedConfig))
   }
 }

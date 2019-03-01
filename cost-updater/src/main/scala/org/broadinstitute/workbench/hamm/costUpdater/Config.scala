@@ -33,6 +33,6 @@ object Config {
   val appConfig = pureconfig.loadConfig[CostUpdaterAppConfig].leftMap(failures => new RuntimeException(failures.toList.map(_.description).mkString("\n")))
 }
 
-final case class GoogleConfig(subscriber: SubscriberConfig, metadataNotification: MetadataNotificationCreaterConfig)
+final case class GoogleConfig(subscriber: SubscriberConfig)
 
 final case class CostUpdaterAppConfig(google: GoogleConfig)

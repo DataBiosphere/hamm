@@ -6,15 +6,12 @@ import cats.implicits._
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 import fs2._
 import fs2.concurrent.InspectableQueue
-import org.broadinstitute.dsde.workbench.google2.{Event, GooglePublisherInterpreter, GoogleSubscriber}
-import org.broadinstitute.workbench.hamm.model._
+import org.broadinstitute.dsde.workbench.google2.{Event, GoogleSubscriber}
 import org.broadinstitute.workbench.hamm.model.CromwellMetadataJsonCodec.metadataResponseDecoder
-import org.http4s.server.blaze.BlazeServerBuilder
-import org.http4s.client.blaze.BlazeClientBuilder
+import org.broadinstitute.workbench.hamm.model._
 import org.http4s.implicits._
 import org.http4s.server.Router
-
-import scala.concurrent.ExecutionContext.global
+import org.http4s.server.blaze.BlazeServerBuilder
 
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =  {
@@ -27,19 +24,9 @@ object Main extends IOApp {
 
       credential <- Stream.resource(org.broadinstitute.dsde.workbench.google2.credentialResource[IO](appConfig.google.subscriber.pathToCredentialJson))
 
-      // create topic and set up permission properly
-      topicAdminClient <- Stream.resource(GooglePublisherInterpreter.topicAdminClientResource[IO](credential))
-      topicCreator = TopicCreator[IO](topicAdminClient, appConfig.google.subscriber.projectTopicName)
-      _ <- topicCreator.create
-
       queue <- Stream.eval(InspectableQueue.bounded[IO, Event[MetadataResponse]](10))
       subscriber <- Stream.resource(GoogleSubscriber.resource(appConfig.google.subscriber, queue))
       messageProcessor = MessageProcessor[IO](subscriber, appConfig.google.subscriber.projectTopicName)
-
-      // create notification from metadata bucket to the created topic
-      httpClient <- Stream.resource(BlazeClientBuilder[IO](global).resource)
-      metadataNotificationCreater = new MetadataNotificationCreater(httpClient, appConfig.google.metadataNotification)
-      _ <- Stream.eval(metadataNotificationCreater.createNotification(appConfig.google.subscriber.projectTopicName))
 
       service = CostUpdaterService[IO](queue).service
       serverStream = BlazeServerBuilder[IO]
