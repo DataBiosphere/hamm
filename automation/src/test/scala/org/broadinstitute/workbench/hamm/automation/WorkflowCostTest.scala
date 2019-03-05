@@ -14,7 +14,7 @@
 //  val authKey = Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER)
 //  import sys.process._
 //  val token: String = "gcloud auth print-access-token".!!
-//  defaultMetaData.put(authKey, s"Bearer $token")
+//  defaultMetaData.put(authKey, token)
 //
 ////  TODO: put this in a different file
 //  test("status should return build info"){

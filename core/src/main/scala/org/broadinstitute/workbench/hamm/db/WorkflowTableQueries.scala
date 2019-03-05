@@ -32,12 +32,20 @@ object WorkflowTableQueries {
   }
 
   def getWorkflowSql(workflowId: WorkflowId)(implicit session: DBSession): Option[Workflow] = {
-  //  import WorkflowBinders._
     val e = Workflow.syntax("e")
     withSQL {
       select.from(Workflow as e)
         .where.eq(e.workflowId, workflowId.id)
     }.map(Workflow(e.resultName)).single().apply()
+  }
+
+
+  def getWorkflowCostSql(workflowId: WorkflowId)(implicit session: DBSession): Option[Double] = {
+    val e = Workflow.syntax("e")
+    withSQL {
+      select(e.result.cost).from(Workflow as e)
+        .where.eq(e.workflowId, workflowId.id)
+    }.map(rs => rs.double(e.resultName.cost)).single().apply()
   }
 }
 

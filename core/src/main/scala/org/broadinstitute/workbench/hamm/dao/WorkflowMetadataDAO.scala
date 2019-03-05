@@ -16,6 +16,7 @@ import org.http4s.MediaType
 import org.http4s.dsl.io._
 import org.http4s.headers.{Accept, Authorization}
 
+// ToDo: This will go away because we'll won't be getting metadata directly
 class WorkflowMetadataDAO(httpClient: Client[IO], config: CromwellConfig) extends HammLogger {
   def getMetadata(token: String, workflowId: WorkflowId): MetadataResponse = {
     val url = config.cromwellUrl + "/api/workflows/v1/" + workflowId.id + "/metadata"

@@ -6,7 +6,7 @@ import org.broadinstitute.workbench.hamm._
 //import org.broadinstitute.workbench.hamm.model._
 //
 
-object GooglePriceListDAOTest extends HammTestSuite {
+object GooglePriceListDAOSpec extends HammTestSuite {
 //  test("SKUsDecoder should be able to decode PriceList"){
 //    val region = Region.stringToRegion("us-west2")
 //    val machineType = MachineType.Custom

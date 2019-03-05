@@ -9,6 +9,8 @@ import scalikejdbc._
 
 object JobTableQueries extends HammLogger {
 
+  val j = Job.syntax("j")
+
   def insertCallSql(callCost: Job)(implicit session: DBSession) = {
     import JobBinders._
     val column = Job.column
@@ -27,16 +29,32 @@ object JobTableQueries extends HammLogger {
 
   def getCallSql(callUniquekey: CallUniquekey)(implicit session: DBSession): Option[Job] = {
     import JobBinders._
-    val e = Job.syntax("e")
     withSQL {
-      select.from(Job as e)
-        .where.eq(e.workflowId, callUniquekey.workflowId)
-        .and.eq(e.callFqn, callUniquekey.callFqn)
-        .and.eq(e.attempt, callUniquekey.attempt)
-    }.map(Job(e.resultName)).single().apply()
+      select.from(Job as j)
+        .where.eq(j.workflowId, callUniquekey.workflowId)
+        .and.eq(j.callFqn, callUniquekey.callFqn)
+        .and.eq(j.attempt, callUniquekey.attempt)
+    }.map(Job(j.resultName)).single().apply()
   }
 
+  def getJobCostSql(jobId: JobId)(implicit session: DBSession): Option[Double] = {
+    withSQL {
+      select(j.result.cost).from(Job as j)
+        .where.eq(j.callFqn, jobId.id) //idk if callFqn is the right one, check with Qi
+    }.map(rs => rs.double(j.resultName.cost)).single().apply()
+  }
 
+  def getJobWorkflowCollectionId(jobId: JobId)(implicit session: DBSession): Option[WorkflowCollectionId] = {
+    val j = Job.syntax("j")
+    val w = Workflow.syntax("w")
+    withSQL {
+      select(w.result.workflowCollectionId)
+        .from(Workflow as w)
+        .leftJoin(Job as j)
+        .on(j.workflowId, w.workflowId)
+        .where.eq(j.callFqn, jobId.id)   //idk if callFqn is the right one, check with Qi
+    }.map(rs => WorkflowCollectionId(rs.string(w.resultName.workflowCollectionId))).single().apply()
+  }
 }
 
 final case class CallFqn(asString: String) extends AnyVal

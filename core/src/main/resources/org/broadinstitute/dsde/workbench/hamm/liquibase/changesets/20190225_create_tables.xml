@@ -32,7 +32,7 @@
         <createTable tableName="WORKFLOW">
             <column name="ID" type="SERIAL"></column>
             <column name="WORKFLOW_ID" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints primaryKey="true"/>
             </column>
             <column name="PARENT_WORKFLOW_ID" type="VARCHAR(255)"></column>
             <column name="ROOT_WORKFLOW_ID" type="VARCHAR(255)"></column>
@@ -57,6 +57,12 @@
 
     <changeSet logicalFilePath="hamm" author="asingh" id="job-unique-key">
         <addUniqueConstraint columnNames="WORKFLOW_ID, CALL_FQN, ATTEMPT, VENDOR_JOB_ID" constraintName="callUniqueIdentifierIndex" tableName="JOB"/>
+    </changeSet>
+
+    <changeSet logicalFilePath="hamm" author="asingh" id="workflow-id-foreign-key">
+        <addForeignKeyConstraint baseColumnNames="WORKFLOW_ID" baseTableName="JOB" constraintName="FK_WORKFLOW_ID"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="WORKFLOW_ID" referencedTableName="WORKFLOW"/>
     </changeSet>
 
     <changeSet logicalFilePath="hamm" author="ansingh" id="labelsIndex">

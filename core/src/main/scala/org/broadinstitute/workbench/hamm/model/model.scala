@@ -470,3 +470,5 @@ object UserInfo {
       samUserInfo.enabled,
       token)
 }
+
+final case class JobId(id: String )
