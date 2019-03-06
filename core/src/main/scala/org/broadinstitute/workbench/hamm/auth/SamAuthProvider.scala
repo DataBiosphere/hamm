@@ -4,14 +4,17 @@ package org.broadinstitute.workbench.hamm.auth
 import org.broadinstitute.workbench.hamm.HammLogger
 import org.broadinstitute.workbench.hamm.config.SamConfig
 import org.broadinstitute.workbench.hamm.model._
+import org.http4s.Credentials.Token
 
-class SamAuthProvider(val config: SamConfig) extends SamProvider with HammLogger {
+class SamAuthProvider(val config: SamConfig) extends HammLogger {
 
-  val workflowCollectionResourceTypeName = "workflow-collection"
-  val getCostResourceAction = "get_cost"
+  protected lazy val samClient = new SamSwaggerClient(config.samUrl)
 
-  def hasWorkflowCollectionPermission(token: String, samResource: SamResource): Boolean = {
-    samClient.checkResourceAction(token, workflowCollectionResourceTypeName, samResource.resourceName, getCostResourceAction)
+  private val workflowCollectionResourceTypeName = SamResourceType("workflow-collection")
+  private val getCostResourceAction = SamResourceAction("get_cost")
+
+  def hasWorkflowCollectionPermission(token: Token, samResource: SamResource): Boolean = {
+    samClient.checkResourceAction(token, workflowCollectionResourceTypeName, samResource, getCostResourceAction)
   }
 
 }

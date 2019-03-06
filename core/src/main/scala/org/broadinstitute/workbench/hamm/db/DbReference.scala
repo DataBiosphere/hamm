@@ -19,8 +19,7 @@ import scalikejdbc._
 
 object DbReference extends HammLogger {
 
-  def initWithLiquibase(liquibaseConfig: LiquibaseConfig, changelogParameters: Map[String, AnyRef] = Map.empty): Unit = {
-    DBs.setupAll()
+  private def initWithLiquibase(liquibaseConfig: LiquibaseConfig, changelogParameters: Map[String, AnyRef] = Map.empty): Unit = {
     val dbConnection = DB.connect()
     try {
       val liquibaseConnection = new JdbcConnection(dbConnection.conn)
@@ -46,9 +45,11 @@ object DbReference extends HammLogger {
     }
   }
 
-  def init(config: Config)(implicit executionContext: ExecutionContext): DbReference = {
-    val liquibaseConfig = config.as[LiquibaseConfig]("liquibase")
+  def dbSetUpAll = DBs.setupAll()
 
+  def init(config: Config)(implicit executionContext: ExecutionContext): DbReference = {
+    dbSetUpAll
+    val liquibaseConfig = config.as[LiquibaseConfig]("liquibase")
     if (liquibaseConfig.initWithLiquibase)
       initWithLiquibase(liquibaseConfig)
 
@@ -62,6 +63,12 @@ case class DbReference()(implicit val executionContext: ExecutionContext) {
 
   def inReadOnlyTransaction[A](f: DBSession => A): A = {
     DB.readOnly[A] { implicit session =>
+      f(session)
+    }
+  }
+
+  def inLocalTransaction[A](f: DBSession => A): A = {
+    DB.localTx[A] { implicit session =>
       f(session)
     }
   }

@@ -1,27 +1,27 @@
 import sbt._
 
 object Dependencies {
-  val circeVersion = "0.10.0"
-  val doobieVersion = "0.7.0-M2"
-  val http4sVersion = "0.20.0-M5"
-  val grpcNettyVersion = "1.18.0"
-  val liquibaseVersion = "3.5.3"
-  val minitestVersion = "2.2.2"
+  val circeVersion          = "0.10.0"
+  val doobieVersion         = "0.7.0-M2"
+  val http4sVersion         = "0.20.0-M5"
+  val grpcNettyVersion      = "1.18.0"
+  val liquibaseVersion      = "3.5.3"
+  val minitestVersion       = "2.2.2"
   val postgresDriverVersion = "42.2.4"
-  val samV = "0.1-b87909e-SNAP"
-  val scalikejdbcVersion = "3.3.2"
+  val samV                  = "0.1-b87909e-SNAP"
+  val scalaTestVersion      = "3.0.5"
+  val scalikejdbcVersion    = "3.3.2"
 
   val common = List(
     "com.github.pureconfig"             %% "pureconfig"          % "0.10.1",
     "com.iheart"                        %% "ficus"               % "1.4.3",
     "com.zaxxer"                        % "HikariCP"             % "1.3.+",
-    "io.grpc"                           %  "grpc-netty"          % grpcNettyVersion,
     "io.chrisdavenport"                 %% "log4cats-slf4j"      % "0.2.0",
     "io.circe"                          %% "circe-core"          % circeVersion,
     "io.circe"                          %% "circe-generic"       % circeVersion,
     "io.circe"                          %% "circe-parser"        % circeVersion,
     "io.grpc"                           % "grpc-netty"           % grpcNettyVersion,
-    "io.monix"                          %% "minitest"            % minitestVersion    % "test",
+    "io.monix"                          %% "minitest"            % minitestVersion    % "test", 
     "io.monix"                          %% "minitest-laws"       % minitestVersion    % "test",
     "io.sentry"                         %  "sentry-logback"      % "1.7.16",          // see doc https://docs.sentry.io/clients/java/modules/logback/
     "org.broadinstitute.dsde.workbench" %% "sam-client"          % samV,
@@ -34,9 +34,10 @@ object Dependencies {
     "org.postgresql"                    % "postgresql"           % postgresDriverVersion,
     "org.webjars"                       %  "webjars-locator"     % "0.34",
     "org.webjars"                       %  "swagger-ui"          % "3.17.3",
+    "org.scalatest"                     %% "scalatest"           % scalaTestVersion     % "test",
     "org.scalikejdbc"                   %% "scalikejdbc"         % scalikejdbcVersion,
     "org.scalikejdbc"                   %% "scalikejdbc-config"  % scalikejdbcVersion,
-    "org.scalikejdbc"                   %% "scalikejdbc-test"    % scalikejdbcVersion % "test"
+    "org.scalikejdbc"                   %% "scalikejdbc-test"    % scalikejdbcVersion   % "test"
   )
 
   val automation = common ++ List(

@@ -2,20 +2,17 @@ package org.broadinstitute.workbench.hamm.service
 
 import org.broadinstitute.workbench.hamm.HammLogger
 import org.broadinstitute.workbench.hamm.auth.SamAuthProvider
-import org.broadinstitute.workbench.hamm.dao.{GooglePriceListDAO, WorkflowMetadataDAO}
-import org.broadinstitute.workbench.hamm.db.{DbReference, JobTableQueries, WorkflowTableQueries}
+import org.broadinstitute.workbench.hamm.db.{CallFqn, DbReference, JobTableQueries, WorkflowTableQueries}
 import org.broadinstitute.workbench.hamm.model._
 import org.broadinstitute.workbench.hamm.model.HammException
+import org.http4s.Credentials.Token
 import org.http4s.Status
 
-class WorkflowCostService(pricing: GooglePriceListDAO,
-                          workflowDAO: WorkflowMetadataDAO,
-                          samAuthProvider: SamAuthProvider,
-                          dbRef: DbReference) extends HammLogger {
+class CostService(samAuthProvider: SamAuthProvider, dbRef: DbReference) extends HammLogger {
 
-  def getWorkflowCost(token: String, workflowId: WorkflowId): WorkflowCostResponse = {
+  def getWorkflowCost(token: Token, workflowId: WorkflowId): WorkflowCostResponse = {
     dbRef.inReadOnlyTransaction { implicit session =>
-      WorkflowTableQueries.getWorkflowSql(workflowId)
+      WorkflowTableQueries.getWorkflowQuery(workflowId)
     } match {
       case Some(workflow) if samAuthProvider.hasWorkflowCollectionPermission(token, SamResource(workflow.workflowCollectionId.asString)) =>
         WorkflowCostResponse(workflowId, workflow.cost)
@@ -24,13 +21,14 @@ class WorkflowCostService(pricing: GooglePriceListDAO,
     }
   }
 
-  def getJobCost(token: String, jobId: JobId): JobCostResponse = {
+  def getJobCost(token: Token, jobId: JobId): JobCostResponse = {
     val jobCostNotFoundException = HammException(Status.NotFound.code, s"Cost for job $jobId was not found.")
 
     dbRef.inReadOnlyTransaction { implicit session =>
-      JobTableQueries.getJobWorkflowCollectionId(jobId) match {
+
+      JobTableQueries.getJobWorkflowCollectionIdQuery(CallFqn(jobId.id)) match { // doing this weird CallFqn thing in my PR for now until I understand what these things mean...
         case Some(workflowCollectionId) if samAuthProvider.hasWorkflowCollectionPermission(token, SamResource(workflowCollectionId.asString)) => {
-          val jobCost = JobTableQueries.getJobCostSql(jobId).getOrElse(throw jobCostNotFoundException)
+          val jobCost = JobTableQueries.getJobCostQuery(CallFqn(jobId.id)).getOrElse(throw jobCostNotFoundException)
           JobCostResponse(jobId, jobCost)
         }
         case None => throw jobCostNotFoundException

@@ -2,10 +2,8 @@ package org.broadinstitute.workbench.hamm.dao
 
 //import io.circe.parser._
 import org.broadinstitute.workbench.hamm._
-//import org.broadinstitute.workbench.hamm.model.GooglePriceListJsonCodec._
-//import org.broadinstitute.workbench.hamm.model._
-//
 
+// ToDo: Replace this. Not bothering to add tests here because we're going to be using a different way of getting the price objects
 object GooglePriceListDAOSpec extends HammTestSuite {
 //  test("SKUsDecoder should be able to decode PriceList"){
 //    val region = Region.stringToRegion("us-west2")

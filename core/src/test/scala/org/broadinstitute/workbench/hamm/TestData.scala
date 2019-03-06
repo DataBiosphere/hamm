@@ -1,6 +1,8 @@
 package org.broadinstitute.workbench.hamm
 
+
 object TestData {
+
   val sampleGooglePriceJson: String =
     """
       |{

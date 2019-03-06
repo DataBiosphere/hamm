@@ -17,7 +17,7 @@ import org.http4s._
 import org.http4s.server.middleware.Logger
 import org.http4s.syntax.kleisli._
 
-class HammRoutes(samDAO: SamAuthProvider, workflowCostService: WorkflowCostService, statusService: StatusService)(implicit con: Concurrent[IO]) extends Http4sDsl[IO] with HammLogger {
+class HammRoutes(samDAO: SamAuthProvider, costService: CostService, statusService: StatusService)(implicit con: Concurrent[IO]) extends Http4sDsl[IO] with HammLogger {
 
   // A Router can mount multiple services to prefixes.  The request is passed to the
   //  service with the longest matching prefix.
@@ -31,16 +31,15 @@ class HammRoutes(samDAO: SamAuthProvider, workflowCostService: WorkflowCostServi
     case GET -> Root =>
       Ok( IO { statusService.status() } )
     case _ -> Root =>
-      // The default route result is NotFound. Sometimes MethodNotAllowed is more appropriate.
       MethodNotAllowed(Allow(GET))
   }
 
 
   def costRoutes = HttpRoutes.of[IO] {
     case request @ GET -> Root / "workflow" / workflowId =>
-      Ok(IO { workflowCostService.getWorkflowCost(extractToken(request), WorkflowId(workflowId)) })
+      Ok(IO { costService.getWorkflowCost(extractToken(request), WorkflowId(workflowId)) })
     case request @ GET -> Root / "job" / jobId =>
-      Ok(IO { workflowCostService.getJobCost(extractToken(request), JobId(jobId)) })
+      Ok(IO { costService.getJobCost(extractToken(request), JobId(jobId)) })
     case _ -> Root =>
       MethodNotAllowed(Allow(GET))
   }
@@ -50,11 +49,11 @@ class HammRoutes(samDAO: SamAuthProvider, workflowCostService: WorkflowCostServi
 
 
 
-  private def extractToken(request: Request[IO]): String = {
+  private def extractToken(request: Request[IO]): Token = {
     val unauthorizedException = HammException(Status.Unauthorized.code, "User is unauthorized.")
 
     request.headers.get(`Authorization`).getOrElse(throw unauthorizedException).credentials match {
-      case tokenCred: Token => tokenCred.token
+      case tokenCred: Token if tokenCred.authScheme.equals(AuthScheme.Bearer)=> tokenCred
       case _ => throw unauthorizedException
     }
   }

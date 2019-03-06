@@ -8,8 +8,7 @@ import org.broadinstitute.workbench.hamm.config.{CromwellConfig, GoogleConfig, S
 import net.ceedubs.ficus.Ficus._
 import org.broadinstitute.workbench.hamm.api.HammRoutes
 import org.broadinstitute.workbench.hamm.auth.SamAuthProvider
-import org.broadinstitute.workbench.hamm.dao.{GooglePriceListDAO, WorkflowMetadataDAO}
-import org.broadinstitute.workbench.hamm.service.{StatusService, WorkflowCostService}
+import org.broadinstitute.workbench.hamm.service.{StatusService, CostService}
 import org.broadinstitute.workbench.hamm.db.DbReference
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -28,12 +27,10 @@ object Main extends IOApp with HammLogger {
     val app: Stream[IO, Unit] = for {
       //appConfig           <- Stream.fromEither[IO](Config.appConfig)
       httpClient          <- BlazeClientBuilder[IO](global).stream
-      pricing             = new GooglePriceListDAO(httpClient, googleConfig)
-      metadataDAO         = new WorkflowMetadataDAO(httpClient, cromwellConfig)
       samAuthProvider     = new SamAuthProvider(samConfig)
-      workflowCostService = new WorkflowCostService(pricing, metadataDAO, samAuthProvider, dbRef)
+      costService         = new CostService(samAuthProvider, dbRef)
       statusService       = new StatusService
-      hammRoutes          = new HammRoutes(samAuthProvider, workflowCostService, statusService)
+      hammRoutes          = new HammRoutes(samAuthProvider, costService, statusService)
       routes              = hammRoutes.routes
       server              <- BlazeServerBuilder[IO].bindHttp(8080, "localhost").withHttpApp(routes).serve    //.compile.drain.as(ExitCode.Success)  // new WorkflowCostService[IO](pricing, metadataDAO, samAuthProvider)).start
     } yield ()

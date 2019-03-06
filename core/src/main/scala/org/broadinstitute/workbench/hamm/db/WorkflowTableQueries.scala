@@ -8,13 +8,13 @@ import scalikejdbc._
 import io.circe._
 import io.circe.parser._
 import io.circe.syntax._
-
 import org.broadinstitute.workbench.hamm.model._
+import org.postgresql.util.PGobject
 
 
 object WorkflowTableQueries {
 
-  def insertWorkflowCostSql(workflow: Workflow)(implicit session: DBSession) = {
+  def insertWorkflowQuery(workflow: Workflow)(implicit session: DBSession) = {
     import WorkflowBinders._
     val column = Workflow.column
     withSQL {
@@ -31,7 +31,7 @@ object WorkflowTableQueries {
     }.update.apply()
   }
 
-  def getWorkflowSql(workflowId: WorkflowId)(implicit session: DBSession): Option[Workflow] = {
+  def getWorkflowQuery(workflowId: WorkflowId)(implicit session: DBSession): Option[Workflow] = {
     val e = Workflow.syntax("e")
     withSQL {
       select.from(Workflow as e)
@@ -40,7 +40,7 @@ object WorkflowTableQueries {
   }
 
 
-  def getWorkflowCostSql(workflowId: WorkflowId)(implicit session: DBSession): Option[Double] = {
+  def getWorkflowCostQuery(workflowId: WorkflowId)(implicit session: DBSession): Option[Double] = {
     val e = Workflow.syntax("e")
     withSQL {
       select(e.result.cost).from(Workflow as e)
@@ -86,6 +86,10 @@ object WorkflowBinders {
     def apply(rs: ResultSet, index: Int): WorkflowId = WorkflowId(rs.getString(index))
   }
 
+  implicit val otherValueTypeBinder: TypeBinder[Option[WorkflowId]] = {
+    TypeBinder.option[String].map(_.map(WorkflowId.apply))
+  }
+
   implicit val WorkflowCollectionIdTypeBinder: TypeBinder[WorkflowCollectionId] = new TypeBinder[WorkflowCollectionId] {
     def apply(rs: ResultSet, label: String): WorkflowCollectionId = WorkflowCollectionId(rs.getString(label))
     def apply(rs: ResultSet, index: Int): WorkflowCollectionId = WorkflowCollectionId(rs.getString(index))
@@ -106,7 +110,7 @@ object WorkflowBinders {
   }
 
   implicit val workflowIdPbf: ParameterBinderFactory[WorkflowId] = ParameterBinderFactory[WorkflowId] {
-    value => (stmt, idx) => stmt.setString(idx, value.id)
+    value => (stmt, idx) =>  stmt.setString(idx, value.id)
   }
 
   implicit val WorkflowCollectionIdPbf: ParameterBinderFactory[WorkflowCollectionId] = ParameterBinderFactory[WorkflowCollectionId] {
@@ -114,7 +118,12 @@ object WorkflowBinders {
   }
 
   implicit val LabelPbf: ParameterBinderFactory[Map[String, String]] = ParameterBinderFactory[Map[String, String]] {
-    value => (stmt, idx) => stmt.setString(idx, value.asJson.noSpaces)
+    value => (stmt, idx) => {
+      val jsonObject = new PGobject()
+      jsonObject.setType("jsonb")
+      jsonObject.setValue(value.asJson.noSpaces)
+      stmt.setObject(8, jsonObject)
+    }
   }
 
 

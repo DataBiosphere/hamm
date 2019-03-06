@@ -459,7 +459,9 @@ final case class StoragePriceKey(region: Region, diskType: DiskType)
 
 final case class SamUserInfoResponse(userSubjectId: String, userEmail: String, enabled: Boolean)
 
-final case class SamResource(resourceName: String)
+final case class SamResource(asString: String)
+final case class SamResourceType(asString: String)
+final case class SamResourceAction(asString: String)
 final case class UserInfo(subjectId: String, email: String, enabled: Boolean, token: String)
 
 object UserInfo {
