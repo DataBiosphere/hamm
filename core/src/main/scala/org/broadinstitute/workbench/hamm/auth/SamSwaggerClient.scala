@@ -20,7 +20,6 @@ class SamSwaggerClient(samBasePath: Uri) extends HammLogger {
   def checkResourceAction(token: Token, samResourceType: SamResourceType, samResource: SamResource, action: SamResourceAction):Boolean = {
     val samResourceApi = samResourcesApi(token.token)
     val result = samResourceApi.resourceAction(samResourceType.asString, samResource.asString, action.asString)
-    logger.info("CHECK RESOURCE ACTION: " + result)
     result
   }
 

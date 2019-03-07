@@ -73,9 +73,9 @@ class HammRoutes(samDAO: SamAuthProvider, costService: CostService, statusServic
     }
   }
 
-  implicit val statusResponseEncoder: EntityEncoder[IO, StatusResponse] = jsonEncoderOf[IO, StatusResponse]
-  implicit val workflowCostResponseResponseEncoder: EntityEncoder[IO, WorkflowCostResponse] = jsonEncoderOf[IO, WorkflowCostResponse]
-  implicit val jobCostResponseResponseEncoder: EntityEncoder[IO, JobCostResponse] = jsonEncoderOf[IO, JobCostResponse]
 
+  implicit val statusResponseEncoder: EntityEncoder[IO, StatusResponse] = jsonEncoderOf[IO, StatusResponse]
+  implicit val workflowCostResponseEncoder: EntityEncoder[IO, WorkflowCostResponse] = jsonEncoderOf[IO, WorkflowCostResponse]
+  implicit val jobCostResponseEncoder: EntityEncoder[IO, JobCostResponse] = jsonEncoderOf[IO, JobCostResponse]
 
 }

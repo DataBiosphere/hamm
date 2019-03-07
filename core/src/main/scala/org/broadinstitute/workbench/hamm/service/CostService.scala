@@ -17,12 +17,12 @@ class CostService(samAuthProvider: SamAuthProvider, dbRef: DbReference) extends 
       case Some(workflow) if samAuthProvider.hasWorkflowCollectionPermission(token, SamResource(workflow.workflowCollectionId.asString)) =>
         WorkflowCostResponse(workflowId, workflow.cost)
       // this exception occurs when the workflow isn't one we have a cost for OR if the user doesn't have permissions on the collection.
-      case None => throw HammException(Status.NotFound.code, s"Workflow $workflowId was either not found.")
+      case None => throw HammException(Status.NotFound.code, s"Cost for Workflow ${workflowId.id} was not found.")
     }
   }
 
   def getJobCost(token: Token, jobId: JobId): JobCostResponse = {
-    val jobCostNotFoundException = HammException(Status.NotFound.code, s"Cost for job $jobId was not found.")
+    val jobCostNotFoundException = HammException(Status.NotFound.code, s"Cost for job ${jobId.id} was not found.")
 
     dbRef.inReadOnlyTransaction { implicit session =>
 
