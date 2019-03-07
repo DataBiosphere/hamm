@@ -21,7 +21,7 @@
     </encoder>
   </appender>
 
-  <logger name="org.broadinstitute.workbench.hamm" level="INFO" additivity="false">
+  <logger name="org.broadinstitute.dsde.workbench.hamm" level="INFO" additivity="false">
     <appender-ref ref="FILE" />
     <appender-ref ref="console" />
   </logger>
