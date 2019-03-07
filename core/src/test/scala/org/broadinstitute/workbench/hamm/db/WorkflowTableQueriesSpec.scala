@@ -8,7 +8,6 @@ import scalikejdbc.scalatest.AutoRollback
 class WorkflowTableQueriesSpec extends FlatSpec with Matchers with AutoRollback with TestComponent {
 
   it should "insert and get a workflow" in { implicit session =>
-
     WorkflowTableQueries.getWorkflowQuery(TestData.testWorkflowId) shouldBe None
 
     WorkflowTableQueries.insertWorkflowQuery(TestData.testWorkflow)

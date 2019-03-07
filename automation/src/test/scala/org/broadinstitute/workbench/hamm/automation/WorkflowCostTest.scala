@@ -26,7 +26,7 @@
 //      assert(response.sbtVersion.contains("1.2.8"))
 //    }
 //
-// res.compile.last.unsafeRunSync().get
+//    res.compile.last.unsafeRunSync().get
 //  }
 //
 //  test("workflow getCost should calculate compute cost"){
@@ -40,7 +40,7 @@
 //          val expectedResponse = WorkflowCostResponse(0.06899999999999999)
 //          assert(response == expectedResponse)
 //        }
-
+//
 //        res.compile.last.unsafeRunSync().get
 //        true
 //    }
