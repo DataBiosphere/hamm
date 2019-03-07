@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog logicalFilePath="hamm" xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet logicalFilePath="hamm" author="ansingh" id="job">
+        <createTable tableName="JOB">
+            <column name="ID" type="SERIAL"></column>
+            <column name="WORKFLOW_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CALL_FQN" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ATTEMPT" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="JOB_INDEX" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VENDOR_JOB_ID" type="VARCHAR(255)"></column>
+            <column name="START_TIME" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+            <column name="END_TIME" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COST" type="FLOAT8">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet logicalFilePath="hamm" author="ansingh" id="workflow">
+        <createTable tableName="WORKFLOW">
+            <column name="ID" type="SERIAL"></column>
+            <column name="WORKFLOW_ID" type="VARCHAR(255)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PARENT_WORKFLOW_ID" type="VARCHAR(255)"></column>
+            <column name="ROOT_WORKFLOW_ID" type="VARCHAR(255)"></column>
+            <column name="WORKFLOW_COLLECTION_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="IS_SUB_WORKFLOW" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="START_TIME" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+            <column name="END_TIME" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LABELS" type="JSONB"></column>
+            <column name="COST" type="FLOAT8">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet logicalFilePath="hamm" author="asingh" id="job-unique-key">
+        <addUniqueConstraint columnNames="WORKFLOW_ID, CALL_FQN, ATTEMPT, VENDOR_JOB_ID" constraintName="callUniqueIdentifierIndex" tableName="JOB"/>
+    </changeSet>
+
+    <changeSet logicalFilePath="hamm" author="asingh" id="workflow-id-foreign-key">
+        <addForeignKeyConstraint baseColumnNames="WORKFLOW_ID" baseTableName="JOB" constraintName="FK_WORKFLOW_ID"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="WORKFLOW_ID" referencedTableName="WORKFLOW"/>
+    </changeSet>
+
+    <changeSet logicalFilePath="hamm" author="ansingh" id="labelsIndex">
+        <sql>CREATE INDEX IF NOT EXISTS labelsIndex ON WORKFLOW USING GIN (LABELS)</sql>
+    </changeSet>
+</databaseChangeLog>

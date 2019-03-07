@@ -1,6 +1,23 @@
 package org.broadinstitute.workbench.hamm
 
+import java.time.Instant
+
+import org.broadinstitute.workbench.hamm.db.Workflow
+import org.broadinstitute.workbench.hamm.model.{SamResource, SamResourceAction, WorkflowCollectionId, WorkflowId}
+import org.http4s.AuthScheme
+import org.http4s.Credentials.Token
+
+
 object TestData {
+
+  val testWorkflowId = WorkflowId("fake-id")
+  val testWorkflow = Workflow(testWorkflowId, None, None, WorkflowCollectionId("fake-wf-collection-id"), false, Instant.now(), Instant.now(), Map.empty[String,String], 1)
+
+  val testToken = Token(AuthScheme.Bearer, "fake-id")
+  val testSamResource = SamResource("fake-wf-collection-id")
+  val testSamResourceAction = SamResourceAction("get_cost")
+
+
   val sampleGooglePriceJson: String =
     """
       |{

@@ -8,10 +8,10 @@ import org.scalacheck.{Arbitrary, Gen}
 
 object Generators {
   val genBootDiskSizedGb = Gen.posNum[Int].map(BootDiskSizeGb)
-  val genWorkflowId = Gen.uuid.map(WorkflowId)
+  val genWorkflowId = Gen.alphaLowerStr.map(WorkflowId)
   val genSubmissionId = Gen.uuid.map(SubmissionId)
   val genWorkspaceId = Gen.uuid.map(WorkspaceId)
-  val genWorkflowCollectionId = Gen.uuid.map(WorkflowCollectionId)
+  val genWorkflowCollectionId = Gen.alphaLowerStr.map(WorkflowCollectionId)
   val genLabelMap: Gen[Map[String, String]] = Gen.mapOf[String, String](Gen.listOfN(2, Gen.alphaStr).map(x => (x(0), x(1))))
   val genNonEmptyLabelMap: Gen[Map[String, String]] = Gen.nonEmptyMap[String, String](Gen.listOfN(2, Gen.alphaStr.map(x => s"ll$x")).map(x => (x(0), x(1))))
   val genLabel: Gen[Label] = for {
@@ -29,12 +29,12 @@ object Generators {
     endTime <- Gen.const(Instant.now())
     label <- genLabelMap
     cost <- Gen.posNum[Double]
-  } yield WorkflowDB(id, parentWorkflowId, rootWorkflowId, workflowCollectionId, isSubWorkflow, startTime, endTime, label, cost)
+  } yield Workflow(id, parentWorkflowId, rootWorkflowId, workflowCollectionId, isSubWorkflow, startTime, endTime, label, cost)
 
   val genListOfWorkflowDBWithSameLabel = for {
-    label <- genLabel
+    labels <- genLabel
     workflows <- Gen.nonEmptyListOf(genWorkflowDb)
-  } yield workflows.map(x => x.copy(label = Map(label.key -> label.value)))
+  } yield workflows.map(x => x.copy(labels = Map(labels.key -> labels.value)))
 
   val genJobCost = for{
     workflowId <- genWorkflowId
@@ -45,12 +45,12 @@ object Generators {
     startTime <- Gen.const(Instant.now())
     endTime <- Gen.const(Instant.now())
     cost <- Gen.posNum[Double]
-  } yield JobCost(workflowId, callFqn, attempt, jobIndexId, vendorJobId, startTime, endTime, cost)
+  } yield Job(workflowId, callFqn, attempt, jobIndexId, vendorJobId, startTime, endTime, cost)
 
   val genNonEmptyLabelWorkflowDb = for {
-    label <- genNonEmptyLabelMap
+    labels <- genNonEmptyLabelMap
     workflowDb <- genWorkflowDb
-  } yield workflowDb.copy(label = label)
+  } yield workflowDb.copy(labels = labels)
 
   implicit val arbJobCostDb = Arbitrary(genJobCost)
 }

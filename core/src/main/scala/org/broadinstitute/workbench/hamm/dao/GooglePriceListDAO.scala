@@ -1,23 +1,19 @@
 package org.broadinstitute.workbench.hamm.dao
 
-import cats.effect.Sync
-import cats.implicits._
+import cats.effect.IO
+import org.broadinstitute.workbench.hamm.config.GoogleConfig
 import org.broadinstitute.workbench.hamm.model.GooglePriceListJsonCodec._
 import org.broadinstitute.workbench.hamm.model._
-import org.http4s.Uri
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.client.Client
 
 
 
-class GooglePriceListDAO[F[_]: Sync](httpClient: Client[F], uri: Uri) {
+class GooglePriceListDAO(httpClient: Client[IO], config: GoogleConfig) {
 
-  def getGcpPriceList(): F[GooglePriceList] = {
-    val serviceId = "6F81-5844-456A"
-    val key = "[KEY]"
-    for {
-      googlePriceList <- httpClient.expect[GooglePriceList](uri + s"/v1/services/$serviceId/skus?key=$key")
-    } yield googlePriceList
+  // ToDo: Switch this over to using the billing API client
+  def getGcpPriceList(): GooglePriceList = {
+    httpClient.expect[GooglePriceList](config.googleCloudBillingUrl + s"/v1/services/${config.serviceId}/skus?key=${config.serviceKey}").unsafeRunSync()
   }
 
 }
@@ -25,9 +21,9 @@ class GooglePriceListDAO[F[_]: Sync](httpClient: Client[F], uri: Uri) {
 
 object GooglePriceListDAO {
 
-  def parsePriceList(googlePriceList: GooglePriceList, computePriceKeys: List[ComputePriceKey], storagePriceKeys: List[StoragePriceKey]): Either[Throwable, PriceList] = {
+  def parsePriceList(googlePriceList: GooglePriceList, computePriceKeys: List[ComputePriceKey], storagePriceKeys: List[StoragePriceKey]): PriceList = {
 
-    def getPrice(region: Region, resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType, descriptionShouldInclude: List[String], descriptionShouldNotInclude: List[String]): Either[String, Double] = {
+    def getPrice(region: Region, resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType, descriptionShouldInclude: List[String], descriptionShouldNotInclude: List[String]): Double = {
       val sku = googlePriceList.priceItems.filter { priceItem =>
         (priceItem.regions.contains(region)
           && priceItem.category.resourceFamily.equals(resourceFamily)
@@ -37,60 +33,48 @@ object GooglePriceListDAO {
           && descriptionShouldNotInclude.foldLeft(true)((a, b) => a && !priceItem.description.asString.contains(b)))
       }
       sku.length match {
-        case 0  => Left(s"No SKUs matched with region $region, resourceFamily $resourceFamily, resourceGroup $resourceGroup, $usageType usageType, and description including $descriptionShouldInclude and notIncluding $descriptionShouldNotInclude.")
+        case 0  => throw HammException(404, s"No SKUs matched with region $region, resourceFamily $resourceFamily, resourceGroup $resourceGroup, $usageType usageType, and description including $descriptionShouldInclude and notIncluding $descriptionShouldNotInclude.")
         case 1 => getPriceFromSku(sku.head)
-        case tooMany => Left(s"$tooMany SKUs matched with region $region, resourceFamily $resourceFamily, resourceGroup $resourceGroup, $usageType usageType, and description including $descriptionShouldInclude and notIncluding $descriptionShouldNotInclude. ${sku.toString}.")
+        case tooMany => throw new Exception(s"$tooMany SKUs matched with region $region, resourceFamily $resourceFamily, resourceGroup $resourceGroup, $usageType usageType, and description including $descriptionShouldInclude and notIncluding $descriptionShouldNotInclude. ${sku.toString}.")
       }
     }
 
-    def getPriceFromSku(priceItem: GooglePriceItem): Either[String, Double] = {
+    def getPriceFromSku(priceItem: GooglePriceItem): Double = {
       // ToDo: Currently just takes first, make it take either most recent or make it dependent on when the call ran
       priceItem.pricingInfo.headOption match {
-        case None => Left(s"Price Item $priceItem had no pricing info")
-        case Some(head) => Right(head.tieredRates.filter(rate => rate.startUsageAmount.asInt == 0).head.nanos.asInt.toDouble / 1000000000)
+        case None => throw new Exception(s"Price Item $priceItem had no pricing info")
+        case Some(head) => head.tieredRates.filter(rate => rate.startUsageAmount.asInt == 0).head.nanos.asInt.toDouble / 1000000000
       }
     }
 
-    def getComputePrices(computePriceKey: ComputePriceKey): Either[String, ComputePrices] = {
-      for {
-        cpuPrice <- getPrice(computePriceKey.region,
-                            ResourceFamily.Compute,
-                            ResourceGroup(computePriceKey.machineType.asCPUresourceGroupString),
-                            computePriceKey.usageType,
-                            List(computePriceKey.machineType.asDescriptionString, ResourceFamily.Compute.asDescriptionString),
-                            List("CPU Upgrade Premium"))
-        ramPrice <- getPrice(computePriceKey.region,
-                            ResourceFamily.Compute,
-                            ResourceGroup(computePriceKey.machineType.asRAMresourceGroupString),
-                            computePriceKey.usageType,
-                            List(computePriceKey.machineType.asDescriptionString, ResourceFamily.Storage.asDescriptionString),
-                            List("CPU Upgrade Premium"))
-      }  yield ComputePrices(cpuPrice, ramPrice)
+    def getComputePrices(computePriceKey: ComputePriceKey): ComputePrices = {
+      val cpuPrice = getPrice(computePriceKey.region,
+                              ResourceFamily.Compute,
+                              ResourceGroup(computePriceKey.machineType.asCPUresourceGroupString),
+                              computePriceKey.usageType,
+                              List(computePriceKey.machineType.asDescriptionString, ResourceFamily.Compute.asDescriptionString),
+                              List("CPU Upgrade Premium"))
+
+      val ramPrice = getPrice(computePriceKey.region,
+                              ResourceFamily.Compute,
+                              ResourceGroup(computePriceKey.machineType.asRAMresourceGroupString),
+                              computePriceKey.usageType,
+                              List(computePriceKey.machineType.asDescriptionString, ResourceFamily.Storage.asDescriptionString),
+                              List("CPU Upgrade Premium"))
+
+      ComputePrices(cpuPrice, ramPrice)
     }
 
-    def getStoragePrice(storagePriceKey: StoragePriceKey): Either[String, Double] = {
+    def getStoragePrice(storagePriceKey: StoragePriceKey): Double = {
         getPrice(storagePriceKey.region, ResourceFamily.Storage, ResourceGroup(storagePriceKey.diskType.asResourceGroupString), UsageType.OnDemand, List(), List("Regional"))
     }
 
-    val computePrices: Seq[Either[String, (ComputePriceKey, ComputePrices)]] = computePriceKeys.map{ key =>
-      for {
-        prices <- getComputePrices(key)
-      } yield (key, prices)
-    }
+    val computePrices: List[(ComputePriceKey, ComputePrices)] = computePriceKeys.map{ key => (key, getComputePrices(key))}
 
-    val storagePrices = storagePriceKeys.map { key =>
-      for {
-        price <- getStoragePrice(key)
-      } yield (key, price / (24 * 365 / 12)) // price we get is per month, we want per hour
-    }
+    // price we get is per month, we want per hour
+    val storagePrices: List[(StoragePriceKey, Double)] = storagePriceKeys.map { key => (key, getStoragePrice(key) / (24 * 365 / 12))}
 
-    for {
-      computePricesParseq <- computePrices.toList.parSequence.leftMap(errors => new Exception(errors.toString)).map(x => ComputePriceList(x.toMap))
-      storagePricesParseq <- storagePrices.toList.parSequence.leftMap(errors => new Exception(errors.toString)).map(x => StoragePriceList(x.toMap))
-    } yield {
-      val priceList = PriceList(computePricesParseq, storagePricesParseq)
-      priceList
-    }
+    PriceList(ComputePriceList(computePrices.toMap), StoragePriceList(storagePrices.toMap))
   }
 
 }

@@ -128,6 +128,11 @@ object MachineType {
     G1SMALL_METADATA_STRING -> G1Small
   )
 
+  def partialStringToMachineType(str: String): MachineType = {
+    stringToMachineType.keys.find(key => str.contains(key))
+      .flatMap { machineTypeString => stringToMachineType.get(machineTypeString) }
+      .getOrElse(throw new Exception(s"Could not get machine type from $str"))
+  }
 
   case object Custom extends MachineType {
     def asString = CUSTOM
@@ -399,8 +404,8 @@ object BackEnd {
 
 final case class CpuNumber(asInt: Int) extends AnyVal
 final case class BootDiskSizeGb(asInt: Int) extends AnyVal
-final case class WorkflowId(uuid: UUID) extends AnyVal
-final case class WorkflowCollectionId(uuid: UUID) extends AnyVal
+final case class WorkflowId(id: String) extends AnyVal
+final case class WorkflowCollectionId(asString: String) extends AnyVal
 final case class SubmissionId(uuid: UUID) extends AnyVal
 final case class WorkspaceId(uuid: UUID) extends AnyVal
 final case class DiskName(asString: String) extends AnyVal
@@ -422,14 +427,15 @@ final case class Call(runtimeAttributes: RuntimeAttributes,
                       status: Status,
                       machineType: MachineType,
                       backend: BackEnd,
-                      attempt: Attempt)
+                      attempt: Attempt
+                     )
 
 final case class MetadataResponse(calls: List[Call], startTime: Instant, endTime: Instant, workflowCollectionId: WorkflowCollectionId, labels: Map[String, String])
 
 object MetadataResponse {
   def apply(calls: List[Call], startTime: Instant, endTime: Instant, labels: Map[String, String]): MetadataResponse = {
     labels.get("caas-collection-name") match {
-      case Some(c) => MetadataResponse(calls, startTime, endTime, WorkflowCollectionId(UUID.fromString(c)), labels)
+      case Some(c) => MetadataResponse(calls, startTime, endTime, WorkflowCollectionId(c), labels)
       case None => throw new Exception(s"Workflow did not have a collection associated with it.")
     }
   }
@@ -453,7 +459,9 @@ final case class StoragePriceKey(region: Region, diskType: DiskType)
 
 final case class SamUserInfoResponse(userSubjectId: String, userEmail: String, enabled: Boolean)
 
-final case class SamResource(resourceName: String)
+final case class SamResource(asString: String)
+final case class SamResourceType(asString: String)
+final case class SamResourceAction(asString: String)
 final case class UserInfo(subjectId: String, email: String, enabled: Boolean, token: String)
 
 object UserInfo {
@@ -464,3 +472,5 @@ object UserInfo {
       samUserInfo.enabled,
       token)
 }
+
+final case class JobId(id: String )

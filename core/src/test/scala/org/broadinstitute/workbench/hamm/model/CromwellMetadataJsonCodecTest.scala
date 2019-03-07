@@ -1,16 +1,16 @@
 package org.broadinstitute.workbench.hamm.model
 
 import java.time.Instant
-import java.util.UUID
 
 import io.circe.parser._
-import org.broadinstitute.workbench.hamm.HammTestSuite
+import org.scalatest.{FlatSpec, Matchers}
 import org.broadinstitute.workbench.hamm.model.CromwellMetadataJsonCodec._
 
 
-object CromwellMetadataJsonCodecTest extends HammTestSuite {
-  test("metadataResponseDecoder should be able to decode MetadataResponse"){
-    val res = for {
+object CromwellMetadataJsonCodecTest extends FlatSpec with Matchers {
+
+  it should "decode a MetadataResponse" in {
+    for {
       json <- parse(sampleTest)
       r <- json.as[MetadataResponse]
     } yield {
@@ -43,14 +43,12 @@ object CromwellMetadataJsonCodecTest extends HammTestSuite {
           Attempt(1))),
         Instant.parse("2019-01-02T22:10:07.088Z"),
         Instant.parse("2019-01-02T22:14:47.266Z"),
-        WorkflowCollectionId(UUID.fromString("2d3fd356-e3be-4953-92f1-60af623e6fa5")),
+        WorkflowCollectionId("2d3fd356-e3be-4953-92f1-60af623e6fa5"),
         Map("cromwell-workflow-id" -> "cromwell-0942e6dc-2a2e-4912-86e2-b91fdaf06c44",
           "caas-collection-name" -> "2d3fd356-e3be-4953-92f1-60af623e6fa5")
       )
-      assertEquals(r, expectedResponse)
+      r shouldBe expectedResponse
     }
-
-    res.fold[Unit](e => throw e, identity)
   }
 
   val sampleTest: String =

@@ -5,4 +5,5 @@ target/
 .metals/
 .bloop/
 project/.bloop/
+/core/src/main/resources/application.conf
 nginx*

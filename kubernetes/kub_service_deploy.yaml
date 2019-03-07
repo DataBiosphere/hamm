@@ -41,22 +41,22 @@ spec:
       containers:
       # https://cloud.google.com/endpoints/docs/grpc/specify-proxy-startup-options
       # https://github.com/cloudendpoints/esp
-      - name: esp
-        image: gcr.io/endpoints-release/endpoints-runtime:1.16.0
-        args: [
-          "--service=ccm.endpoints.workbench-firestore.cloud.goog",
-          "--rollout_strategy=managed",
-          "--http2_port=9000",
-          "--ssl_port=443",
-          "--backend=grpc://localhost:9999"
-        ]
-        ports:
-          - containerPort: 9000
-          - containerPort: 443
-        volumeMounts:
-          - mountPath: /etc/nginx/ssl
-            name: nginx-ssl
-            readOnly: true
+#      - name: esp
+#        image: gcr.io/endpoints-release/endpoints-runtime:1.16.0
+#        args: [
+#          "--service=ccm.endpoints.workbench-firestore.cloud.goog",
+#          "--rollout_strategy=managed",
+#          "--http2_port=9000",
+#          "--ssl_port=443",
+#          "--backend=grpc://localhost:9999"
+#        ]
+#        ports:
+#          - containerPort: 9000
+#          - containerPort: 443
+#        volumeMounts:
+#          - mountPath: /etc/nginx/ssl
+#            name: nginx-ssl
+#            readOnly: true
       - name: ccm
         env:
           - name: DB_HOST
