@@ -2,12 +2,13 @@ package org.broadinstitute.workbench.hamm.model
 
 import io.circe.parser._
 import org.broadinstitute.workbench.hamm._
-//import org.broadinstitute.workbench.hamm.dao.GooglePriceListDAO
+import org.scalatest.{FlatSpec, Matchers}
+import org.broadinstitute.workbench.hamm.dao.GooglePriceListDAO
 import org.broadinstitute.workbench.hamm.model.GooglePriceListJsonCodec._
 
-object GooglePriceListJsonCodecTest extends HammTestSuite {
+object GooglePriceListJsonCodecTest extends FlatSpec with Matchers {
 
-  test("SKUsDecoder should be able to decode SKUs"){
+  it should "decode SKUs" in {
     val res = for {
       json <- parse(TestData.sampleGooglePriceJson)
       r <- json.as[GooglePriceList]
@@ -138,24 +139,22 @@ object GooglePriceListJsonCodecTest extends HammTestSuite {
             List(Region.Australiasoutheast1),
             List(PricingInfo(UsageUnit("h"), List(TieredRate(StartUsageAmount(0), CurrencyCode("USD"), Units(0), Nanos(8980000))))))))
 
-      assertEquals(r, expectedResponse)
+      r shouldBe expectedResponse
     }
-    res.fold[Unit](e => throw e, identity)
   }
 
-//  test("SKUsDecoder should be able to decode PriceList"){
-//    val region = Region.stringToRegion("us-west2")
-//    val machineType = MachineType.Custom
-//    val res = for {
-//      json <- parse(TestData.sampleGooglePriceJson)
-//      googlePriceList <- json.as[GooglePriceList]
-//      r <- GooglePriceListDAO.parsePriceList(googlePriceList, List(ComputePriceKey(region, machineType, UsageType.Preemptible)), List(StoragePriceKey(region, DiskType.SSD)))
-//    } yield {
-//      val expectedResponse = PriceList(
-//        ComputePriceList(Map(ComputePriceKey(Region.USwest2,MachineType.Custom,UsageType.Preemptible) -> ComputePrices(0.007986,0.001076))),
-//        StoragePriceList(Map(StoragePriceKey(Region.USwest2,DiskType.SSD) -> .0002794520547945205)))
-//      assertEquals(r, expectedResponse)
-//    }
-//    res.fold[Unit](e => throw e, identity)
-//  }
+  it should "decode a PriceList" in {
+    val region = Region.stringToRegion("us-west2")
+    val machineType = MachineType.Custom
+    val res = for {
+      json <- parse(TestData.sampleGooglePriceJson)
+      googlePriceList <- json.as[GooglePriceList]
+      r <- GooglePriceListDAO.parsePriceList(googlePriceList, List(ComputePriceKey(region, machineType, UsageType.Preemptible)), List(StoragePriceKey(region, DiskType.SSD)))
+    } yield {
+      val expectedResponse = PriceList(
+        ComputePriceList(Map(ComputePriceKey(Region.USwest2, MachineType.Custom, UsageType.Preemptible) -> ComputePrices(0.007986, 0.001076))),
+        StoragePriceList(Map(StoragePriceKey(Region.USwest2, DiskType.SSD) -> .0002794520547945205)))
+      r shouldBe expectedResponse
+    }
+  }
 }
