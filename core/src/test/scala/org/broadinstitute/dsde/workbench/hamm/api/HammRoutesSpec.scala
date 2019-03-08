@@ -2,18 +2,38 @@ package org.broadinstitute.dsde.workbench.hamm.api
 
 import cats.effect.IO
 import org.broadinstitute.dsde.workbench.hamm.{HammLogger, TestComponent, TestData}
-import org.broadinstitute.dsde.workbench.hamm.db.WorkflowTableQueries
-import org.broadinstitute.dsde.workbench.hamm.service.WorkflowCostResponse
+import org.broadinstitute.dsde.workbench.hamm.service.{JobCostResponse, WorkflowCostResponse}
 import org.http4s.circe.CirceEntityDecoder._
-import org.scalatest.Matchers
-import org.scalatest.fixture.FlatSpec
-import scalikejdbc.scalatest.AutoRollback
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
 import io.circe.generic.auto._
+import org.broadinstitute.dsde.workbench.hamm.model.JobId
 import org.http4s.dsl.Http4sDsl
 import org.http4s._
 import org.http4s.headers.Authorization
 
-class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with AutoRollback with Http4sDsl[IO] with HammLogger {
+
+
+class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http4sDsl[IO] with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
+
+  override def beforeAll() = {
+    samAuthProvider.samClient.actionsPerResourcePerToken += (TestData.testSamResource, TestData.testToken) -> Set(TestData.testSamResourceAction)
+  }
+
+  override def afterAll() = {
+    samAuthProvider.samClient.actionsPerResourcePerToken.remove((TestData.testSamResource, TestData.testToken))
+    ()
+  }
+
+  override def beforeEach() = {
+    mockWorkflowTable.workflows += TestData.testWorkflow
+    mockJobTable.jobs += TestData.testJob
+  }
+
+  override def afterEach() = {
+    mockWorkflowTable.workflows.remove(TestData.testWorkflow)
+    mockJobTable.jobs.remove(TestData.testJob)
+    ()
+  }
 
 
   // Return true if match succeeds; otherwise false
@@ -32,34 +52,40 @@ class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Auto
   }
 
 
-  it should "get status" in { _ =>
+  it should "get status" in {
 
     val response = hammRoutes.routes.apply {
       Request(method = Method.GET, uri = Uri.uri("/status"))
     }
-
     check(response, Status.Ok, Some(()))
   }
 
 
-  it should "get a workflow's cost" in { implicit session =>
-    samAuthProvider.hasWorkflowCollectionPermission(TestData.testToken, TestData.testSamResource) shouldBe false
-    samAuthProvider.samClient.actionsPerResourcePerToken += (TestData.testSamResource, TestData.testToken) -> Set(TestData.testSamResourceAction)
-
-    val res1 = WorkflowTableQueries.getWorkflowQuery(TestData.testWorkflowId) //shouldBe None
-    val res2 = WorkflowTableQueries.insertWorkflowQuery(TestData.testWorkflow)//
-    val res3 = WorkflowTableQueries.getWorkflowQuery(TestData.testWorkflowId) //shouldBe Some(TestData.testWorkflow)
-
-    val uri = "/api/cost/v1/workflow/" + TestData.testWorkflowId.id
+  it should "get a workflow's cost" in {
+    val uri = "/api/cost/v1/workflow/" + TestData.testWorkflow.workflowId.id
 
     val response = hammRoutes.routes.apply {
-     Request(
-       method = Method.GET,
-       uri = Uri.unsafeFromString(uri),
-       headers = Headers(Authorization(TestData.testToken)))
+      Request(
+        method = Method.GET,
+        uri = Uri.unsafeFromString(uri),
+        headers = Headers(Authorization(TestData.testToken)))
     }
 
     check(response, Status.Ok, Some(WorkflowCostResponse(TestData.testWorkflowId, TestData.testWorkflow.cost)))
+  }
+
+  it should "get a job's cost" in {
+    val uri = "/api/cost/v1/job/" + TestData.testJob.callFqn.asString
+
+    val response = hammRoutes.routes.apply {
+      Request(
+        method = Method.GET,
+        uri = Uri.unsafeFromString(uri),
+        headers = Headers(Authorization(TestData.testToken)))
+    }
+
+    //This will change based on changing Job cost table, just doing it weird for now
+    check(response, Status.Ok, Some(JobCostResponse(JobId(TestData.testJob.callFqn.asString), TestData.testJob.cost)))
   }
 
 }

@@ -11,8 +11,13 @@ import io.circe.syntax._
 import org.broadinstitute.dsde.workbench.hamm.model._
 import org.postgresql.util.PGobject
 
+trait WorkflowTableQueries  {
+  def insertWorkflowQuery(workflow: Workflow)(implicit session: DBSession): Int
+  def getWorkflowQuery(workflowId: WorkflowId)(implicit session: DBSession): Option[Workflow]
+  def getWorkflowCostQuery(workflowId: WorkflowId)(implicit session: DBSession): Option[Double]
+}
 
-object WorkflowTableQueries {
+class WorkflowTable extends WorkflowTableQueries {
 
   def insertWorkflowQuery(workflow: Workflow)(implicit session: DBSession) = {
     import WorkflowBinders._

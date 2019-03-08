@@ -1,37 +1,22 @@
 package org.broadinstitute.dsde.workbench.hamm.db
 
-import java.time.Instant
-
-import org.broadinstitute.dsde.workbench.hamm.model.{WorkflowCollectionId, WorkflowId}
-import org.broadinstitute.dsde.workbench.hamm.TestComponent
+import org.broadinstitute.dsde.workbench.hamm.{TestComponent, TestData}
 import org.scalatest.Matchers
 import org.scalatest.fixture.FlatSpec
 import scalikejdbc.scalatest.AutoRollback
 
 class JobTableQueriesSpec extends FlatSpec with Matchers with AutoRollback with TestComponent {
 
-  val workflowId = WorkflowId("fake-id")
-  val callFqn = CallFqn("fake-call-fqn")
-  val attempt = 2.toShort
-  val jobIndex = 3
-  val jobUniqueKey = JobUniqueKey(workflowId, callFqn, 2, 3)
-  val workflowCollectionId = WorkflowCollectionId("fake-wf-collection-id")
-  val job = new Job(workflowId, callFqn, attempt, jobIndex, Some("fake-vendor-id"), Instant.now(), Instant.now(), 1)
-  val workflow = Workflow(workflowId, None, None, workflowCollectionId, false, Instant.now(), Instant.now(), Map.empty[String,String], 1)
-
-
-
 
   it should "insert and get a job" in { implicit session =>
-    JobTableQueries.getJobQuery(jobUniqueKey) shouldBe None
+    jobTable.getJobQuery(TestData.testJobUniqueKey) shouldBe None
 
-    WorkflowTableQueries.insertWorkflowQuery(workflow)
+    workflowTable.insertWorkflowQuery(TestData.testWorkflow)
+    jobTable.insertJobQuery(TestData.testJob)
 
-    JobTableQueries.insertJobQuery(job)
-
-    JobTableQueries.getJobQuery(jobUniqueKey) shouldBe Some(job)
-    JobTableQueries.getJobCostQuery(callFqn) shouldBe Some(1)
-    JobTableQueries.getJobWorkflowCollectionIdQuery(callFqn) shouldBe Some(workflowCollectionId)
+    jobTable.getJobQuery(TestData.testJobUniqueKey) shouldBe Some(TestData.testJob)
+    jobTable.getJobCostQuery(TestData.testCallFqn) shouldBe Some(1)
+    jobTable.getJobWorkflowCollectionIdQuery(TestData.testCallFqn) shouldBe Some(TestData.testWorkflowCollectionId)
   }
 
 

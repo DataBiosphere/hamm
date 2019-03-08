@@ -7,7 +7,7 @@ import net.ceedubs.ficus.Ficus._
 import org.broadinstitute.dsde.workbench.hamm.api.HammRoutes
 import org.broadinstitute.dsde.workbench.hamm.auth.{MockSamSwaggerClient, SamAuthProvider}
 import org.broadinstitute.dsde.workbench.hamm.config.SamConfig
-import org.broadinstitute.dsde.workbench.hamm.db.DbSingleton
+import org.broadinstitute.dsde.workbench.hamm.db._
 import org.broadinstitute.dsde.workbench.hamm.service.{CostService, StatusService}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.Matchers
@@ -28,7 +28,14 @@ trait TestComponent extends Matchers with ScalaFutures {
 
   val samAuthProvider = getSamAuthProvider
 
-  val costService = new CostService(samAuthProvider, dbRef)
+  val jobTable = new JobTable
+  val workflowTable = new WorkflowTable
+
+  val mockWorkflowTable = new MockWorkflowTable
+  val mockJobTable = new MockJobTable(mockWorkflowTable)
+
+
+  val costService = new CostService(samAuthProvider, dbRef, mockJobTable, mockWorkflowTable)
 
   val statusService = new StatusService()
 

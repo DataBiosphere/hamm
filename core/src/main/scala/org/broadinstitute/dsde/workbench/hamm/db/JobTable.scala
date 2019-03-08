@@ -7,11 +7,21 @@ import org.broadinstitute.dsde.workbench.hamm.HammLogger
 import org.broadinstitute.dsde.workbench.hamm.model._
 import scalikejdbc._
 
-object JobTableQueries extends HammLogger {
+
+trait JobTableQueries {
+
+  def insertJobQuery(job: Job)(implicit session: DBSession): Int
+  def getJobQuery(jobUniquekey: JobUniqueKey)(implicit session: DBSession): Option[Job]
+  def getJobCostQuery(jobId: CallFqn)(implicit session: DBSession): Option[Double]
+  def getJobWorkflowCollectionIdQuery(jobId: CallFqn)(implicit session: DBSession): Option[WorkflowCollectionId]
+
+}
+
+
+class JobTable extends JobTableQueries with HammLogger {
 
   val j = Job.syntax("j")
   val w = Workflow.syntax("w")
-
 
   def insertJobQuery(job: Job)(implicit session: DBSession) = {
     import JobBinders._
@@ -63,7 +73,7 @@ final case class CallFqn(asString: String) extends AnyVal
 final case class JobUniqueKey(workflowId: WorkflowId,
                               callFqn: CallFqn,
                               attempt: Short,
-                              jobIndexId: Int)
+                              jobIndex: Int)
 final case class Job(workflowId: WorkflowId,
                      callFqn: CallFqn,
                      attempt: Short,

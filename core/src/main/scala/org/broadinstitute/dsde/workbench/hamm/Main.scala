@@ -8,8 +8,8 @@ import org.broadinstitute.dsde.workbench.hamm.config.{CromwellConfig, GoogleConf
 import net.ceedubs.ficus.Ficus._
 import org.broadinstitute.dsde.workbench.hamm.api.HammRoutes
 import org.broadinstitute.dsde.workbench.hamm.auth.SamAuthProvider
-import org.broadinstitute.dsde.workbench.hamm.service.{StatusService, CostService}
-import org.broadinstitute.dsde.workbench.hamm.db.DbReference
+import org.broadinstitute.dsde.workbench.hamm.service.{CostService, StatusService}
+import org.broadinstitute.dsde.workbench.hamm.db.{DbReference, JobTable, WorkflowTable}
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.server.blaze.BlazeServerBuilder
 
@@ -28,7 +28,9 @@ object Main extends IOApp with HammLogger {
       //appConfig           <- Stream.fromEither[IO](Config.appConfig)
       httpClient          <- BlazeClientBuilder[IO](global).stream
       samAuthProvider     = new SamAuthProvider(samConfig)
-      costService         = new CostService(samAuthProvider, dbRef)
+      jobTable            = new JobTable
+      workflowTable       = new WorkflowTable
+      costService         = new CostService(samAuthProvider, dbRef, jobTable, workflowTable)
       statusService       = new StatusService
       hammRoutes          = new HammRoutes(samAuthProvider, costService, statusService)
       routes              = hammRoutes.routes

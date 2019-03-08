@@ -2,7 +2,7 @@ package org.broadinstitute.dsde.workbench.hamm
 
 import java.time.Instant
 
-import org.broadinstitute.dsde.workbench.hamm.db.Workflow
+import org.broadinstitute.dsde.workbench.hamm.db.{CallFqn, Job, JobUniqueKey, Workflow}
 import org.broadinstitute.dsde.workbench.hamm.model.{SamResource, SamResourceAction, WorkflowCollectionId, WorkflowId}
 import org.http4s.AuthScheme
 import org.http4s.Credentials.Token
@@ -10,12 +10,22 @@ import org.http4s.Credentials.Token
 
 object TestData {
 
-  val testWorkflowId = WorkflowId("fake-id")
-  val testWorkflow = Workflow(testWorkflowId, None, None, WorkflowCollectionId("fake-wf-collection-id"), false, Instant.now(), Instant.now(), Map.empty[String,String], 1)
-
   val testToken = Token(AuthScheme.Bearer, "fake-id")
   val testSamResource = SamResource("fake-wf-collection-id")
   val testSamResourceAction = SamResourceAction("get_cost")
+
+  val testWorkflowId = WorkflowId("fake-id")
+  val testWorkflowCollectionId = WorkflowCollectionId("fake-wf-collection-id")
+  val testWorkflow = Workflow(testWorkflowId, None, None, testWorkflowCollectionId, false, Instant.now(), Instant.now(), Map.empty[String,String], 1)
+
+
+  val testCallFqn = CallFqn("fake-call-fqn")
+  val testAttempt = 2.toShort
+  val testJobIndex = 3
+  val testJobUniqueKey = JobUniqueKey(testWorkflowId, testCallFqn, 2, 3)
+  val testJob = Job(testWorkflowId, testCallFqn, testAttempt, testJobIndex, Some("fake-vendor-id"), Instant.now(), Instant.now(), 1)
+
+
 
 
   val sampleGooglePriceJson: String =

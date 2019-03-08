@@ -146,15 +146,15 @@ object GooglePriceListJsonCodecTest extends FlatSpec with Matchers {
   it should "decode a PriceList" in {
     val region = Region.stringToRegion("us-west2")
     val machineType = MachineType.Custom
-    val res = for {
+
+    val result = for {
       json <- parse(TestData.sampleGooglePriceJson)
       googlePriceList <- json.as[GooglePriceList]
-      r <- GooglePriceListDAO.parsePriceList(googlePriceList, List(ComputePriceKey(region, machineType, UsageType.Preemptible)), List(StoragePriceKey(region, DiskType.SSD)))
-    } yield {
-      val expectedResponse = PriceList(
+    } yield GooglePriceListDAO.parsePriceList(googlePriceList, List(ComputePriceKey(region, machineType, UsageType.Preemptible)), List(StoragePriceKey(region, DiskType.SSD)))
+
+    val expectedResponse = PriceList(
         ComputePriceList(Map(ComputePriceKey(Region.USwest2, MachineType.Custom, UsageType.Preemptible) -> ComputePrices(0.007986, 0.001076))),
         StoragePriceList(Map(StoragePriceKey(Region.USwest2, DiskType.SSD) -> .0002794520547945205)))
-      r shouldBe expectedResponse
-    }
+    result shouldBe expectedResponse
   }
 }

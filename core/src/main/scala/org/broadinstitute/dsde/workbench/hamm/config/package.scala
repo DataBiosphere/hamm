@@ -10,7 +10,7 @@ package object config {
       Uri.unsafeFromString(config.getString("cromwellUrl"))
     )
   }
-  
+
 
   implicit val GoogleConfigReader: ValueReader[GoogleConfig] = ValueReader.relative { config =>
     GoogleConfig(
