@@ -1,20 +1,20 @@
-package org.broadinstitute.dsp.workbench.hamm.dao
+package org.broadinstitute.dsde.workbench.hamm.dao
 
 import cats.effect.IO
 import org.broadinstitute.dsp.workbench.hamm.config.GoogleConfig
 import org.broadinstitute.dsp.workbench.hamm.model._
-import org.broadinstitute.dsp.workbench.hamm.model.GooglePriceListJsonCodec._
+import org.broadinstitute.dsp.workbench.hamm.model.GoogleCloudPricingCalculatorJsonCodec._
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.client.Client
-
 
 
 
 class GooglePriceListDAO(httpClient: Client[IO], config: GoogleConfig) {
 
   // ToDo: Switch this over to using the billing API client
-  def getGcpPriceList(): GooglePriceList = {
-    httpClient.expect[GooglePriceList](config.googleCloudBillingUrl + s"/v1/services/${config.serviceId}/skus?key=${config.serviceKey}").unsafeRunSync() // only doing unsafeRunSync() here for now, this will change
+  def getGcpPriceList(): PriceLists = {
+    //httpClient.expect[GooglePriceList](config.googleCloudBillingUrl + s"/v1/services/${config.serviceId}/skus?key=${config.serviceKey}").unsafeRunSync()
+    httpClient.expect[PriceLists]("https://cloudpricingcalculator.appspot.com/static/data/pricelist.json").unsafeRunSync()
   }
 
 }

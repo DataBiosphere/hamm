@@ -75,7 +75,6 @@ object CromwellMetadataJsonCodec {
       Either.catchNonFatal(machineTypeString.split("/").last) match {
         case Left(t) => Left(s"Could not obtain machine type from $machineTypeString")
         case Right(machineType) => Right(MachineType.partialStringToMachineType(machineType))//.toRight(s"$machineType is not a valid machine type")
-
       }
   }
 

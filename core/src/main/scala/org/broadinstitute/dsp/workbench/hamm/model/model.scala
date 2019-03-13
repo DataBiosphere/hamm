@@ -473,4 +473,4 @@ object UserInfo {
       token)
 }
 
-final case class JobId(id: String )
+final case class JobId(id: String)

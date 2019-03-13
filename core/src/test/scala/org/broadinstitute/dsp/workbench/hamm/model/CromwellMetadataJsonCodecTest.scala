@@ -3,11 +3,12 @@ package org.broadinstitute.dsp.workbench.hamm.model
 import java.time.Instant
 
 import io.circe.parser._
+import org.broadinstitute.dsde.workbench.hamm.TestComponent
 import org.scalatest.{FlatSpec, Matchers}
 import org.broadinstitute.dsp.workbench.hamm.model.CromwellMetadataJsonCodec._
 
 
-object CromwellMetadataJsonCodecTest extends FlatSpec with Matchers {
+class CromwellMetadataJsonCodecTest extends FlatSpec with Matchers with TestComponent {
 
   it should "decode a MetadataResponse" in {
     for {

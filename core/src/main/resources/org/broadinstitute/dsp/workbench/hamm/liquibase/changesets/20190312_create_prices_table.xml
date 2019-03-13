@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog logicalFilePath="hamm" xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet logicalFilePath="hamm" author="ansingh" id="price">
+        <createTable tableName="PRICE">
+            <column name="ID" type="SERIAL"></column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="START_TIME" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+            <column name="END_TIME" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PRICE_ITEM" type="JSONB">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet logicalFilePath="hamm" author="ansingh" id="priceItemIndex">
+        <sql>CREATE INDEX IF NOT EXISTS priceItemIndex ON PRICE USING GIN (PRICE_ITEM)</sql>
+    </changeSet>
+
+</databaseChangeLog>

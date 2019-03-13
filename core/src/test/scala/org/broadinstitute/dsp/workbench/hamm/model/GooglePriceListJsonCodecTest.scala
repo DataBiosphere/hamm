@@ -8,7 +8,7 @@ import org.broadinstitute.dsp.workbench.hamm.model.GooglePriceListJsonCodec._
 import org.scalatest.{FlatSpec, Matchers}
 
 
-object GooglePriceListJsonCodecTest extends FlatSpec with Matchers {
+class GooglePriceListJsonCodecTest extends FlatSpec with Matchers {
 
   it should "decode SKUs" in {
     val res = for {

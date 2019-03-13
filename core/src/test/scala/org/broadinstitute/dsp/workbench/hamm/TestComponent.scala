@@ -4,7 +4,7 @@ import cats.effect.{ContextShift, IO}
 import com.typesafe.config.ConfigFactory
 import net.ceedubs.ficus.Ficus._
 import org.broadinstitute.dsp.workbench.hamm.auth.{MockSamSwaggerClient, SamAuthProvider}
-import org.broadinstitute.dsp.workbench.hamm.config.SamConfig
+import org.broadinstitute.dsp.workbench.hamm.config.{GoogleConfig, SamConfig}
 import org.broadinstitute.dsp.workbench.hamm.config.config.SamConfigReader
 import org.broadinstitute.dsp.workbench.hamm.db._
 import org.broadinstitute.dsp.workbench.hamm.service.{CostService, StatusService}
@@ -21,6 +21,7 @@ trait TestComponent extends Matchers {
   val dbRef =  DbSingleton.ref
 
   val config = ConfigFactory.parseResources("application.conf").withFallback(ConfigFactory.load())
+  val googleConfig = config.as[GoogleConfig]("google")
 
   def getSamAuthProvider: TestSamAuthProvider = new TestSamAuthProvider(config.as[SamConfig]("sam"))
 
