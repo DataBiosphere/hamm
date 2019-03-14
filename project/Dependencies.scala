@@ -8,7 +8,7 @@ object Dependencies {
   val liquibaseVersion      = "3.5.3"
   val minitestVersion       = "2.2.2"
   val postgresDriverVersion = "42.2.4"
-  val samV                  = "0.1-b87909e-SNAP"
+  val samV                  = "0.1-37bc074"
   val scalaTestVersion      = "3.0.5"
   val scalikejdbcVersion    = "3.3.2"
 

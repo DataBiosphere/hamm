@@ -1,15 +1,17 @@
 package org.broadinstitute.dsde.workbench.hamm
+package server
+
 
 import cats.effect._
 import cats.implicits._
 import com.typesafe.config.ConfigFactory
 import fs2._
-import org.broadinstitute.dsde.workbench.hamm.config.{CromwellConfig, GoogleConfig, SamConfig}
 import net.ceedubs.ficus.Ficus._
 import org.broadinstitute.dsde.workbench.hamm.api.HammRoutes
 import org.broadinstitute.dsde.workbench.hamm.auth.SamAuthProvider
-import org.broadinstitute.dsde.workbench.hamm.service.{CostService, StatusService}
+import org.broadinstitute.dsde.workbench.hamm.config.{CromwellConfig, GoogleConfig, SamConfig}
 import org.broadinstitute.dsde.workbench.hamm.db.{DbReference, JobTable, WorkflowTable}
+import org.broadinstitute.dsde.workbench.hamm.service.{CostService, StatusService}
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.server.blaze.BlazeServerBuilder
 

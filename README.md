@@ -11,7 +11,7 @@ TODO: fix coverall badge
 # APIs
 * [API doc](https://endpointsportal.workbench-firestore.cloud.goog/docs/ccm.endpoints.workbench-firestore.cloud.goog/g/overview)
 * Both gRPC and REST http doc is generated based on [proto3](protobuf/src/main/protobuf/ccm.proto)
- O
+
 # Publish grpc docker image to Google container registry
 * Set up auth for publishing docker image to GCR
 `gcloud auth configure-docker`

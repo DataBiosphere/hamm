@@ -11,9 +11,9 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s._
 import org.http4s.headers.Authorization
 
-
-
 class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http4sDsl[IO] with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
+
+  val hammRoutes = new HammRoutes(samAuthProvider, costService, statusService)
 
   override def beforeAll() = {
     samAuthProvider.samClient.actionsPerResourcePerToken += (TestData.testSamResource, TestData.testToken) -> Set(TestData.testSamResourceAction)
@@ -27,6 +27,19 @@ class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http
   override def beforeEach() = {
     mockWorkflowTable.workflows += TestData.testWorkflow
     mockJobTable.jobs += TestData.testJob
+
+
+
+
+
+
+
+
+
+
+
+
+
   }
 
   override def afterEach() = {

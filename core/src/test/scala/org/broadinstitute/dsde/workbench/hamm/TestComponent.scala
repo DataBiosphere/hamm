@@ -4,7 +4,6 @@ package org.broadinstitute.dsde.workbench.hamm
 import cats.effect.{ContextShift, IO}
 import com.typesafe.config.ConfigFactory
 import net.ceedubs.ficus.Ficus._
-import org.broadinstitute.dsde.workbench.hamm.api.HammRoutes
 import org.broadinstitute.dsde.workbench.hamm.auth.{MockSamSwaggerClient, SamAuthProvider}
 import org.broadinstitute.dsde.workbench.hamm.config.SamConfig
 import org.broadinstitute.dsde.workbench.hamm.db._
@@ -38,9 +37,6 @@ trait TestComponent extends Matchers with ScalaFutures {
   val costService = new CostService(samAuthProvider, dbRef, mockJobTable, mockWorkflowTable)
 
   val statusService = new StatusService()
-
-  val hammRoutes = new HammRoutes(samAuthProvider, costService, statusService)
-
 
 }
 

@@ -1,19 +1,17 @@
 package org.broadinstitute.dsde.workbench.hamm.api
 
-
 import cats.effect._
 import io.circe.generic.auto._
-import org.broadinstitute.dsde.workbench.hamm.service._
-import org.http4s.HttpRoutes
-import org.http4s.headers.{Allow, Authorization}
-import org.http4s.server.Router
 import org.broadinstitute.dsde.workbench.hamm.HammLogger
 import org.broadinstitute.dsde.workbench.hamm.auth.SamAuthProvider
 import org.broadinstitute.dsde.workbench.hamm.model.{HammException, JobId, WorkflowId}
+import org.broadinstitute.dsde.workbench.hamm.service._
 import org.http4s.Credentials.Token
-import org.http4s.circe._
+import org.http4s.circe.jsonEncoderOf
+import org.http4s.{AuthScheme, EntityEncoder, HttpRoutes, Request, Response, Status}
 import org.http4s.dsl.Http4sDsl
-import org.http4s._
+import org.http4s.headers.{Allow, Authorization}
+import org.http4s.server.Router
 import org.http4s.server.middleware.Logger
 import org.http4s.syntax.kleisli._
 
