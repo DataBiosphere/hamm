@@ -1,10 +1,10 @@
 package org.broadinstitute.dsde.workbench.hamm.dao
 
 import org.broadinstitute.dsde.workbench.hamm.{HammLogger, TestData}
-import org.broadinstitute.dsde.workbench.hamm.model.GoogleCloudPricing
 import org.broadinstitute.dsde.workbench.hamm.model.GoogleCloudPricingCalculatorJsonCodec._
 import org.scalatest.{FlatSpec, Matchers}
 import io.circe.parser._
+import org.broadinstitute.dsde.workbench.hamm.db.PriceRecord
 
 // ToDo: Replace this. Not bothering to add tests here because we're going to be using a different way of getting the price objects
 class GooglePriceListDAOSpec extends FlatSpec with Matchers with HammLogger {
@@ -15,7 +15,7 @@ class GooglePriceListDAOSpec extends FlatSpec with Matchers with HammLogger {
       //json <- parse(sample)
       //result <- json.hcursor.keys.get
       json <- parse(TestData.sampleList)
-      googlePriceList <- json.as[GoogleCloudPricing]
+      googlePriceList <- json.as[List[PriceRecord]]
     } yield {
 //      println("we're here")
 //      val result = json.hcursor.keys.get
