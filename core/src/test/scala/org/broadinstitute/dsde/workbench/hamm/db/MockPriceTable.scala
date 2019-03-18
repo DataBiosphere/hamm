@@ -11,6 +11,7 @@ class MockPriceTable extends PriceTableQueries {
 
   def insertPriceQuery(priceRecord: PriceRecord)(implicit session: DBSession) ={
     prices += priceRecord
+    prices.size
   }
 
   def getPriceQuery(priceUniqueKey: PriceUniqueKey)(implicit session: DBSession): Option[PriceRecord] = {

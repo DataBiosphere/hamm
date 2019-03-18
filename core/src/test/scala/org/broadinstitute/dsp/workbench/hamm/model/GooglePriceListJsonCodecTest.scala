@@ -2,10 +2,9 @@ package org.broadinstitute.dsp.workbench.hamm.model
 
 import io.circe.parser.parse
 import org.broadinstitute.dsp.workbench.hamm.TestData
-import org.broadinstitute.dsp.workbench.hamm.dao.GooglePriceListDAO
-import org.broadinstitute.dsp.workbench.hamm.model.GooglePriceListJsonCodec._
 
 import org.scalatest.{FlatSpec, Matchers}
+import org.broadinstitute.dsde.workbench.hamm.dao.GooglePriceListDAO
 
 
 class GooglePriceListJsonCodecTest extends FlatSpec with Matchers {

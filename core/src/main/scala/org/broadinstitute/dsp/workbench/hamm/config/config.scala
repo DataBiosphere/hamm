@@ -6,12 +6,7 @@ import org.http4s.Uri
 package object config {
 
   implicit val GoogleConfigReader: ValueReader[GoogleConfig] = ValueReader.relative { config =>
-    GoogleConfig(
-      Uri.unsafeFromString(config.getString("googleCloudBillingUrl")),
-      Uri.unsafeFromString(config.getString("googleDefaultPricingUrl")),
-      config.getString("serviceId"),
-      config.getString("serviceKey")
-    )
+    GoogleConfig(Uri.unsafeFromString(config.getString("googleDefaultPricingUrl")))
   }
 
 

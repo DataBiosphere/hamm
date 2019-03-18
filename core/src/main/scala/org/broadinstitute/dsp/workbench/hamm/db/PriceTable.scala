@@ -11,7 +11,7 @@ import scalikejdbc._
 import scalikejdbc.DBSession
 
 trait PriceTableQueries {
-  def insertPriceQuery(price: PriceRecord)(implicit session: DBSession): Unit
+  def insertPriceQuery(price: PriceRecord)(implicit session: DBSession): Int
   def getPriceQuery(priceUniqueKey: PriceUniqueKey)(implicit session: DBSession): Option[PriceRecord]
 }
 
@@ -19,7 +19,7 @@ class PriceTable extends PriceTableQueries {
 
   val p = PriceRecord.syntax("p")
 
-  override def insertPriceQuery(price: PriceRecord)(implicit session: DBSession): Unit = {
+  override def insertPriceQuery(price: PriceRecord)(implicit session: DBSession): Int = {
     import PriceBinders._
     val column = PriceRecord.column
     withSQL {
@@ -46,8 +46,6 @@ class PriceTable extends PriceTableQueries {
 final case class PriceUniqueKey(name: String,
                               startTime: Instant,
                               endTime: Instant)
-
-
 
 final case class PriceRecord(name: String,
                              startTime: Instant,

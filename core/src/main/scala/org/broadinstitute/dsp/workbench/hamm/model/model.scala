@@ -3,6 +3,8 @@ package org.broadinstitute.dsp.workbench.hamm.model
 import java.time.Instant
 import java.util.UUID
 
+import io.circe.Json
+
 
 sealed trait UsageType {
   def asString: String
@@ -483,7 +485,15 @@ sealed trait PriceType {
 object PriceType {
   private final val REGIONAL = "regional"
   private final val TIERED = "tiered"
+  private final val COMPUTEENGINEOS = "compute-engine-os"
 
+  def getTypeFromPriceListKey(key: String, js: Json): PriceType = {
+    if (key.contains("CP-COMPUTEENGINE-OS"))
+      PriceType.ComputeEngineOS
+    else if (js.noSpaces.contains("TIER") )
+      PriceType.Tiered
+    else PriceType.Regional
+  }
 
   val stringToPriceType = Map(
     REGIONAL -> Regional,
@@ -498,6 +508,7 @@ object PriceType {
     def asString = TIERED
   }
 
-  //see if there are others?
-
+  case object ComputeEngineOS extends PriceType {
+    def asString = COMPUTEENGINEOS
+  }
 }
