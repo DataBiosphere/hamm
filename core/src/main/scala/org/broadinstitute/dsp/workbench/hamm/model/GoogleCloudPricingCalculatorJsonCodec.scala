@@ -3,7 +3,7 @@ package org.broadinstitute.dsp.workbench.hamm.model
 import java.text.SimpleDateFormat
 import java.time.Instant
 
-import io.circe.{Decoder, DecodingFailure, Json, KeyDecoder}
+import io.circe.{Decoder, Json}
 import org.broadinstitute.dsde.workbench.hamm.HammLogger
 import org.broadinstitute.dsde.workbench.hamm.db.PriceRecord
 
