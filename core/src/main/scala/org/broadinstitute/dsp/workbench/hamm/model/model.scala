@@ -474,3 +474,30 @@ object UserInfo {
 }
 
 final case class JobId(id: String)
+
+
+sealed trait PriceType {
+  def asString: String
+}
+
+object PriceType {
+  private final val REGIONAL = "regional"
+  private final val TIERED = "tiered"
+
+
+  val stringToPriceType = Map(
+    REGIONAL -> Regional,
+    TIERED -> Tiered
+  )
+
+  case object Regional extends PriceType {
+    def asString = REGIONAL
+  }
+
+  case object Tiered extends PriceType {
+    def asString = TIERED
+  }
+
+  //see if there are others?
+
+}

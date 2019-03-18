@@ -1,9 +1,10 @@
 package org.broadinstitute.dsp.workbench.hamm
 
 import java.time.Instant
+import io.circe.parser._
 
-import org.broadinstitute.dsp.workbench.hamm.db.{CallFqn, Job, JobUniqueKey, Workflow}
-import org.broadinstitute.dsp.workbench.hamm.model.{SamResource, SamResourceAction, WorkflowCollectionId, WorkflowId}
+import org.broadinstitute.dsp.workbench.hamm.db._
+import org.broadinstitute.dsp.workbench.hamm.model._
 import org.http4s.AuthScheme
 import org.http4s.Credentials.Token
 
@@ -25,8 +26,48 @@ object TestData {
   val testJobUniqueKey = JobUniqueKey(testWorkflowId, testCallFqn, testAttempt, testJobIndex)
   val testJob = Job(testWorkflowId, testCallFqn, testAttempt, testJobIndex, Some("fake-vendor-id"), Instant.now(), Instant.now(), 1)
 
-
-
+  val testPriceName = "fake-price-name"
+  val testStartTime = Instant.now()
+  val testEndTime = Instant.now()
+  val testPriceUniqueKey = PriceUniqueKey(testPriceName, testStartTime, testEndTime)
+  val testPriceType = PriceType.Regional
+  val testPriceItem = parse("""{
+                        |      "us": 0.0076,
+                        |      "us-central1": 0.0076,
+                        |      "us-east1": 0.0076,
+                        |      "us-east4": 0.0086,
+                        |      "us-west1": 0.0076,
+                        |      "us-west2": 0.0091,
+                        |      "europe": 0.0086,
+                        |      "europe-west1": 0.0086,
+                        |      "europe-west2": 0.0096,
+                        |      "europe-west3": 0.0096,
+                        |      "europe-west4": 0.0084,
+                        |      "europe-west6": 0.010600,
+                        |      "europe-north1": 0.0084,
+                        |      "northamerica-northeast1": 0.0084,
+                        |      "asia": 0.0090,
+                        |      "asia-east": 0.0090,
+                        |      "asia-east1": 0.0090,
+                        |      "asia-east2": 0.0106,
+                        |      "asia-northeast": 0.0092,
+                        |      "asia-northeast1": 0.0092,
+                        |      "asia-northeast2": 0.0092,
+                        |      "asia-southeast": 0.0092,
+                        |      "australia-southeast1": 0.0106,
+                        |      "australia": 0.0106,
+                        |      "southamerica-east1": 0.0118,
+                        |      "asia-south1": 0.0091,
+                        |      "cores": "shared",
+                        |      "memory": "0.6",
+                        |      "gceu": "Shared CPU, not guaranteed",
+                        |      "maxNumberOfPd": 16,
+                        |      "maxPdSize": 64,
+                        |      "ssd": [
+                        |        0
+                        |      ]
+                        |    }""".stripMargin).toOption.get
+  val testPriceRecord = PriceRecord(testPriceName, testStartTime, testEndTime, testPriceType, testPriceItem)
 
   val sampleGooglePriceJson: String =
     """
