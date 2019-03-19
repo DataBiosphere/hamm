@@ -73,7 +73,3 @@ case class DbReference()(implicit val executionContext: ExecutionContext) {
     }
   }
 }
-
-final case class DbUser(asString: String) extends AnyVal
-final case class DbPassword(asString: String) extends AnyVal
-final case class SqlConfig(user: DbUser, password: DbPassword, port: Int)

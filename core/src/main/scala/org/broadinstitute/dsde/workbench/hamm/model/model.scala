@@ -436,7 +436,7 @@ object MetadataResponse {
   def apply(calls: List[Call], startTime: Instant, endTime: Instant, labels: Map[String, String]): MetadataResponse = {
     labels.get("caas-collection-name") match {
       case Some(c) => MetadataResponse(calls, startTime, endTime, WorkflowCollectionId(c), labels)
-      case None => throw new Exception(s"Workflow did not have a collection associated with it.")
+      case None => throw HammException(404, s"Workflow did not have a collection associated with it.")
     }
   }
 }

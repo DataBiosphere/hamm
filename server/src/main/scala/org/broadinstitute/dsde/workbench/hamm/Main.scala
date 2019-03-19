@@ -9,7 +9,7 @@ import fs2._
 import net.ceedubs.ficus.Ficus._
 import org.broadinstitute.dsde.workbench.hamm.api.HammRoutes
 import org.broadinstitute.dsde.workbench.hamm.auth.SamAuthProvider
-import org.broadinstitute.dsde.workbench.hamm.config.{CromwellConfig, GoogleConfig, SamConfig}
+import org.broadinstitute.dsde.workbench.hamm.config.{GoogleConfig, SamConfig}
 import org.broadinstitute.dsde.workbench.hamm.db.{DbReference, JobTable, WorkflowTable}
 import org.broadinstitute.dsde.workbench.hamm.service.{CostService, StatusService}
 import org.http4s.client.blaze.BlazeClientBuilder
@@ -21,7 +21,6 @@ object Main extends IOApp with HammLogger {
   override def run(args: List[String]): IO[ExitCode] =  {
     val config = ConfigFactory.parseResources("application.conf").withFallback(ConfigFactory.load())
     val googleConfig =  config.as[GoogleConfig]("google")
-    val cromwellConfig =  config.as[CromwellConfig]("cromwell")
     val samConfig =  config.as[SamConfig]("sam")
 
     val dbRef = DbReference.init(config)

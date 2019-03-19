@@ -62,7 +62,7 @@ class JobTable extends JobTableQueries with HammLogger {
     withSQL {
       select(w.result.workflowCollectionId)
         .from(Workflow as w)
-        .leftJoin(Job as j)
+        .innerJoin(Job as j)
         .on(j.workflowId, w.workflowId)
         .where.eq(j.callFqn, jobId.asString)   //idk if callFqn is the right one
     }.map(rs => WorkflowCollectionId(rs.string(w.resultName.workflowCollectionId))).single().apply()

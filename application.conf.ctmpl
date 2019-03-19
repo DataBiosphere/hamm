@@ -6,9 +6,6 @@
 {{with $serviceVersion := env "SERVICE_VERSION"}}
 
 
-cromwell {
-  cromwellUrl = "https://cromwell1.{{$dnsDomain}}:443"
-}
 
 db {
   default {

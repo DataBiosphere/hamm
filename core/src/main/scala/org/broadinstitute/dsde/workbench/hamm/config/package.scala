@@ -5,13 +5,6 @@ import org.http4s.Uri
 
 package object config {
 
-  implicit val cromwellConfigReader: ValueReader[CromwellConfig] = ValueReader.relative { config =>
-    CromwellConfig(
-      Uri.unsafeFromString(config.getString("cromwellUrl"))
-    )
-  }
-
-
   implicit val GoogleConfigReader: ValueReader[GoogleConfig] = ValueReader.relative { config =>
     GoogleConfig(
       Uri.unsafeFromString(config.getString("googleCloudBillingUrl")),
