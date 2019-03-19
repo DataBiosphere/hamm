@@ -8,13 +8,12 @@ import org.broadinstitute.dsde.workbench.hamm.auth.{MockSamSwaggerClient, SamAut
 import org.broadinstitute.dsde.workbench.hamm.config.SamConfig
 import org.broadinstitute.dsde.workbench.hamm.db._
 import org.broadinstitute.dsde.workbench.hamm.service.{CostService, StatusService}
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.Matchers
 
 import scala.concurrent.ExecutionContext
 
 
-trait TestComponent extends Matchers with ScalaFutures {
+trait TestComponent extends Matchers {
   implicit val executionContext: ExecutionContext = TestExecutionContext.testExecutionContext
   implicit val cs: ContextShift[IO] = IO.contextShift(executionContext)
 

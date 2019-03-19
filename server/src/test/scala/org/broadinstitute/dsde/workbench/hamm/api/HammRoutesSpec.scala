@@ -27,19 +27,6 @@ class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http
   override def beforeEach() = {
     mockWorkflowTable.workflows += TestData.testWorkflow
     mockJobTable.jobs += TestData.testJob
-
-
-
-
-
-
-
-
-
-
-
-
-
   }
 
   override def afterEach() = {

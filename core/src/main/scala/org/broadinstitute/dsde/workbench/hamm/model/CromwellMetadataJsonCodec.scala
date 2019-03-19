@@ -2,11 +2,8 @@ package org.broadinstitute.dsde.workbench.hamm.model
 
 import java.time.Instant
 
-import cats.effect.IO
 import cats.implicits._
 import io.circe.Decoder
-import org.http4s.EntityDecoder
-import org.http4s.circe.jsonOf
 
 // ToDo: Currently, this handles only completed workflows, as running workflows will not have an end time
 // ToDo:   and may lack other information like execution events
@@ -105,7 +102,5 @@ object CromwellMetadataJsonCodec {
         MetadataResponse.apply(calls, start, end, labels)
       }
   }
-
-  implicit val http4sMetadataResponseDecoder: EntityDecoder[IO, MetadataResponse] = jsonOf[IO, MetadataResponse]
 
 }

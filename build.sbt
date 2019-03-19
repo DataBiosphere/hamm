@@ -48,3 +48,4 @@ lazy val automation =
       Settings.buildInfoSettings
     )
     .dependsOn(core)
+    .dependsOn(server % "test->test;compile->compile")

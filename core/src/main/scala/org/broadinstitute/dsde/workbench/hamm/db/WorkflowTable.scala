@@ -84,7 +84,6 @@ object Workflow extends SQLSyntaxSupport[Workflow] {
   )
 }
 
-// ToDo: Fix this
 object WorkflowBinders {
   implicit val workflowIdTypeBinder: TypeBinder[WorkflowId] = new TypeBinder[WorkflowId] {
     def apply(rs: ResultSet, label: String): WorkflowId = WorkflowId(rs.getString(label))

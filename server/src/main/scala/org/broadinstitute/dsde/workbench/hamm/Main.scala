@@ -36,7 +36,7 @@ object Main extends IOApp with HammLogger {
       statusService       = new StatusService
       hammRoutes          = new HammRoutes(samAuthProvider, costService, statusService)
       routes              = hammRoutes.routes
-      server              <- BlazeServerBuilder[IO].bindHttp(8080, "localhost").withHttpApp(routes).serve    //.compile.drain.as(ExitCode.Success)  // new WorkflowCostService[IO](pricing, metadataDAO, samAuthProvider)).start
+      server              <- BlazeServerBuilder[IO].bindHttp(8080, "localhost").withHttpApp(routes).serve
     } yield ()
 
     app.handleErrorWith(error => Stream.emit(logger.error(error)("Failed to start server")))
