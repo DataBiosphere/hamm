@@ -1,4 +1,4 @@
-package org.broadinstitute.dsde.workbench.hamm.db
+package org.broadinstitute.dsp.workbench.hamm.db
 
 import scalikejdbc.DBSession
 
@@ -16,8 +16,7 @@ class MockPriceTable extends PriceTableQueries {
 
   def getPriceQuery(priceUniqueKey: PriceUniqueKey)(implicit session: DBSession): Option[PriceRecord] = {
     prices.find(price => price.name.equals(priceUniqueKey.name) &&
-                        price.startTime.equals(priceUniqueKey.startTime) &&
-                        price.endTime.equals(priceUniqueKey.endTime))
+                        price.effectiveDate.equals(priceUniqueKey.effectiveDate))
   }
 
 }

@@ -1,6 +1,5 @@
-package org.broadinstitute.dsde.workbench.hamm.db
+package org.broadinstitute.dsp.workbench.hamm.db
 
-import org.broadinstitute.dsde.workbench.hamm.{TestComponent, TestData}
 import org.scalatest.Matchers
 import org.scalatest.fixture.FlatSpec
 import scalikejdbc.scalatest.AutoRollback

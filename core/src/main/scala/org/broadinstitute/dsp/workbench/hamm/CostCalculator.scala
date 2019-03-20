@@ -5,16 +5,16 @@ import java.util.concurrent.TimeUnit
 
 import cats.data.NonEmptyList
 import cats.implicits._
+import io.circe.Json
 import org.broadinstitute.dsp.workbench.hamm.model._
 
 import scala.concurrent.duration.FiniteDuration
-
 
 import scala.concurrent.duration.FiniteDuration
 
 object CostCalculator {
 
-  def getPriceOfWorkflow(callMetaDataJson: MetadataResponse, priceList: PriceList): Double = {
+  def getPriceOfWorkflow(callMetaDataJson: MetadataResponse, priceList: Map[String, Json]): Double = {
     val ls: List[Either[NonEmptyList[String], Double]] = callMetaDataJson.calls.map { call =>
       getPriceOfCall(call, priceList, callMetaDataJson.startTime, callMetaDataJson.endTime).leftMap(NonEmptyList.one)
     }

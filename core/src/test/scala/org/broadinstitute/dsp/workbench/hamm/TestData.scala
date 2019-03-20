@@ -27,9 +27,8 @@ object TestData {
   val testJob = Job(testWorkflowId, testCallFqn, testAttempt, testJobIndex, Some("fake-vendor-id"), Instant.now(), Instant.now(), 1)
 
   val testPriceName = "fake-price-name"
-  val testStartTime = Instant.now()
-  val testEndTime = Instant.now()
-  val testPriceUniqueKey = PriceUniqueKey(testPriceName, testStartTime, testEndTime)
+  val testEffectiveDate = Instant.now()
+  val testPriceUniqueKey = PriceUniqueKey(testPriceName, testEffectiveDate)
   val testPriceType = PriceType.Regional
   val testPriceItem = parse(
     """{
@@ -68,7 +67,7 @@ object TestData {
       |        0
       |      ]
       |    }""".stripMargin).toOption.get
-  val testPriceRecord = PriceRecord(testPriceName, testStartTime, testEndTime, testPriceType, testPriceItem)
+  val testPriceRecord = PriceRecord(testPriceName, testEffectiveDate, testPriceType, testPriceItem)
 
 
   val sampleList =
@@ -260,6 +259,33 @@ object TestData {
       |        8
       |      ]
       |    },
+      |    "CP-BIGSTORE-STORAGE-COLDLINE": {
+      |      "us": 0.007,
+      |      "us-central1": 0.007,
+      |      "us-east1": 0.007,
+      |      "us-east4": 0.01,
+      |      "us-west1": 0.007,
+      |      "us-west2": 0.013,
+      |      "europe": 0.007,
+      |      "europe-west1": 0.007,
+      |      "europe-west2": 0.010,
+      |      "europe-west3": 0.010,
+      |      "europe-west4": 0.007,
+      |      "europe-west6": 0.0066,
+      |      "europe-north1": 0.007,
+      |      "northamerica-northeast1": 0.010,
+      |      "asia-east": 0.007,
+      |      "asia-east1": 0.007,
+      |      "asia-east2": 0.011,
+      |      "asia-northeast": 0.01,
+      |      "asia-northeast1": 0.01,
+      |      "asia-northeast2": 0.01,
+      |      "asia-southeast": 0.007,
+      |      "australia-southeast1": 0.011,
+      |      "australia": 0.011,
+      |      "southamerica-east1": 0.014,
+      |      "asia-south1": 0.011
+      |    },
       |    "CP-COMPUTEENGINE-INTERNET-EGRESS-NA-NA": {
       |      "tiers": {
       |        "1024": 0.12,
@@ -273,7 +299,7 @@ object TestData {
       |        "10240": 0.11,
       |        "92160": 0.08
       |      }
-      |    },
+      |    }
       | }
       |}""".stripMargin
 }

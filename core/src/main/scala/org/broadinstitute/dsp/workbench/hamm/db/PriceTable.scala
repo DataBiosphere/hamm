@@ -25,8 +25,7 @@ class PriceTable extends PriceTableQueries {
     withSQL {
       insert.into(PriceRecord).namedValues(
         column.name -> price.name,
-        column.startTime -> price.startTime,
-        column.endTime -> price.endTime,
+        column.effectiveDate -> price.effectiveDate,
         column.priceType -> price.priceType,
         column.priceItem -> price.priceItem)
     }.update.apply()
@@ -36,23 +35,20 @@ class PriceTable extends PriceTableQueries {
     withSQL {
       select.from(PriceRecord as p)
         .where.eq(p.name, priceUniqueKey.name)
-        .and.eq(p.startTime, priceUniqueKey.startTime)
-        .and.eq(p.endTime, priceUniqueKey.endTime)
+        .and.eq(p.effectiveDate, priceUniqueKey.effectiveDate)
     }.map(PriceRecord(p.resultName)).single().apply()
   }
 
 }
 
 final case class PriceUniqueKey(name: String,
-                              startTime: Instant,
-                              endTime: Instant)
+                                effectiveDate: Instant)
 
 final case class PriceRecord(name: String,
-                             startTime: Instant,
-                             endTime: Instant,
+                             effectiveDate: Instant,
                              priceType: PriceType,
                              priceItem: Json){
-  val uniqueKey = PriceUniqueKey(name, startTime, endTime)
+  val uniqueKey = PriceUniqueKey(name, effectiveDate)
 }
 
 object PriceRecord extends SQLSyntaxSupport[PriceRecord] {
@@ -60,8 +56,7 @@ object PriceRecord extends SQLSyntaxSupport[PriceRecord] {
   import PriceBinders._
   def apply(e: ResultName[PriceRecord])(rs: WrappedResultSet): PriceRecord = PriceRecord(
     rs.get(e.name),
-    rs.get(e.startTime),
-    rs.get(e.endTime),
+    rs.get(e.effectiveDate),
     rs.get(e.priceType),
     rs.get(e.priceItem)
   )
@@ -95,7 +90,7 @@ object PriceBinders {
       val jsonObject = new PGobject()
       jsonObject.setType("jsonb")
       jsonObject.setValue(value.noSpaces)
-      stmt.setObject(5, jsonObject)
+      stmt.setObject(4, jsonObject)
     }
   }
 

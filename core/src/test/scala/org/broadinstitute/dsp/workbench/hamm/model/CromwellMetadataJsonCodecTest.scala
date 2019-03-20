@@ -3,7 +3,7 @@ package org.broadinstitute.dsp.workbench.hamm.model
 import java.time.Instant
 
 import io.circe.parser._
-import org.broadinstitute.dsde.workbench.hamm.TestComponent
+import org.broadinstitute.dsp.workbench.hamm.TestComponent
 import org.scalatest.{FlatSpec, Matchers}
 import org.broadinstitute.dsp.workbench.hamm.model.CromwellMetadataJsonCodec._
 

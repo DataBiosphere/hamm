@@ -1,4 +1,4 @@
-package org.broadinstitute.dsde.workbench.hamm.dao
+package org.broadinstitute.dsp.workbench.hamm.dao
 
 import cats.effect.IO
 import org.broadinstitute.dsp.workbench.hamm.config.GoogleConfig

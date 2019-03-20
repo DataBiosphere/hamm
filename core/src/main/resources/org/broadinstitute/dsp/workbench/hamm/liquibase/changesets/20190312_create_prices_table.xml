@@ -7,10 +7,7 @@
             <column name="NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="START_TIME" type="TIMESTAMPTZ">
-                <constraints nullable="false"/>
-            </column>
-            <column name="END_TIME" type="TIMESTAMPTZ">
+            <column name="EFFECTIVE_DATE" type="TIMESTAMPTZ">
                 <constraints nullable="false"/>
             </column>
             <column name="PRICE_TYPE" type="VARCHAR(255)">
@@ -23,7 +20,7 @@
     </changeSet>
 
     <changeSet logicalFilePath="hamm" author="ansingh" id="priceUniqueKey">
-        <addUniqueConstraint columnNames="NAME, START_TIME, END_TIME" constraintName="PriceIdentifierIndex" tableName="PRICE"/>
+        <addUniqueConstraint columnNames="NAME, EFFECTIVE_DATE" constraintName="PriceIdentifierIndex" tableName="PRICE"/>
     </changeSet>
 
     <changeSet logicalFilePath="hamm" author="ansingh" id="priceItemIndex">
