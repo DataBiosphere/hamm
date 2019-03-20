@@ -36,7 +36,7 @@ object Settings {
         java.time.LocalDateTime.now(ZoneId.systemDefault()).toString
       }
     ),
-    buildInfoPackage := "org.broadinstitute.dsde.workbench.hamm"
+    buildInfoPackage := "org.broadinstitute.dsp.workbench.hamm"
   )
 
   // recommended scalac options by https://tpolecat.github.io/2017/04/25/scalac-flags.html
@@ -82,7 +82,7 @@ object Settings {
   //common settings for all sbt subprojects
   lazy val commonSettings =
     commonBuildSettings ++ List(
-      organization  := "org.broadinstitute.dsde.workbench",
+      organization  := "org.broadinstitute.dsp.workbench",
       scalaVersion  := "2.12.8",
       resolvers ++= commonResolvers,
       scalacOptions ++= commonCompilerSettings,
@@ -93,7 +93,7 @@ object Settings {
     )
 
   lazy val serverDockerSetting = List(
-    mainClass in Compile := Some("org.broadinstitute.dsde.workbench.hamm.server.Main"),
+    mainClass in Compile := Some("org.broadinstitute.dsp.workbench.hamm.server.Main"),
     maintainer := "workbench@broadinstitute.org",
     dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc11",
     packageName in Docker := "workbench-firestore/hamm-server", //TODO: use appropriate project name
@@ -114,7 +114,7 @@ object Settings {
   lazy val serverSettings = commonSettings ++ serverDockerSetting
 
   lazy val costUpdaterDockerSetting = List(
-    mainClass in Compile := Some("org.broadinstitute.dsde.workbench.hamm.costUpdater.Main"),
+    mainClass in Compile := Some("org.broadinstitute.dsp.workbench.hamm.costUpdater.Main"),
     maintainer := "workbench@broadinstitute.org",
     dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc11",
     packageName in Docker := "workbench-firestore/hamm-cost-updater", //TODO: use appropriate project name

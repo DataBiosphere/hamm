@@ -1,4 +1,4 @@
-package org.broadinstitute.dsde.workbench.hamm
+package org.broadinstitute.dsp.workbench.hamm
 package costUpdater
 
 import cats.implicits._

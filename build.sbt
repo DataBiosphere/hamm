@@ -1,4 +1,3 @@
-coverageExcludedPackages := "org.broadinstitute.dsde.workbench.hamm.protos"
 coverageMinimum := 15 //Update this once there're more tests
 coverageFailOnMinimum := true
 
