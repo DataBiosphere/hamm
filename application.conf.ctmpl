@@ -29,7 +29,7 @@ google {
 
 
 liquibase {
-  changelog = "org/broadinstitute/dsde/workbench/hamm/liquibase/changelog.xml"
+  changelog = "org/broadinstitute/dsp/workbench/hamm/liquibase/changelog.xml"
   initWithLiquibase = false
 }
 
