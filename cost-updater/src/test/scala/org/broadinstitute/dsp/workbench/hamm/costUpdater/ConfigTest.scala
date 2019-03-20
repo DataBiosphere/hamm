@@ -1,8 +1,11 @@
-package org.broadinstitute.dsde.workbench.hamm.costUpdater
+package org.broadinstitute.dsp.workbench.hamm.costUpdater
 
 import com.google.pubsub.v1.ProjectTopicName
 import org.broadinstitute.dsde.workbench.google2.SubscriberConfig
-import org.broadinstitute.dsde.workbench.hamm.HammTestSuite
+import org.broadinstitute.dsde.workbench.hamm.costUpdater._
+import org.broadinstitute.dsp.workbench.hamm.HammTestSuite
+
+import scala.concurrent.duration._
 import scala.concurrent.duration._
 
 object ConfigTest extends HammTestSuite {
