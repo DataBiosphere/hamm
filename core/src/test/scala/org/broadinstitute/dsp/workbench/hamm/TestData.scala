@@ -2,7 +2,7 @@ package org.broadinstitute.dsp.workbench.hamm
 
 import java.time.Instant
 
-import org.broadinstitute.dsp.workbench.hamm.db.{CallFqn, Job, JobUniqueKey, Workflow}
+import org.broadinstitute.dsp.workbench.hamm.db.{CallName, Job, JobUniqueKey, Workflow}
 import org.broadinstitute.dsp.workbench.hamm.model.{SamResource, SamResourceAction, WorkflowCollectionId, WorkflowId}
 import org.http4s.AuthScheme
 import org.http4s.Credentials.Token
@@ -19,11 +19,11 @@ object TestData {
   val testWorkflow = Workflow(testWorkflowId, None, None, testWorkflowCollectionId, false, Instant.now(), Instant.now(), Map.empty[String,String], 1)
 
 
-  val testCallFqn = CallFqn("fake-call-fqn")
+  val testCallName = CallName("fake-call-name")
   val testAttempt = 2.toShort
   val testJobIndex = 3
-  val testJobUniqueKey = JobUniqueKey(testWorkflowId, testCallFqn, 2, 3)
-  val testJob = Job(testWorkflowId, testCallFqn, testAttempt, testJobIndex, Some("fake-vendor-id"), Instant.now(), Instant.now(), 1)
+  val testJobUniqueKey = JobUniqueKey(testWorkflowId, testCallName, 2, 3)
+  val testJob = Job(testWorkflowId, testCallName, testAttempt, testJobIndex, Some("fake-vendor-id"), Instant.now(), Instant.now(), 1)
 
 
 

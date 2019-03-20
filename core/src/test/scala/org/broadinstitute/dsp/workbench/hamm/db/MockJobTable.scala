@@ -18,18 +18,18 @@ class MockJobTable(workflowTable: MockWorkflowTable) extends JobTableQueries {
   def getJobQuery(jobUniquekey: JobUniqueKey)(implicit session: DBSession): Option[Job] = {
     jobs.find(job =>
       job.attempt.equals(jobUniquekey.attempt) &&
-      job.callFqn.equals(jobUniquekey.callFqn) &&
+      job.callName.equals(jobUniquekey.callName) &&
       job.jobIndex.equals(jobUniquekey.jobIndex) &&
       job.workflowId.equals(jobUniquekey.workflowId)
     )
   }
 
-  def getJobCostQuery(jobId: CallFqn)(implicit session: DBSession): Option[Double] = {
-    jobs.find(job => job.callFqn.equals(jobId)).map(job => job.cost)
+  def getJobCostQuery(jobId: CallName)(implicit session: DBSession): Option[Double] = {
+    jobs.find(job => job.callName.equals(jobId)).map(job => job.cost)
   }
 
-  def getJobWorkflowCollectionIdQuery(jobId: CallFqn)(implicit session: DBSession): Option[WorkflowCollectionId] = {
-    val workflowId = jobs.find(job => job.callFqn.equals(jobId)).map(job => job.workflowId).get
+  def getJobWorkflowCollectionIdQuery(jobId: CallName)(implicit session: DBSession): Option[WorkflowCollectionId] = {
+    val workflowId = jobs.find(job => job.callName.equals(jobId)).map(job => job.workflowId).get
     workflowTable.getWorkflowQuery(workflowId).map(workflow => workflow.workflowCollectionId)
   }
 

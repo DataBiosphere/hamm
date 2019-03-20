@@ -16,8 +16,8 @@ class JobTableQueriesSpec extends FlatSpec with Matchers with AutoRollback with 
     jobTable.insertJobQuery(TestData.testJob)
 
     jobTable.getJobQuery(TestData.testJobUniqueKey) shouldBe Some(TestData.testJob)
-    jobTable.getJobCostQuery(TestData.testCallFqn) shouldBe Some(1)
-    jobTable.getJobWorkflowCollectionIdQuery(TestData.testCallFqn) shouldBe Some(TestData.testWorkflowCollectionId)
+    jobTable.getJobCostQuery(TestData.testCallName) shouldBe Some(1)
+    jobTable.getJobWorkflowCollectionIdQuery(TestData.testCallName) shouldBe Some(TestData.testWorkflowCollectionId)
   }
 
 

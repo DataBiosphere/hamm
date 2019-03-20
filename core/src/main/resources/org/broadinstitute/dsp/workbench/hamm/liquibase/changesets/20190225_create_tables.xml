@@ -6,7 +6,7 @@
             <column name="WORKFLOW_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="CALL_FQN" type="VARCHAR(255)">
+            <column name="CALL_NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="ATTEMPT" type="SMALLINT">
@@ -56,7 +56,7 @@
     </changeSet>
 
     <changeSet logicalFilePath="hamm" author="asingh" id="job-unique-key">
-        <addUniqueConstraint columnNames="WORKFLOW_ID, CALL_FQN, ATTEMPT, VENDOR_JOB_ID" constraintName="callUniqueIdentifierIndex" tableName="JOB"/>
+        <addUniqueConstraint columnNames="WORKFLOW_ID, CALL_NAME, ATTEMPT, VENDOR_JOB_ID" constraintName="callUniqueIdentifierIndex" tableName="JOB"/>
     </changeSet>
 
     <changeSet logicalFilePath="hamm" author="asingh" id="workflow-id-foreign-key">

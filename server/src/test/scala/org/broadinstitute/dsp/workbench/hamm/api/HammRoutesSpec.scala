@@ -77,7 +77,7 @@ class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http
   }
 
   it should "get a job's cost" in {
-    val uri = "/api/cost/v1/job/" + TestData.testJob.callFqn.asString
+    val uri = "/api/cost/v1/job/" + TestData.testJob.callName.asString
 
     val response = hammRoutes.routes.apply {
       Request(
@@ -87,7 +87,7 @@ class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http
     }
 
     //This will change based on changing Job cost table, just doing it weird for now
-    check(response, Status.Ok, Some(JobCostResponse(JobId(TestData.testJob.callFqn.asString), TestData.testJob.cost)))
+    check(response, Status.Ok, Some(JobCostResponse(JobId(TestData.testJob.callName.asString), TestData.testJob.cost)))
   }
 
 }

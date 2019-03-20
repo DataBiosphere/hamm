@@ -30,9 +30,9 @@ class CostService(samAuthProvider: SamAuthProvider, dbRef: DbReference, jobTable
 
     dbRef.inReadOnlyTransaction { implicit session =>
 
-      jobTable.getJobWorkflowCollectionIdQuery(CallFqn(jobId.id)) match { // doing this weird CallFqn thing in my PR for now until I understand what these things mean...
+      jobTable.getJobWorkflowCollectionIdQuery(CallName(jobId.id)) match { // doing this weird CallName thing in my PR for now until I understand what these things mean...
         case Some(workflowCollectionId) if samAuthProvider.hasWorkflowCollectionPermission(token, SamResource(workflowCollectionId.asString)) => {
-          val jobCost = jobTable.getJobCostQuery(CallFqn(jobId.id)).getOrElse(throw jobCostNotFoundException)
+          val jobCost = jobTable.getJobCostQuery(CallName(jobId.id)).getOrElse(throw jobCostNotFoundException)
           JobCostResponse(jobId, jobCost)
         }
         case None => throw jobCostNotFoundException

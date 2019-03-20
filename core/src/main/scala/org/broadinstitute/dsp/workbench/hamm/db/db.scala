@@ -11,7 +11,7 @@ package object db {
   val endTimeFieldName = "END_TIME"
   val labelsFieldName = "LABELS"
   val costFieldName = "COST"
-  val callFqnFieldName = "CALL_FQN"
+  val callNameFieldName = "CALL_Name"
   val attemptFieldName = "ATTEMPT"
   val jobIndexFieldName = "JOB_INDEX"
   val vendorJobIdFieldName = "VENDOR_JOB_ID"

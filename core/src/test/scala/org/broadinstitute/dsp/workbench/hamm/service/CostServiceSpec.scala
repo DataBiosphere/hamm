@@ -37,8 +37,8 @@ class CostServiceSpec extends FlatSpec with Matchers with TestComponent with Ham
 
 
   it should "get the cost of a job" in {
-    val result = costService.getJobCost(TestData.testToken, JobId(TestData.testJob.callFqn.asString))
-    result shouldBe JobCostResponse(JobId(TestData.testJob.callFqn.asString), TestData.testWorkflow.cost)
+    val result = costService.getJobCost(TestData.testToken, JobId(TestData.testJob.callName.asString))
+    result shouldBe JobCostResponse(JobId(TestData.testJob.callName.asString), TestData.testWorkflow.cost)
   }
 
 
