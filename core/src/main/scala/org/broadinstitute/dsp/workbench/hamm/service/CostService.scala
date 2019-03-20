@@ -41,5 +41,6 @@ class CostService(samAuthProvider: SamAuthProvider, dbRef: DbReference, jobTable
   }
 }
 
-final case class WorkflowCostResponse(workflowId: WorkflowId, cost: Double)
-final case class JobCostResponse(jobId: JobId, cost: Double)
+trait ServiceResponse
+final case class WorkflowCostResponse(workflowId: WorkflowId, cost: Double) extends ServiceResponse
+final case class JobCostResponse(jobId: JobId, cost: Double) extends ServiceResponse

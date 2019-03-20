@@ -1,5 +1,6 @@
 package org.broadinstitute.dsp.workbench.hamm.api
 
+import cats.data.{Kleisli, OptionT}
 import cats.effect._
 import io.circe.generic.auto._
 import org.broadinstitute.dsp.workbench.hamm.model.{HammException, JobId, WorkflowId}
@@ -7,10 +8,10 @@ import org.broadinstitute.dsp.workbench.hamm.service._
 import org.broadinstitute.dsp.workbench.hamm.HammLogger
 import org.broadinstitute.dsp.workbench.hamm.auth.SamAuthProvider
 import org.http4s.Credentials.Token
-import org.http4s.{AuthScheme, HttpRoutes, Request, Response, Status}
+import org.http4s.{AuthScheme, AuthedService, HttpRoutes, Request, Response, Status}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.Authorization
-import org.http4s.server.Router
+import org.http4s.server.{AuthMiddleware, Router}
 import org.http4s.server.middleware.Logger
 import org.http4s.syntax.kleisli._
 import org.http4s.circe.CirceEntityEncoder._
@@ -21,7 +22,7 @@ class HammRoutes(samDAO: SamAuthProvider, costService: CostService, statusServic
   //  service with the longest matching prefix.
   def routes = Logger[IO](true, true)( Router[IO](
     "/status" -> statusRoute,
-    "/api/cost/v1" -> costRoutes
+    "/api/cost/v1" -> authorize(costRoutes)
   ).orNotFound).mapF(handleException)
 
 
@@ -31,17 +32,19 @@ class HammRoutes(samDAO: SamAuthProvider, costService: CostService, statusServic
   }
 
 
-  def costRoutes = HttpRoutes.of[IO] {
-    case request @ GET -> Root / "workflow" / workflowId =>
-      Ok(IO { costService.getWorkflowCost(extractToken(request), WorkflowId(workflowId)) })
-    case request @ GET -> Root / "job" / jobId =>
-      Ok(IO { costService.getJobCost(extractToken(request), JobId(jobId)) })
+  def costRoutes: AuthedService[Token, IO] = AuthedService.apply {
+    case request @ GET -> Root / "workflow" / workflowId as userToken =>
+      Ok(IO { costService.getWorkflowCost(userToken, WorkflowId(workflowId)) })
+    case request @ GET -> Root / "job" / jobId as userToken =>
+      Ok(IO { costService.getJobCost(userToken , JobId(jobId)) })
   }
 
 
+  // middleware that extracts the token from the request
+  val authUser: Kleisli[OptionT[IO, ?], Request[IO], Token] =
+    Kleisli(req => OptionT.liftF( IO { extractToken(req) } ))
 
-
-
+  val authorize: AuthMiddleware[IO, Token] = AuthMiddleware(authUser)
 
   private def extractToken(request: Request[IO]): Token = {
     val unauthorizedException = HammException(Status.Unauthorized.code, "User is unauthorized.")
@@ -51,6 +54,10 @@ class HammRoutes(samDAO: SamAuthProvider, costService: CostService, statusServic
       case _ => throw unauthorizedException
     }
   }
+
+
+
+
 
   private def handleException: IO[Response[IO]] => IO[Response[IO]] = {
     x =>  x.handleErrorWith {

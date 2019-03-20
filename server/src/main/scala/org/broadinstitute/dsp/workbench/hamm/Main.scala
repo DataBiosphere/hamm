@@ -1,4 +1,5 @@
 package org.broadinstitute.dsp.workbench.hamm
+package server
 
 import cats.effect._
 import cats.implicits._
