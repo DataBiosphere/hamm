@@ -15,6 +15,7 @@ import org.http4s.server.{AuthMiddleware, Router}
 import org.http4s.server.middleware.Logger
 import org.http4s.syntax.kleisli._
 import org.http4s.circe.CirceEntityEncoder._
+import org.broadinstitute.dsp.workbench.hamm.api.HammRoutes.{authed, handleException}
 
 class HammRoutes(samDAO: SamAuthProvider, costService: CostService, statusService: StatusService)(implicit con: Concurrent[IO]) extends Http4sDsl[IO] with HammLogger {
 
@@ -22,7 +23,7 @@ class HammRoutes(samDAO: SamAuthProvider, costService: CostService, statusServic
   //  service with the longest matching prefix.
   def routes = Logger[IO](true, true)( Router[IO](
     "/status" -> statusRoute,
-    "/api/cost/v1" -> authorize(costRoutes)
+    "/api/cost/v1" -> authed(costRoutes)
   ).orNotFound).mapF(handleException)
 
 
@@ -33,33 +34,33 @@ class HammRoutes(samDAO: SamAuthProvider, costService: CostService, statusServic
 
 
   def costRoutes: AuthedService[Token, IO] = AuthedService.apply {
-    case request @ GET -> Root / "workflow" / workflowId as userToken =>
+    case GET -> Root / "workflow" / workflowId as userToken =>
       Ok(IO { costService.getWorkflowCost(userToken, WorkflowId(workflowId)) })
-    case request @ GET -> Root / "job" / jobId as userToken =>
+    case GET -> Root / "job" / jobId as userToken =>
       Ok(IO { costService.getJobCost(userToken , JobId(jobId)) })
   }
 
+}
+
+// ToDo: Add some tests for these
+object HammRoutes extends HammLogger with Http4sDsl[IO] {
 
   // middleware that extracts the token from the request
-  val authUser: Kleisli[OptionT[IO, ?], Request[IO], Token] =
-    Kleisli(req => OptionT.liftF( IO { extractToken(req) } ))
-
-  val authorize: AuthMiddleware[IO, Token] = AuthMiddleware(authUser)
-
-  private def extractToken(request: Request[IO]): Token = {
+  def extractToken(request: Request[IO]): Token = {
     val unauthorizedException = HammException(Status.Unauthorized.code, "User is unauthorized.")
-
     request.headers.get(`Authorization`).getOrElse(throw unauthorizedException).credentials match {
       case tokenCred: Token if tokenCred.authScheme.equals(AuthScheme.Bearer)=> tokenCred
       case _ => throw unauthorizedException
     }
   }
 
+  val extractToken: Kleisli[OptionT[IO, ?], Request[IO], Token] =
+    Kleisli(req => OptionT.liftF( IO { extractToken(req) } ))
+
+  val authed: AuthMiddleware[IO, Token] = AuthMiddleware(extractToken)
 
 
-
-
-  private def handleException: IO[Response[IO]] => IO[Response[IO]] = {
+  def handleException: IO[Response[IO]] => IO[Response[IO]] = {
     x =>  x.handleErrorWith {
       case hammException: HammException => {
         logger.error(hammException)("Hamm service serror")
@@ -73,5 +74,6 @@ class HammRoutes(samDAO: SamAuthProvider, costService: CostService, statusServic
       case _ => InternalServerError("Something went wrong")
     }
   }
+
 
 }
