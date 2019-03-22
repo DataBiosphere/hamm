@@ -1,4 +1,5 @@
-package org.broadinstitute.dsp.workbench.hamm.automation
+package org.broadinstitute.dsp.workbench.hamm
+package automation
 
 import cats.effect.IO
 import cats.implicits._
