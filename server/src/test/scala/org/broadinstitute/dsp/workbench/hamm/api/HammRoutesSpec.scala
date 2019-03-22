@@ -3,7 +3,6 @@ package org.broadinstitute.dsp.workbench.hamm.api
 import cats.effect.IO
 import io.circe.generic.auto._
 import org.broadinstitute.dsp.workbench.hamm.{HammLogger, TestData}
-import org.broadinstitute.dsp.workbench.hamm.model.JobId
 import org.broadinstitute.dsp.workbench.hamm.service.{JobCostResponse, WorkflowCostResponse}
 import org.broadinstitute.dsp.workbench.hamm.TestComponent
 import org.http4s._
@@ -77,7 +76,7 @@ class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http
   }
 
   it should "get a job's cost" in {
-    val uri = "/api/cost/v1/job/" + TestData.testJob.callName.asString
+    val uri = "/api/cost/v1/job/" + TestData.testJob.workflowId.id + "/" + TestData.testJob.callFqn.asString + "/" + TestData.testJob.attempt.toString + "/" + TestData.testJob.jobIndex.toString
 
     val response = hammRoutes.routes.apply {
       Request(
@@ -87,7 +86,7 @@ class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http
     }
 
     //This will change based on changing Job cost table, just doing it weird for now
-    check(response, Status.Ok, Some(JobCostResponse(JobId(TestData.testJob.callName.asString), TestData.testJob.cost)))
+    check(response, Status.Ok, Some(JobCostResponse(TestData.testWorkflowId, TestData.testCallFqn, TestData.testAttempt, TestData.testJobIndex, TestData.testJob.cost)))
   }
 
 }

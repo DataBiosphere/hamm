@@ -3,7 +3,7 @@ package org.broadinstitute.dsp.workbench.hamm.api
 import cats.data.{Kleisli, OptionT}
 import cats.effect._
 import io.circe.generic.auto._
-import org.broadinstitute.dsp.workbench.hamm.model.{HammException, JobId, WorkflowId}
+import org.broadinstitute.dsp.workbench.hamm.model.{HammException, WorkflowId}
 import org.broadinstitute.dsp.workbench.hamm.service._
 import org.broadinstitute.dsp.workbench.hamm.HammLogger
 import org.broadinstitute.dsp.workbench.hamm.auth.SamAuthProvider
@@ -16,6 +16,7 @@ import org.http4s.server.middleware.Logger
 import org.http4s.syntax.kleisli._
 import org.http4s.circe.CirceEntityEncoder._
 import org.broadinstitute.dsp.workbench.hamm.api.HammRoutes.{authed, handleException}
+import org.broadinstitute.dsp.workbench.hamm.db.CallFqn
 
 class HammRoutes(samDAO: SamAuthProvider, costService: CostService, statusService: StatusService)(implicit con: Concurrent[IO]) extends Http4sDsl[IO] with HammLogger {
 
@@ -36,8 +37,8 @@ class HammRoutes(samDAO: SamAuthProvider, costService: CostService, statusServic
   def costRoutes: AuthedService[Token, IO] = AuthedService.apply {
     case GET -> Root / "workflow" / workflowId as userToken =>
       Ok(IO { costService.getWorkflowCost(userToken, WorkflowId(workflowId)) })
-    case GET -> Root / "job" / jobId as userToken =>
-      Ok(IO { costService.getJobCost(userToken , JobId(jobId)) })
+    case GET -> Root / "job" / workflowId / callFqn / attempt / IntVar(jobIndex)  as userToken =>
+      Ok(IO { costService.getJobCost(userToken, WorkflowId(workflowId), CallFqn(callFqn), attempt.toShort, jobIndex) })
   }
 
 }

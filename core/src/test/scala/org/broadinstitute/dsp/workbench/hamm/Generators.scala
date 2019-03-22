@@ -38,14 +38,14 @@ object Generators {
 
   val genJobCost = for{
     workflowId <- genWorkflowId
-    callName <- Gen.alphaStr.map(x => CallName(s"callName$x"))
+    callFqn <- Gen.alphaStr.map(x => CallFqn(s"callFqn$x"))
     attempt <- Gen.posNum[Short]
     jobIndexId <- Gen.posNum[Int]
     vendorJobId <- Gen.option(Gen.alphaStr.map(s => s"operationId$s"))
     startTime <- Gen.const(Instant.now())
     endTime <- Gen.const(Instant.now())
     cost <- Gen.posNum[Double]
-  } yield Job(workflowId, callName, attempt, jobIndexId, vendorJobId, startTime, endTime, cost)
+  } yield Job(workflowId, callFqn, attempt, jobIndexId, vendorJobId, startTime, endTime, cost)
 
   val genNonEmptyLabelWorkflowDb = for {
     labels <- genNonEmptyLabelMap

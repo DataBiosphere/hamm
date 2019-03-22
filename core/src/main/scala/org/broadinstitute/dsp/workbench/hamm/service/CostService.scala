@@ -25,15 +25,15 @@ class CostService(samAuthProvider: SamAuthProvider, dbRef: DbReference, jobTable
     }
   }
 
-  def getJobCost(token: Token, jobId: JobId): JobCostResponse = {
-    val jobCostNotFoundException = HammException(Status.NotFound.code, s"Cost for job ${jobId.id} was not found.")
-
+  def getJobCost(token: Token, workflowId: WorkflowId, callFqn: CallFqn, attempt: Short, jobIndex: Int ): JobCostResponse = {
+    val jobCostNotFoundException = HammException(Status.NotFound.code, s"Cost for job ${callFqn.asString}, attempt ${attempt.toString} in workflow ${workflowId.id} for job index ${jobIndex.toString} was not found.")
+   val jobUniqueKey =  JobUniqueKey(workflowId, callFqn, attempt, jobIndex)
     dbRef.inReadOnlyTransaction { implicit session =>
 
-      jobTable.getJobWorkflowCollectionIdQuery(CallName(jobId.id)) match { // doing this weird CallName thing in my PR for now until I understand what these things mean...
+      jobTable.getJobWorkflowCollectionIdQuery(jobUniqueKey) match {
         case Some(workflowCollectionId) if samAuthProvider.hasWorkflowCollectionPermission(token, SamResource(workflowCollectionId.asString)) => {
-          val jobCost = jobTable.getJobCostQuery(CallName(jobId.id)).getOrElse(throw jobCostNotFoundException)
-          JobCostResponse(jobId, jobCost)
+          val jobCost = jobTable.getJobCostQuery(jobUniqueKey).getOrElse(throw jobCostNotFoundException)
+          JobCostResponse(workflowId, callFqn, attempt, jobIndex, jobCost)
         }
         case None => throw jobCostNotFoundException
       }
@@ -42,4 +42,4 @@ class CostService(samAuthProvider: SamAuthProvider, dbRef: DbReference, jobTable
 }
 
 final case class WorkflowCostResponse(workflowId: WorkflowId, cost: Double)
-final case class JobCostResponse(jobId: JobId, cost: Double)
+final case class JobCostResponse(workflowId: WorkflowId, callFqn: CallFqn, attempt: Short, jobIndex: Int, cost: Double)

@@ -1,6 +1,5 @@
 package org.broadinstitute.dsp.workbench.hamm.service
 
-import org.broadinstitute.dsp.workbench.hamm.model.JobId
 import org.broadinstitute.dsp.workbench.hamm.TestComponent
 import org.broadinstitute.dsp.workbench.hamm.{HammLogger, TestData}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
@@ -37,8 +36,8 @@ class CostServiceSpec extends FlatSpec with Matchers with TestComponent with Ham
 
 
   it should "get the cost of a job" in {
-    val result = costService.getJobCost(TestData.testToken, JobId(TestData.testJob.callName.asString))
-    result shouldBe JobCostResponse(JobId(TestData.testJob.callName.asString), TestData.testWorkflow.cost)
+    val result = costService.getJobCost(TestData.testToken, TestData.testWorkflowId, TestData.testCallFqn, TestData.testAttempt, TestData.testJobIndex)
+    result shouldBe JobCostResponse(TestData.testWorkflowId, TestData.testCallFqn, TestData.testAttempt, TestData.testJobIndex, TestData.testWorkflow.cost)
   }
 
 
