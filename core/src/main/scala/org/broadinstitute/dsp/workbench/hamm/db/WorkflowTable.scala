@@ -65,7 +65,6 @@ final case class Workflow(
     cost: Double)
 
 final case class Label(key: String, value: String)
-//final case class WorkflowCost(workflowId: WorkflowId, cost: Double)
 
 object Workflow extends SQLSyntaxSupport[Workflow] {
   override def tableName: String = "WORKFLOW"

@@ -26,7 +26,6 @@ object Dependencies {
     "io.sentry"                         %  "sentry-logback"      % "1.7.16",          // see doc https://docs.sentry.io/clients/java/modules/logback/
     "org.broadinstitute.dsde.workbench" %% "sam-client"          % samV,
     "org.http4s"                        %% "http4s-blaze-client" % http4sVersion,
-    "org.http4s"                        %% "http4s-blaze-server" % http4sVersion,
     "org.http4s"                        %% "http4s-circe"        % http4sVersion,
     "org.http4s"                        %% "http4s-dsl"          % http4sVersion,
     "org.liquibase"                     %  "liquibase-core"      % liquibaseVersion,
@@ -47,11 +46,10 @@ object Dependencies {
   )
 
   val costUpdater = common ++ List(
-    "io.grpc" % "grpc-services" % grpcNettyVersion,
     "org.broadinstitute.dsde.workbench" %% "workbench-google2" % "0.1-36b0c79-SNAP"
   )
   
   val server = common ++ List(
-    "io.grpc" % "grpc-services" % grpcNettyVersion
+    "org.http4s" %% "http4s-blaze-server" % http4sVersion
   )
 }
