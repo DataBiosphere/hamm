@@ -6,3 +6,4 @@ target/
 .bloop/
 project/.bloop/
 nginx*
+*application.conf

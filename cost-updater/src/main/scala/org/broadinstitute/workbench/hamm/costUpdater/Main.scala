@@ -15,7 +15,7 @@ import org.http4s.server.blaze.BlazeServerBuilder
 
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =  {
-    implicit val logger = Slf4jLogger.unsafeCreate[IO]
+    implicit val logger = Slf4jLogger.getLogger[IO]
 
     val app: Stream[IO, Unit] = for {
       appConfig <- Stream.fromEither[IO](Config.appConfig)
