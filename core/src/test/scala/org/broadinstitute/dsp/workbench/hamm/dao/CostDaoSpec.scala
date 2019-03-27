@@ -1,10 +1,8 @@
-package org.broadinstitute.dsp.workbench.hamm.service
+package org.broadinstitute.dsp.workbench.hamm
 
-import org.broadinstitute.dsp.workbench.hamm.TestComponent
-import org.broadinstitute.dsp.workbench.hamm.{HammLogger, TestData}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
 
-class CostServiceSpec extends FlatSpec with Matchers with TestComponent with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
+class CostDaoSpec extends FlatSpec with Matchers with TestComponent with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
 
   override def beforeAll() = {
     samAuthProvider.samClient.actionsPerResourcePerToken += (TestData.testSamResource, TestData.testToken) -> Set(TestData.testSamResourceAction)
@@ -39,6 +37,4 @@ class CostServiceSpec extends FlatSpec with Matchers with TestComponent with Ham
     val result = costService.getJobCost(TestData.testToken, TestData.testWorkflowId, TestData.testCallFqn, TestData.testAttempt, TestData.testJobIndex)
     result shouldBe JobCostResponse(TestData.testWorkflowId, TestData.testCallFqn, TestData.testAttempt, TestData.testJobIndex, TestData.testWorkflow.cost)
   }
-
-
 }

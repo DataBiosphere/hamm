@@ -1,10 +1,9 @@
-package org.broadinstitute.dsp.workbench.hamm.api
+package org.broadinstitute.dsp.workbench.hamm
+package server
 
 import cats.effect.IO
 import io.circe.generic.auto._
-import org.broadinstitute.dsp.workbench.hamm.{HammLogger, TestData}
-import org.broadinstitute.dsp.workbench.hamm.service.{JobCostResponse, WorkflowCostResponse}
-import org.broadinstitute.dsp.workbench.hamm.TestComponent
+import org.broadinstitute.dsp.workbench.hamm.dao.StatusService
 import org.http4s._
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.dsl.Http4sDsl
@@ -14,7 +13,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
 
 class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http4sDsl[IO] with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
 
-  val hammRoutes = new HammRoutes(samAuthProvider, costService, statusService)
+  val hammRoutes = new HammRoutes(samAuthProvider, costService, StatusService[IO])
 
   override def beforeAll() = {
     samAuthProvider.samClient.actionsPerResourcePerToken += (TestData.testSamResource, TestData.testToken) -> Set(TestData.testSamResourceAction)

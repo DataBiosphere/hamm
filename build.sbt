@@ -2,7 +2,6 @@ coverageMinimum := 15 //Update this once there're more tests
 coverageFailOnMinimum := true
 
 lazy val hamm = project.in(file("."))
-  .enablePlugins(BuildInfoPlugin)
   .settings(
     skip in publish := true,
     Settings.commonSettings
@@ -13,10 +12,11 @@ lazy val hamm = project.in(file("."))
 lazy val core =
   project
     .in(file("core"))
-     .enablePlugins(BuildInfoPlugin)
+    .enablePlugins(BuildInfoPlugin)
     .settings(
       libraryDependencies ++= Dependencies.common,
       Settings.commonSettings,
+      Settings.buildInfoSettings,
 //    This is not ideal, but BuildInfoPlugin doesn't work as expected for core
       sourceGenerators in Compile += Def.task {
         val outDir = (sourceManaged in Compile).value / "hammBuildInfo"
@@ -25,7 +25,7 @@ lazy val core =
         val v = version.value
         val t = System.currentTimeMillis
         IO.write(outFile,
-          s"""|package org.broadinstitute.workbench.hamm.core
+          s"""|package org.broadinstitute.dsp.workbench.hamm
               |
             |/** Auto-generated build information. */
               |object BuildInfo {
@@ -51,7 +51,7 @@ lazy val server =
 lazy val costUpdater =
   project
     .in(file("cost-updater"))
-    .enablePlugins(JavaAppPackaging, BuildInfoPlugin)
+    .enablePlugins(JavaAppPackaging)
     .settings(
       libraryDependencies ++= Dependencies.costUpdater,
       Settings.costUpdaterSettings,

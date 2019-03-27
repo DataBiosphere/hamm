@@ -11,12 +11,12 @@ object Dependencies {
   val scalaTestVersion      = "3.0.5"
   val scalikejdbcVersion    = "3.3.2"
   val cirisVersion = "0.12.1"
+  val workbenchGoogle2V = "0.2-4c7acd5"
 
   val common = List(
     "com.github.pureconfig"             %% "pureconfig"          % "0.10.1",
     "com.iheart"                        %% "ficus"               % "1.4.3",
-    "com.zaxxer"                        %  "HikariCP"            % "1.3.+",
-    "io.chrisdavenport"                 %% "log4cats-slf4j"      % "0.2.0",
+    "io.chrisdavenport"                 %% "log4cats-slf4j"      % "0.3.0",
     "io.circe"                          %% "circe-core"          % circeVersion,
     "io.circe"                          %% "circe-generic"       % circeVersion,
     "io.circe"                          %% "circe-parser"        % circeVersion,
@@ -36,7 +36,6 @@ object Dependencies {
     "org.scalikejdbc"                   %% "scalikejdbc"         % scalikejdbcVersion,
     "org.scalikejdbc"                   %% "scalikejdbc-config"  % scalikejdbcVersion,
     "org.scalikejdbc"                   %% "scalikejdbc-test"    % scalikejdbcVersion   % "test",
-    "io.chrisdavenport" %% "log4cats-slf4j"   % "0.2.0",
     "is.cir" %% "ciris-core" % cirisVersion,
     "is.cir" %% "ciris-cats" % cirisVersion,
     "is.cir" %% "ciris-cats-effect" % cirisVersion
@@ -45,7 +44,8 @@ object Dependencies {
   val automation = common
 
   val costUpdater = common ++ List(
-    "org.broadinstitute.dsde.workbench" %% "workbench-google2" % "0.1-7ae5c6d-SNAP" % "test->test;compile->compile",
+    "org.broadinstitute.dsde.workbench" %% "workbench-google2" % workbenchGoogle2V,
+    "org.broadinstitute.dsde.workbench" %% "workbench-google2" % workbenchGoogle2V % "test" classifier "tests", //for generators
     "org.http4s" %% "http4s-blaze-server" % http4sVersion,
     "io.grpc" % "grpc-core" % grpcCoreVersion,
     "io.circe" %% "circe-fs2" % "0.11.0",

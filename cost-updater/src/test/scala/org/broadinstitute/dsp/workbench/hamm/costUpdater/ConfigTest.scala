@@ -3,7 +3,6 @@ package org.broadinstitute.dsp.workbench.hamm.costUpdater
 import com.google.pubsub.v1.ProjectTopicName
 import org.broadinstitute.dsde.workbench.google2.SubscriberConfig
 import org.broadinstitute.dsp.workbench.hamm.HammTestSuite
-import org.broadinstitute.workbench.hamm.HammTestSuite
 
 import scala.concurrent.duration._
 

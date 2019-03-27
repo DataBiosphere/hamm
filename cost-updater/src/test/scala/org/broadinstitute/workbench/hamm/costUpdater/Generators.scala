@@ -1,4 +1,4 @@
-package org.broadinstitute.workbench.hamm.costUpdater
+package org.broadinstitute.dsp.workbench.hamm.costUpdater
 
 import org.broadinstitute.dsde.workbench.google2.Generators._
 import org.scalacheck.Arbitrary

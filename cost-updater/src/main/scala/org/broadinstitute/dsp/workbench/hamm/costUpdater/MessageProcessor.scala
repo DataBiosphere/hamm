@@ -13,7 +13,10 @@ import org.broadinstitute.dsp.workbench.hamm.model.MetadataResponse
 class MessageProcessor[F[_]: Logger: Concurrent](subscriber: GoogleSubscriber[F, NotificationMessage], storage: GoogleStorageService[F]) {
   private[hamm] def parseNotification(notificationMessage: NotificationMessage): Stream[F, MetadataResponse] = {
     val metadataStream = storage.getObject(notificationMessage.bucketAndObject.bucketName, notificationMessage.bucketAndObject.blobName)
-    metadataStream through fs2.compress.gunzip(2048) through io.circe.fs2.byteStreamParser through io.circe.fs2.decoder[F, MetadataResponse]
+    metadataStream
+      .through(fs2.compress.gunzip(2048)) //unzip the bytes
+      .through(io.circe.fs2.byteStreamParser) //parse bytes into Json
+      .through(io.circe.fs2.decoder[F, MetadataResponse]) //parse Json into MetadataResponse
   }
 
   private val updateCost: Pipe[F, Event[NotificationMessage], Unit] = in => {

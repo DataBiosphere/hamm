@@ -14,12 +14,12 @@ object CromwellMetadataJsonCodecTest extends FlatSpec with Matchers {
       json <- parse(sampleTest)
       r <- json.as[MetadataResponse]
     } yield {
-      val expectedResponse = expectedResponse
+      val expectedResponse = sampleResponse
       r shouldBe expectedResponse
     }
   }
 
-  val expectedResponse = MetadataResponse(
+  val sampleResponse = MetadataResponse(
     List(Call(
       RuntimeAttributes(CpuNumber(1), Disk(DiskName("local-disk"), DiskSize(1), DiskType.HDD), BootDiskSizeGb(10), PreemptibleAttemptsAllowed(3)),
       List(ExecutionEvent(ExecutionEventDescription("delocalizing-files"),       Instant.parse("2019-01-02T22:14:05.438689657Z"), Instant.parse("2019-01-02T22:14:09.779343193Z")),

@@ -7,7 +7,6 @@ import org.broadinstitute.dsp.workbench.hamm.auth.{MockSamSwaggerClient, SamAuth
 import org.broadinstitute.dsp.workbench.hamm.config.SamConfig
 import org.broadinstitute.dsp.workbench.hamm.config.config.SamConfigReader
 import org.broadinstitute.dsp.workbench.hamm.db._
-import org.broadinstitute.dsp.workbench.hamm.service.{CostService, StatusService}
 import org.scalatest.Matchers
 
 import scala.concurrent.ExecutionContext
@@ -33,10 +32,7 @@ trait TestComponent extends Matchers {
   val mockJobTable = new MockJobTable(mockWorkflowTable)
 
 
-  val costService = new CostService(samAuthProvider, dbRef, mockJobTable, mockWorkflowTable)
-
-  val statusService = new StatusService()
-
+  val costService = new CostDbDao(samAuthProvider, dbRef, mockJobTable, mockWorkflowTable)
 }
 
 class TestSamAuthProvider(samConfig: SamConfig) extends SamAuthProvider(samConfig) {

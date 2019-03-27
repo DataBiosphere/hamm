@@ -1,6 +1,5 @@
-[![Build Status](https://travis-ci.com/DataBiosphere/hamm.png?branch=master)](https://travis-ci.org/broadinstitute/cloud-cost-management)
-[![Coverage Status](https://coveralls.io/repos/github/broadinstitute/cloud-cost-management/badge.svg?branch=master)](https://coveralls.io/github/broadinstitute/cloud-cost-management?branch=master)
-TODO: fix coverall badge
+[![Build Status](https://travis-ci.com/DataBiosphere/hamm.png?branch=master)](https://travis-ci.org/DataBiosphere/hamm)
+[![Coverage Status](https://coveralls.io/repos/github/DataBiosphere/hamm/badge.svg)](https://coveralls.io/github/DataBiosphere/hamm)
 
 # Try it out
 ## Hamm-Api-Server
@@ -11,17 +10,13 @@ TODO: fix coverall badge
 * Start hamm-api-server `sbt costUpdater/run`
 * Run automation tests against the running server `sbt automation/test`
 
-# APIs
-* [API doc](https://endpointsportal.workbench-firestore.cloud.goog/docs/ccm.endpoints.workbench-firestore.cloud.goog/g/overview)
-* Both gRPC and REST http doc is generated based on [proto3](protobuf/src/main/protobuf/ccm.proto)
-
 # Publish container image to Google container registry
 * Set up auth for publishing docker image to GCR
 `gcloud auth configure-docker`
 * Publish hamm-api-server
 `sbt server/docker:publish` (or `sbt server/docker:publishLocal` for local development)
 * Publish hamm-cost-updater
-`sbt costUpdater/docker:publish` (or `sbt server/docker:publishLocal` for local development)
+`sbt costUpdater/docker:publish` (or `sbt costUpdater/docker:publishLocal` for local development)
 
 # /status
 Both `hamm-cost-updater` and `hamm-api-server` provides /status endpoint.
@@ -55,8 +50,3 @@ https://codelabs.developers.google.com/codelabs/cloud-postgresql-gke-memegen/#5
 ```bash
 docker run --name postgres -e POSTGRES_PASSWORD=123 -e POSTGRES_USER=ccm -e POSTGRES_DB=cmm -p 5433:5432 -d postgres
 ```
-
-
-Maybe TODO
-* Set up automation tests in CI (deploy a server and then run automation tests against that)
-* Config sentry DSN

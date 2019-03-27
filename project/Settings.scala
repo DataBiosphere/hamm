@@ -36,7 +36,7 @@ object Settings {
         java.time.LocalDateTime.now(ZoneId.systemDefault()).toString
       }
     ),
-    buildInfoPackage := "org.broadinstitute.dsp.workbench.hamm"
+    buildInfoPackage := "org.broadinstitute.dsp.workbench.hamm.automated"
   )
 
   // recommended scalac options by https://tpolecat.github.io/2017/04/25/scalac-flags.html

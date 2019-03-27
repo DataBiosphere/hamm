@@ -1,14 +1,13 @@
-package org.broadinstitute.dsp.workbench.hamm.service
+package org.broadinstitute.dsp.workbench.hamm
 
 import org.broadinstitute.dsp.workbench.hamm.db._
 import org.broadinstitute.dsp.workbench.hamm.model._
 import org.broadinstitute.dsp.workbench.hamm.model.HammException
-import org.broadinstitute.dsp.workbench.hamm.HammLogger
 import org.broadinstitute.dsp.workbench.hamm.auth.SamAuthProvider
 import org.http4s.Credentials.Token
 import org.http4s.Status
 
-class CostService(samAuthProvider: SamAuthProvider, dbRef: DbReference, jobTable: JobTableQueries, workflowTable: WorkflowTableQueries) extends HammLogger {
+class CostDbDao(samAuthProvider: SamAuthProvider, dbRef: DbReference, jobTable: JobTableQueries, workflowTable: WorkflowTableQueries) extends HammLogger {
 
   def getWorkflowCost(token: Token, workflowId: WorkflowId): WorkflowCostResponse = {
     dbRef.inReadOnlyTransaction { implicit session =>

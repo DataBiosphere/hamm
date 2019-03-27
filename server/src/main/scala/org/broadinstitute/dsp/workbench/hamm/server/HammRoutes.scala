@@ -1,0 +1,68 @@
+package org.broadinstitute.dsp.workbench.hamm
+package server
+
+import cats.data.{Kleisli, OptionT}
+import cats.effect._
+import io.circe.generic.auto._
+import org.broadinstitute.dsp.workbench.hamm.auth.SamAuthProvider
+import org.broadinstitute.dsp.workbench.hamm.db.CallFqn
+import org.broadinstitute.dsp.workbench.hamm.model.{HammException, WorkflowId}
+import org.broadinstitute.dsp.workbench.hamm.server.HammRoutes._
+import org.broadinstitute.dsp.workbench.hamm.dao._
+import org.http4s.Credentials.Token
+import org.http4s.circe.CirceEntityEncoder._
+import org.http4s.dsl.Http4sDsl
+import org.http4s.headers.Authorization
+import org.http4s.server.middleware.Logger
+import org.http4s.server.{AuthMiddleware, Router}
+import org.http4s.syntax.kleisli._
+import org.http4s.{AuthScheme, AuthedService, HttpApp, Request, Response, Status}
+
+class HammRoutes(samDAO: SamAuthProvider, costService: CostDbDao, statusService: StatusService[IO])(implicit con: Concurrent[IO]) extends Http4sDsl[IO] with HammLogger {
+  val costRoutes: AuthedService[Token, IO] = AuthedService.apply {
+    case GET -> Root / "workflow" / workflowId as userToken =>
+      Ok(IO { costService.getWorkflowCost(userToken, WorkflowId(workflowId)) })
+    case GET -> Root / "job" / workflowId / callFqn / attempt / IntVar(jobIndex)  as userToken =>
+      Ok(IO { costService.getJobCost(userToken, WorkflowId(workflowId), CallFqn(callFqn), attempt.toShort, jobIndex) })
+  }
+
+  // A Router can mount multiple services to prefixes.  The request is passed to the
+  //  service with the longest matching prefix.
+  val routes: HttpApp[IO] = Logger.httpApp(true, true)( Router[IO](
+    "/status" -> statusService.status,
+    "/api/cost/v1" -> authed(costRoutes)
+  ).orNotFound).mapF(handleException)
+
+
+  def handleException: IO[Response[IO]] => IO[Response[IO]] = {
+    x =>  x.handleErrorWith {
+      case hammException: HammException => {
+        logger.error(hammException)("Hamm service serror")
+        Ok(hammException.regrets).map[Response[IO]](resp => resp.withStatus(Status.apply(hammException.status)))
+
+      }
+      case th: Throwable => {
+        logger.error(th)("Hamm Error") // change this message
+        InternalServerError(th.getMessage)
+      }
+      case _ => InternalServerError("Something went wrong")
+    }
+  }
+}
+
+// ToDo: Add some tests for these
+object HammRoutes {
+  // middleware that extracts the token from the request
+  private def extractToken(request: Request[IO]): Token = {
+    val unauthorizedException = HammException(Status.Unauthorized.code, "User is unauthorized.")
+    request.headers.get(`Authorization`).getOrElse(throw unauthorizedException).credentials match {
+      case tokenCred: Token if tokenCred.authScheme.equals(AuthScheme.Bearer)=> tokenCred
+      case _ => throw unauthorizedException
+    }
+  }
+
+  private val extractToken: Kleisli[OptionT[IO, ?], Request[IO], Token] =
+    Kleisli(req => OptionT.liftF( IO { extractToken(req) } ))
+
+  val authed: AuthMiddleware[IO, Token] = AuthMiddleware(extractToken)
+}
