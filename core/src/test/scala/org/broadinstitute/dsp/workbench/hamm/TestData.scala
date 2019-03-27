@@ -26,6 +26,8 @@ object TestData {
   val testJobUniqueKey = JobUniqueKey(testWorkflowId, testCallFqn, testAttempt, testJobIndex)
   val testJob = Job(testWorkflowId, testCallFqn, testAttempt, testJobIndex, Some("fake-vendor-id"), Instant.now(), Instant.now(), 1)
 
+  val testRegion = Region.UScentral1
+
   val testPriceName = "fake-price-name"
   val testEffectiveDate = Instant.now()
   val testPriceUniqueKey = PriceUniqueKey(testPriceName, testEffectiveDate)
@@ -67,7 +69,7 @@ object TestData {
       |        0
       |      ]
       |    }""".stripMargin).toOption.get
-  val testPriceRecord = PriceRecord(testPriceName, testEffectiveDate, testPriceType, testPriceItem)
+  val testPriceRecord = new PriceRecord(testPriceName, testEffectiveDate, testPriceItem)
 
 
   val sampleList =

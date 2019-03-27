@@ -9,21 +9,27 @@ import io.circe.Json
 sealed trait UsageType {
   def asString: String
   def asDescriptionString: String
+  def asPricingCalculatorString: String
 }
 
 object UsageType {
   private final val PREEMPTIBLE = "Preemptible"
   private final val ONDEMAND = "OnDemand"
-  private final val COMMIT1YR = "Commit1Yr"
+//  private final val COMMIT1YR = "Commit1Yr"
 
   private final val PREEMPTIBLE_DESCRIPTION_STRING = "Preemptible"
   private final val ONDEMAND_DESCRIPTION_STRING = ""
   private final val COMMIT1YR_DESCRIPTION_STRING = "Commitment v1:"
 
+  private final val PREEMPTIBLE_PRICINGCALCULATOR_STRING = "-PREEMPTIBLE"
+  private final val ONDEMAND_PRICINGCALCULATOR_STRING = ""
+//  private final val COMMIT1YR_PRICINGCALCULATOR_STRING = "Commitment v1:"
+
+
   val stringToUsageType = Map(
     PREEMPTIBLE -> Preemptible,
-    ONDEMAND -> OnDemand,
-    COMMIT1YR -> Commit1Yr
+    ONDEMAND -> OnDemand
+//    COMMIT1YR -> Commit1Yr
   )
 
   val booleanToUsageType = Map(
@@ -34,17 +40,19 @@ object UsageType {
   case object Preemptible extends UsageType {
     def asString = PREEMPTIBLE
     def asDescriptionString: String = PREEMPTIBLE_DESCRIPTION_STRING
+    def asPricingCalculatorString: String = PREEMPTIBLE_PRICINGCALCULATOR_STRING
   }
 
   case object OnDemand extends UsageType {
     def asString = ONDEMAND
     def asDescriptionString: String = ONDEMAND_DESCRIPTION_STRING
+    def asPricingCalculatorString: String = ONDEMAND_PRICINGCALCULATOR_STRING
   }
 
-  case object Commit1Yr extends UsageType {
-    def asString = COMMIT1YR
-    def asDescriptionString: String = COMMIT1YR_DESCRIPTION_STRING
-  }
+//  case object Commit1Yr extends UsageType {
+//    def asString = COMMIT1YR
+//    def asDescriptionString: String = COMMIT1YR_DESCRIPTION_STRING
+//  }
 }
 
 sealed trait ResourceFamily {
@@ -303,6 +311,7 @@ sealed trait DiskType {
   def asString: String
   def asDescriptionString: String
   def asResourceGroupString: String
+  def asPricingCalculatorString: String
 }
 
 object DiskType {
@@ -315,21 +324,27 @@ object DiskType {
   private final val SSD_RESOURCE_GROUP_STRING = "SSD"
   private final val HDD_RESOURCE_GROUP_STRING = "PDStandard"
 
+  private final val SSD_PRICING_CALCULATOR_STRING = "-PD-SSD"
+  private final val HDD_PRICING_CALCULATOR_STRING = "-PD-CAPACITY"
+
   val stringToDiskType = Map (
     SSD_STRING -> SSD,
     HDD_STRING -> HDD
   )
 
   case object SSD extends DiskType {
-    def asString = SSD_STRING
-    def asDescriptionString = SSD_DESCRIPTION_STRING
-    def asResourceGroupString = SSD_RESOURCE_GROUP_STRING
+    def asString: String = SSD_STRING
+    def asDescriptionString: String = SSD_DESCRIPTION_STRING
+    def asResourceGroupString: String = SSD_RESOURCE_GROUP_STRING
+    def asPricingCalculatorString: String = SSD_PRICING_CALCULATOR_STRING
+
   }
 
   case object HDD extends DiskType {
-    def asString = HDD_STRING
-    def asDescriptionString = HDD_DESCRIPTION_STRING
-    def asResourceGroupString = HDD_RESOURCE_GROUP_STRING
+    def asString: String = HDD_STRING
+    def asDescriptionString: String = HDD_DESCRIPTION_STRING
+    def asResourceGroupString: String = HDD_RESOURCE_GROUP_STRING
+    def asPricingCalculatorString: String = HDD_PRICING_CALCULATOR_STRING
   }
 }
 

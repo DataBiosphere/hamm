@@ -1,6 +1,9 @@
 package org.broadinstitute.dsp.workbench.hamm.model
 
 import io.circe.parser.parse
+import org.broadinstitute.dsp.workbench.hamm.TestData
+import org.broadinstitute.dsp.workbench.hamm.db.PriceRecord
+import org.broadinstitute.dsp.workbench.hamm.model.GoogleCloudPricingCalculatorJsonCodec.priceRecordDecoder
 import org.scalatest.{FlatSpec, Matchers}
 
 class GooglePriceListJsonCodecSpec extends FlatSpec with Matchers {

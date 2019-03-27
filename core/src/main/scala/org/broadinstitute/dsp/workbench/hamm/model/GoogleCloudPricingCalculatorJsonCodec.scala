@@ -4,8 +4,8 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 
 import io.circe.{Decoder, Json}
-import org.broadinstitute.dsde.workbench.hamm.HammLogger
-import org.broadinstitute.dsde.workbench.hamm.db.PriceRecord
+import org.broadinstitute.dsp.workbench.hamm.HammLogger
+import org.broadinstitute.dsp.workbench.hamm.db.PriceRecord
 
 object GoogleCloudPricingCalculatorJsonCodec extends HammLogger {
 
@@ -20,7 +20,7 @@ object GoogleCloudPricingCalculatorJsonCodec extends HammLogger {
         priceList.collect {
           case (key, js) if key.contains("COMPUTEENGINE") => {
             val priceType = PriceType.getTypeFromPriceListKey(key, js)
-            PriceRecord(key, formatter.parse(updated).toInstant, priceType, js)
+            new PriceRecord(key, formatter.parse(updated).toInstant, js)
           }
         }.toList
       }

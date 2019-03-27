@@ -4,7 +4,7 @@ import cats.effect.IO
 import org.broadinstitute.dsp.workbench.hamm.config.GoogleConfig
 import org.broadinstitute.dsp.workbench.hamm.model._
 import org.broadinstitute.dsp.workbench.hamm.db.PriceRecord
-import org.broadinstitute.dsp.workbench.hamm.model.GoogleCloudPricingCalculatorJsonCodec._
+import org.broadinstitute.dsp.workbench.hamm.model.GoogleCloudPricingCalculatorJsonCodec.priceRecordDecoder
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.client.Client
 

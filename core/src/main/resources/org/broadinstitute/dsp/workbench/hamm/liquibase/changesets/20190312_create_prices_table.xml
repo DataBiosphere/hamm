@@ -10,9 +10,6 @@
             <column name="EFFECTIVE_DATE" type="TIMESTAMPTZ">
                 <constraints nullable="false"/>
             </column>
-            <column name="PRICE_TYPE" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
             <column name="PRICE_ITEM" type="JSONB">
                 <constraints nullable="false"/>
             </column>
@@ -25,6 +22,11 @@
 
     <changeSet logicalFilePath="hamm" author="ansingh" id="priceItemIndex">
         <sql>CREATE INDEX IF NOT EXISTS priceItemIndex ON PRICE USING GIN (PRICE_ITEM)</sql>
+    </changeSet>
+
+
+    <changeSet logicalFilePath="hamm" author="ansingh" id="nameAndEffectiveDateIndex">
+        <sql>CREATE INDEX IF NOT EXISTS name_effective_date_index ON PRICE (NAME, EFFECTIVE_DATE)</sql>
     </changeSet>
 
 </databaseChangeLog>

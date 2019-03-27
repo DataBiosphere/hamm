@@ -1,6 +1,6 @@
 package org.broadinstitute.dsp.workbench.hamm.dao
 
-import org.broadinstitute.dsde.workbench.hamm.HammLogger
+import org.broadinstitute.dsp.workbench.hamm.HammLogger
 //import org.broadinstitute.dsde.workbench.hamm.model.GoogleCloudPricingCalculatorJsonCodec._
 import org.scalatest.{FlatSpec, Matchers}
 //import io.circe.parser._

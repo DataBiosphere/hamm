@@ -5,7 +5,7 @@ import com.typesafe.config.ConfigFactory
 import net.ceedubs.ficus.Ficus._
 import org.broadinstitute.dsp.workbench.hamm.auth.{MockSamSwaggerClient, SamAuthProvider}
 import org.broadinstitute.dsp.workbench.hamm.config.{GoogleConfig, SamConfig}
-import org.broadinstitute.dsp.workbench.hamm.config.config.SamConfigReader
+import org.broadinstitute.dsp.workbench.hamm.config.config.{SamConfigReader, GoogleConfigReader}
 import org.broadinstitute.dsp.workbench.hamm.db._
 import org.broadinstitute.dsp.workbench.hamm.service.{CostService, StatusService}
 import org.scalatest.Matchers

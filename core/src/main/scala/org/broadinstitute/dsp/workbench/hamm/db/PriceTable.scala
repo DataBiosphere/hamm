@@ -1,18 +1,18 @@
 package org.broadinstitute.dsp.workbench.hamm.db
 
-import java.sql.ResultSet
 import java.time.Instant
 
 import io.circe._
 import io.circe.parser._
-import org.broadinstitute.dsp.workbench.hamm.model.{HammException, PriceType}
+import org.broadinstitute.dsp.workbench.hamm.model._
 import org.postgresql.util.PGobject
 import scalikejdbc._
 import scalikejdbc.DBSession
 
 trait PriceTableQueries {
   def insertPriceQuery(price: PriceRecord)(implicit session: DBSession): Int
-  def getPriceQuery(priceUniqueKey: PriceUniqueKey)(implicit session: DBSession): Option[PriceRecord]
+  def getPriceRecordQuery(priceUniqueKey: PriceUniqueKey)(implicit session: DBSession): Option[PriceRecord]
+  def getPriceQuery(priceUniqueKey: PriceUniqueKey, region: Region)(implicit session: DBSession): Option[Double]
 }
 
 class PriceTable extends PriceTableQueries {
@@ -26,12 +26,11 @@ class PriceTable extends PriceTableQueries {
       insert.into(PriceRecord).namedValues(
         column.name -> price.name,
         column.effectiveDate -> price.effectiveDate,
-        column.priceType -> price.priceType,
         column.priceItem -> price.priceItem)
     }.update.apply()
   }
 
-  override def getPriceQuery(priceUniqueKey: PriceUniqueKey)(implicit session: DBSession): Option[PriceRecord] = {
+  override def getPriceRecordQuery(priceUniqueKey: PriceUniqueKey)(implicit session: DBSession): Option[PriceRecord] = {
     withSQL {
       select.from(PriceRecord as p)
         .where.eq(p.name, priceUniqueKey.name)
@@ -39,6 +38,14 @@ class PriceTable extends PriceTableQueries {
     }.map(PriceRecord(p.resultName)).single().apply()
   }
 
+  def getPriceQuery(priceUniqueKey: PriceUniqueKey, region: Region)(implicit session: DBSession): Option[Double] = {
+    sql"""SELECT PRICE_ITEM#>'${region.asString}' FROM PRICE pr
+           WHERE pr.NAME = ${priceUniqueKey.name}
+           AND   pr.EFFECTIVE_DATE < ${priceUniqueKey.effectiveDate}
+           ORDER BY pr.EFFECTIVE_DATE DESC"""
+      .map(rs => rs.double(1)).single().apply()
+     // .map(PriceRecord(p.resultName)).single().apply()
+  }
 }
 
 final case class PriceUniqueKey(name: String,
@@ -46,7 +53,6 @@ final case class PriceUniqueKey(name: String,
 
 final case class PriceRecord(name: String,
                              effectiveDate: Instant,
-                             priceType: PriceType,
                              priceItem: Json){
   val uniqueKey = PriceUniqueKey(name, effectiveDate)
 }
@@ -57,7 +63,6 @@ object PriceRecord extends SQLSyntaxSupport[PriceRecord] {
   def apply(e: ResultName[PriceRecord])(rs: WrappedResultSet): PriceRecord = PriceRecord(
     rs.get(e.name),
     rs.get(e.effectiveDate),
-    rs.get(e.priceType),
     rs.get(e.priceItem)
   )
 }
@@ -65,15 +70,15 @@ object PriceRecord extends SQLSyntaxSupport[PriceRecord] {
 
 object PriceBinders {
 
-  implicit val priceTypeBinder: TypeBinder[PriceType] = new TypeBinder[PriceType] {
-    def apply(rs: ResultSet, label: String): PriceType = PriceType.stringToPriceType(rs.getString(label))
-    def apply(rs: ResultSet, index: Int): PriceType = PriceType.stringToPriceType(rs.getString(index))
-  }
-
-
-  implicit val priceTypePbf: ParameterBinderFactory[PriceType] = ParameterBinderFactory[PriceType] {
-    value => (stmt, idx) => stmt.setString(idx, value.asString)
-  }
+//  implicit val priceTypeBinder: TypeBinder[PriceType] = new TypeBinder[PriceType] {
+//    def apply(rs: ResultSet, label: String): PriceType = PriceType.stringToPriceType(rs.getString(label))
+//    def apply(rs: ResultSet, index: Int): PriceType = PriceType.stringToPriceType(rs.getString(index))
+//  }
+//
+//
+//  implicit val priceTypePbf: ParameterBinderFactory[PriceType] = ParameterBinderFactory[PriceType] {
+//    value => (stmt, idx) => stmt.setString(idx, value.asString)
+//  }
 
   implicit val PriceItemTypeBinder: TypeBinder[Json] = {
     TypeBinder.option[String].map { strOption =>
