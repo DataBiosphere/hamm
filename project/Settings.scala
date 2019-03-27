@@ -96,7 +96,7 @@ object Settings {
     maintainer := "WB-CloudAccounts@broadinstitute.org ",
     dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc14",
     dockerRepository := Some("us.gcr.io"),
-    dockerExposedPorts := Seq(8080),
+    dockerExposedPorts := List(8080),
     dockerUpdateLatest := true,
     dockerCommands ++= List(
       ExecCmd("CMD", "export", "CLASSPATH=lib/*jar")
@@ -104,26 +104,26 @@ object Settings {
   )
 
   lazy val serverDockerSetting = commonDockerSetting ++ List(
-    mainClass in Compile := Some("org.broadinstitute.workbench.hamm.server.Main"),
+    mainClass in Compile := Some("org.broadinstitute.dsp.workbench.hamm.server.Main"),
     packageName in Docker := "broad-dsp-gcr-public/hamm-server", //TODO: make project name environment specific
     dockerAlias :=  DockerAlias(
       Some("us.gcr.io"),
       None,
       "broad-dsp-gcr-public/hamm-api-server",
-      git.gitHeadCommit.value.map(_.substring(0, 10))
+      git.gitHeadCommit.value.map(_.substring(0, 7))
     )
   )
 
   lazy val serverSettings = commonSettings ++ serverDockerSetting
 
   lazy val costUpdaterDockerSetting = commonDockerSetting ++ List(
-    mainClass in Compile := Some("org.broadinstitute.workbench.hamm.costUpdater.Main"),
+    mainClass in Compile := Some("org.broadinstitute.dsp.workbench.hamm.costUpdater.Main"),
     packageName in Docker := "broad-dsp-gcr-public/hamm-cost-updater", //TODO: use appropriate project name
     dockerAlias :=  DockerAlias(
       Some("us.gcr.io"),
       None,
       "broad-dsp-gcr-public/hamm-cost-updater", //TODO change this to real project container registry
-      git.gitHeadCommit.value.map(_.substring(0, 10))
+      git.gitHeadCommit.value.map(_.substring(0, 7))
     )
   )
 

@@ -7,8 +7,8 @@ import io.chrisdavenport.log4cats.Logger
 import io.circe.Decoder
 import org.broadinstitute.dsde.workbench.google2.{Event, GcsBlobName, GoogleStorageService, GoogleSubscriber}
 import org.broadinstitute.dsde.workbench.model.google.GcsBucketName
-import org.broadinstitute.workbench.hamm.model.CromwellMetadataJsonCodec.metadataResponseDecoder
-import org.broadinstitute.workbench.hamm.model.MetadataResponse
+import org.broadinstitute.dsp.workbench.hamm.model.CromwellMetadataJsonCodec.metadataResponseDecoder
+import org.broadinstitute.dsp.workbench.hamm.model.MetadataResponse
 
 class MessageProcessor[F[_]: Logger: Concurrent](subscriber: GoogleSubscriber[F, NotificationMessage], storage: GoogleStorageService[F]) {
   private[hamm] def parseNotification(notificationMessage: NotificationMessage): Stream[F, MetadataResponse] = {

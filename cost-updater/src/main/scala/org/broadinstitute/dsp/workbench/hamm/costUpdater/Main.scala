@@ -1,12 +1,15 @@
 package org.broadinstitute.dsp.workbench.hamm
 package costUpdater
 
-import cats.effect.{ExitCode, IO, IOApp}
-import fs2.Stream
-import fs2.concurrent.InspectableQueue
+import cats.effect._
+import cats.implicits._
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
+import fs2._
+import fs2.concurrent.InspectableQueue
 import org.broadinstitute.dsde.workbench.google2.{Event, GoogleStorageService, GoogleSubscriber}
 import org.broadinstitute.dsde.workbench.util.ExecutionContexts
+import MessageProcessor.notificationMessageDecoder
+import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 
@@ -17,7 +20,7 @@ object Main extends IOApp {
     val app: Stream[IO, Unit] = for {
       appConfig <- Stream.fromEither[IO](Config.appConfig)
 
-      _ <- Stream.eval(logger.info("Starting Hamm Cost Updater Grpc server"))
+      _ <- Stream.eval(logger.info("Starting Hamm Cost Updater server"))
 
       credential <- Stream.resource(org.broadinstitute.dsde.workbench.google2.credentialResource[IO](appConfig.google.subscriber.pathToCredentialJson))
       blockingExecutionContext <- Stream.resource(ExecutionContexts.fixedThreadPool[IO](256)) //scala.concurrent.blocking has default max extra thread number 256, so use this number to start with

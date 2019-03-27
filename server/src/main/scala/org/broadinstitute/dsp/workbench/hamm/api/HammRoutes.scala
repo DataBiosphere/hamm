@@ -8,7 +8,7 @@ import org.broadinstitute.dsp.workbench.hamm.service._
 import org.broadinstitute.dsp.workbench.hamm.HammLogger
 import org.broadinstitute.dsp.workbench.hamm.auth.SamAuthProvider
 import org.http4s.Credentials.Token
-import org.http4s.{AuthScheme, AuthedService, HttpRoutes, Request, Response, Status}
+import org.http4s.{AuthScheme, AuthedService, HttpApp, HttpRoutes, Request, Response, Status}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.Authorization
 import org.http4s.server.{AuthMiddleware, Router}
@@ -22,7 +22,7 @@ class HammRoutes(samDAO: SamAuthProvider, costService: CostService, statusServic
 
   // A Router can mount multiple services to prefixes.  The request is passed to the
   //  service with the longest matching prefix.
-  def routes = Logger[IO](true, true)( Router[IO](
+  def routes: HttpApp[IO] = Logger.httpApp(true, true)( Router[IO](
     "/status" -> statusRoute,
     "/api/cost/v1" -> authed(costRoutes)
   ).orNotFound).mapF(handleException)
