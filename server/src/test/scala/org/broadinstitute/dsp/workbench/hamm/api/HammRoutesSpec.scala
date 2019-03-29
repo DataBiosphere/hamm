@@ -53,11 +53,10 @@ class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http
 
 
   it should "get status" in {
-
     val response = hammRoutes.routes.apply {
       Request(method = Method.GET, uri = Uri.uri("/status"))
     }
-    check(response, Status.Ok, Some(()))
+    response.unsafeRunSync().status == Status.Ok
   }
 
 

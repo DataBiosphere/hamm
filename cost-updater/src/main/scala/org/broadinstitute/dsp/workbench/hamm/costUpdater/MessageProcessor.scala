@@ -14,7 +14,7 @@ class MessageProcessor[F[_]: Logger: Concurrent](subscriber: GoogleSubscriber[F,
   private[hamm] def parseNotification(notificationMessage: NotificationMessage): Stream[F, MetadataResponse] = {
     val metadataStream = storage.getObject(notificationMessage.bucketAndObject.bucketName, notificationMessage.bucketAndObject.blobName)
     metadataStream
-      .through(fs2.compress.gunzip(2048)) //unzip the bytes
+      .through(fs2.compress.gunzip(4096)) //unzip the bytes
       .through(io.circe.fs2.byteStreamParser) //parse bytes into Json
       .through(io.circe.fs2.decoder[F, MetadataResponse]) //parse Json into MetadataResponse
   }

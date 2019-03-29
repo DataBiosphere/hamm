@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
   val circeVersion          = "0.10.0"
-  val http4sVersion         = "0.20.0-M6"
+  val http4sVersion         = "0.20.0-M7"
   val grpcCoreVersion      = "1.17.1"
   val liquibaseVersion      = "3.5.3"
   val minitestVersion       = "2.2.2"
@@ -49,6 +49,7 @@ object Dependencies {
     "org.http4s" %% "http4s-blaze-server" % http4sVersion,
     "io.grpc" % "grpc-core" % grpcCoreVersion,
     "io.circe" %% "circe-fs2" % "0.11.0",
+    "com.google.cloud" % "google-cloud-nio" % "0.71.0-alpha" % "test"
   )
   
   val server = common ++ List(

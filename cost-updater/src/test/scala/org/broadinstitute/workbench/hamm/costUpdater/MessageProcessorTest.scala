@@ -1,18 +1,16 @@
 package org.broadinstitute.dsp.workbench.hamm.costUpdater
 
-import org.broadinstitute.dsp.workbench.hamm.HammTestSuite
-import MessageProcessor._
-import io.circe.parser._
-import Generators._
-import cats.data.NonEmptyList
+import java.nio.charset.StandardCharsets
+
 import cats.effect.IO
-import com.google.cloud.Identity
-import com.google.cloud.storage.{Acl, BucketInfo}
-import org.broadinstitute.dsde.workbench.google2.{Event, GcsBlobName, GoogleStorageService, GoogleSubscriber, RemoveObjectResult, StorageRole}
-import org.broadinstitute.dsde.workbench.model.google.{GcsBucketName, GcsObjectName, GoogleProject}
-import org.broadinstitute.dsp.workbench.hamm.model.CromwellMetadataJsonCodecTest
 import fs2.Stream
-import org.broadinstitute.dsde.workbench.model.TraceId
+import io.circe.parser._
+import org.broadinstitute.dsde.workbench.google2.mock.FakeGoogleStorageInterpreter
+import org.broadinstitute.dsde.workbench.google2.{Event, GoogleSubscriber}
+import org.broadinstitute.dsp.workbench.hamm.HammTestSuite
+import org.broadinstitute.dsp.workbench.hamm.costUpdater.Generators._
+import org.broadinstitute.dsp.workbench.hamm.costUpdater.MessageProcessor._
+import org.broadinstitute.dsp.workbench.hamm.model.CromwellMetadataJsonCodecTest
 
 object MessageProcessorTest extends HammTestSuite {
   test("MessageProcessor should be able to decode NotificationMessage properly"){
@@ -37,26 +35,18 @@ object MessageProcessorTest extends HammTestSuite {
   test("MessageProcessor should be able to parse NotificationMessage to metadata"){
     check1 {
       (notificationMessage: NotificationMessage) =>
-        val messageProcessor = MessageProcessor[IO](fakeSubScriber, fakeStorage)
-        val result = messageProcessor.parseNotification(notificationMessage).compile.lastOrError.unsafeRunSync()
-        result == CromwellMetadataJsonCodecTest.sampleResponse
-    }
-  }
+        val messageProcessor = MessageProcessor[IO](fakeSubScriber, FakeGoogleStorageInterpreter)
+        val messageBody = CromwellMetadataJsonCodecTest.sampleTest.getBytes(StandardCharsets.UTF_8)
+        val gzipped = (fs2.Stream.emits(messageBody) through fs2.compress.gzip[fs2.Pure](2048)).compile.toList.toArray
+        val result = for {
+          _ <- FakeGoogleStorageInterpreter.storeObject(notificationMessage.bucketAndObject.bucketName, notificationMessage.bucketAndObject.blobName, gzipped, "text/plain")
+          response <- messageProcessor.parseNotification(notificationMessage).compile.lastOrError
+        } yield {
+          response == CromwellMetadataJsonCodecTest.sampleResponse
+        }
 
-  val fakeStorage = new GoogleStorageService[IO]{
-      override def listObjectsWithPrefix(
-            bucketName: GcsBucketName,
-            objectNamePrefix: String,
-            maxPageSize: Long,
-            traceId: Option[TraceId])
-          : Stream[IO, GcsObjectName] = ???
-      override def storeObject(bucketName:  GcsBucketName, objectName:  GcsBlobName, objectContents:  Array[Byte], objectType:  String, traceId:  Option[TraceId]): IO[Unit] = ???
-      override def setBucketLifecycle(bucketName:  GcsBucketName, lifecycleRules:  List[BucketInfo.LifecycleRule], traceId:  Option[TraceId]): Stream[IO, Unit] = ???
-      override def unsafeGetObject(bucketName:  GcsBucketName, blobName:  GcsBlobName, traceId:  Option[TraceId]): IO[Option[String]] = ???
-      override def getObject(bucketName:  GcsBucketName, blobName:  GcsBlobName, traceId:  Option[TraceId]): Stream[IO, Byte] = ???
-      override def removeObject(bucketName:  GcsBucketName, objectName:  GcsBlobName, traceId:  Option[TraceId]): IO[RemoveObjectResult] = ???
-      override def createBucket(googleProject:  GoogleProject, bucketName:  GcsBucketName, acl:  Option[NonEmptyList[Acl]], traceId:  Option[TraceId]): Stream[IO, Unit] = ???
-      override def setIamPolicy(bucketName:  GcsBucketName, roles:  Map[StorageRole, NonEmptyList[Identity]], traceId:  Option[TraceId]): Stream[IO, Unit] = ???
+        result.unsafeRunSync()
+    }
   }
 
   val fakeSubScriber = new GoogleSubscriber[IO, NotificationMessage] {
