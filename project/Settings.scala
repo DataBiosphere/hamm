@@ -105,7 +105,7 @@ object Settings {
 
   lazy val serverDockerSetting = commonDockerSetting ++ List(
     mainClass in Compile := Some("org.broadinstitute.dsp.workbench.hamm.server.Main"),
-    packageName in Docker := "broad-dsp-gcr-public/hamm-server", //TODO: make project name environment specific
+    packageName in Docker := "broad-dsp-gcr-public/hamm-server",
     dockerAlias :=  DockerAlias(
       Some("us.gcr.io"),
       None,
@@ -118,11 +118,11 @@ object Settings {
 
   lazy val costUpdaterDockerSetting = commonDockerSetting ++ List(
     mainClass in Compile := Some("org.broadinstitute.dsp.workbench.hamm.costUpdater.Main"),
-    packageName in Docker := "broad-dsp-gcr-public/hamm-cost-updater", //TODO: use appropriate project name
+    packageName in Docker := "broad-dsp-gcr-public/hamm-cost-updater",
     dockerAlias :=  DockerAlias(
       Some("us.gcr.io"),
       None,
-      "broad-dsp-gcr-public/hamm-cost-updater", //TODO change this to real project container registry
+      "broad-dsp-gcr-public/hamm-cost-updater",
       git.gitHeadCommit.value.map(_.substring(0, 7))
     )
   )
