@@ -8,7 +8,7 @@ import org.http4s._
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.Authorization
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers, Assertion}
 
 
 class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http4sDsl[IO] with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
@@ -41,14 +41,15 @@ class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http
                expectedStatus: Status,
                expectedBody:   Option[A])(
                 implicit ev: EntityDecoder[IO, A]
-              ): Boolean =  {
+              ): Assertion =  {
     val actualResp         = actual.unsafeRunSync
-    val statusCheck        = actualResp.status == expectedStatus
-    val bodyCheck          = expectedBody.fold[Boolean](
-      actualResp.body.compile.toVector.unsafeRunSync.isEmpty)( // Verify Response's body is empty.
-      expected => actualResp.as[A].unsafeRunSync == expected
+
+    actualResp.status shouldBe expectedStatus
+
+    expectedBody.fold[Assertion](
+      actualResp.body.compile.toVector.unsafeRunSync.isEmpty shouldBe(true))( // Verify Response's body is empty.
+      expected => actualResp.as[A].unsafeRunSync shouldBe expected
     )
-    statusCheck && bodyCheck
   }
 
 
@@ -56,7 +57,7 @@ class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http
     val response = hammRoutes.routes.apply {
       Request(method = Method.GET, uri = Uri.uri("/status"))
     }
-    response.unsafeRunSync().status == Status.Ok
+    response.unsafeRunSync().status shouldBe Status.Ok
   }
 
 
