@@ -1,8 +1,6 @@
 # Introduction
 
-Cost updater is a background process that
-* processes gzipped cromwell metadata
-
-* calculate workflow costs based on this data
-
-* persiste cost data in database
+Cost updater will
+* process gzipped cromwell metadata
+* calculate workflow costs based on this cromwell metadata
+* persist cost data in database
