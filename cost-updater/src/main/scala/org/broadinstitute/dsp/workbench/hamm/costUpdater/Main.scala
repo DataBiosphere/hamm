@@ -22,11 +22,10 @@ object Main extends IOApp {
 
       _ <- Stream.eval(logger.info("Starting Hamm Cost Updater server"))
 
-      credential <- Stream.resource(org.broadinstitute.dsde.workbench.google2.credentialResource[IO](appConfig.google.subscriber.pathToCredentialJson))
-      blockingExecutionContext <- Stream.resource(ExecutionContexts.fixedThreadPool[IO](256)) //scala.concurrent.blocking has default max extra thread number 256, so use this number to start with
+      blockingExecutionContext <- Stream.resource(ExecutionContexts.fixedThreadPool[IO](appConfig.threadPool.blockingSize)) //scala.concurrent.blocking has default max extra thread number 256, so use this number to start with
       storage <- Stream.resource(GoogleStorageService.resource(appConfig.google.subscriber.pathToCredentialJson, blockingExecutionContext))
 
-      queue <- Stream.eval(InspectableQueue.bounded[IO, Event[NotificationMessage]](10))
+      queue <- Stream.eval(InspectableQueue.bounded[IO, Event[NotificationMessage]](appConfig.eventQueueSize))
       subscriber <- Stream.resource(GoogleSubscriber.resource(appConfig.google.subscriber, queue))
 
       messageProcessor = MessageProcessor[IO](subscriber, storage)
@@ -37,7 +36,7 @@ object Main extends IOApp {
         .withHttpApp(Router("/" -> service).orNotFound)
         .serve
         .void
-       _ <- Stream(Stream.eval(subscriber.start), messageProcessor.process, serverStream).parJoin(10) //TODO: potentially adjust maxOpen
+       _ <- Stream(Stream.eval(subscriber.start), messageProcessor.process, serverStream).parJoin(3)
     } yield ()
 
     app.handleErrorWith(error => Stream.eval(logger.error(error)("Failed to start server")))

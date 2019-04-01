@@ -3,7 +3,6 @@ package server
 
 import cats.effect.IO
 import io.circe.generic.auto._
-import org.broadinstitute.dsp.workbench.hamm.dao.StatusService
 import org.http4s._
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.dsl.Http4sDsl
@@ -13,7 +12,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers,
 
 class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http4sDsl[IO] with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
 
-  val hammRoutes = new HammRoutes(samAuthProvider, costService, StatusService[IO])
+  val hammRoutes = new HammRoutes(samAuthProvider, CostService[IO](costDbDao), StatusService[IO], VersionService[IO])
 
   override def beforeAll() = {
     samAuthProvider.samClient.actionsPerResourcePerToken += (TestData.testSamResource, TestData.testToken) -> Set(TestData.testSamResourceAction)
@@ -60,6 +59,12 @@ class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http
     response.unsafeRunSync().status shouldBe Status.Ok
   }
 
+  it should "get version" in {
+    val response = hammRoutes.routes.apply {
+      Request(method = Method.GET, uri = Uri.uri("/version"))
+    }
+    response.unsafeRunSync().status shouldBe Status.Ok
+  }
 
   it should "get a workflow's cost" in {
     val uri = "/api/cost/v1/workflow/" + TestData.testWorkflow.workflowId.id

@@ -27,14 +27,14 @@ class CostDaoSpec extends FlatSpec with Matchers with TestComponent with HammLog
 
 
   it should "get the cost of a workflow" in {
-    val result = costService.getWorkflowCost(TestData.testToken, TestData.testWorkflowId)
+    val result = costDbDao.getWorkflowCost(TestData.testToken, TestData.testWorkflowId)
     result shouldBe WorkflowCostResponse(TestData.testWorkflowId, TestData.testWorkflow.cost)
 
   }
 
 
   it should "get the cost of a job" in {
-    val result = costService.getJobCost(TestData.testToken, TestData.testWorkflowId, TestData.testCallFqn, TestData.testAttempt, TestData.testJobIndex)
+    val result = costDbDao.getJobCost(TestData.testToken, TestData.testWorkflowId, TestData.testCallFqn, TestData.testAttempt, TestData.testJobIndex)
     result shouldBe JobCostResponse(TestData.testWorkflowId, TestData.testCallFqn, TestData.testAttempt, TestData.testJobIndex, TestData.testWorkflow.cost)
   }
 }

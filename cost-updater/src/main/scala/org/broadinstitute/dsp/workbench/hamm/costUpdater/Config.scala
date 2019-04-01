@@ -34,5 +34,6 @@ object Config {
 }
 
 final case class GoogleConfig(subscriber: SubscriberConfig)
+final case class ThreadPoolConfig(blockingSize: Int)
 
-final case class CostUpdaterAppConfig(google: GoogleConfig)
+final case class CostUpdaterAppConfig(threadPool: ThreadPoolConfig, eventQueueSize: Int, google: GoogleConfig)

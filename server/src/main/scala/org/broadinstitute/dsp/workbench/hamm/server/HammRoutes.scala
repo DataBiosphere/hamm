@@ -3,12 +3,9 @@ package server
 
 import cats.data.{Kleisli, OptionT}
 import cats.effect._
-import io.circe.generic.auto._
 import org.broadinstitute.dsp.workbench.hamm.auth.SamAuthProvider
-import org.broadinstitute.dsp.workbench.hamm.db.CallFqn
-import org.broadinstitute.dsp.workbench.hamm.model.{HammException, WorkflowId}
+import org.broadinstitute.dsp.workbench.hamm.model.HammException
 import org.broadinstitute.dsp.workbench.hamm.server.HammRoutes._
-import org.broadinstitute.dsp.workbench.hamm.dao._
 import org.http4s.Credentials.Token
 import org.http4s.circe.CirceEntityEncoder._
 import org.http4s.dsl.Http4sDsl
@@ -16,21 +13,18 @@ import org.http4s.headers.Authorization
 import org.http4s.server.middleware.Logger
 import org.http4s.server.{AuthMiddleware, Router}
 import org.http4s.syntax.kleisli._
-import org.http4s.{AuthScheme, AuthedService, HttpApp, Request, Response, Status}
+import org.http4s.{AuthScheme, HttpApp, Request, Response, Status}
 
-class HammRoutes(samDAO: SamAuthProvider, costService: CostDbDao, statusService: StatusService[IO])(implicit con: Concurrent[IO]) extends Http4sDsl[IO] with HammLogger {
-  val costRoutes: AuthedService[Token, IO] = AuthedService.apply {
-    case GET -> Root / "workflow" / workflowId as userToken =>
-      Ok(IO { costService.getWorkflowCost(userToken, WorkflowId(workflowId)) })
-    case GET -> Root / "job" / workflowId / callFqn / attempt / IntVar(jobIndex)  as userToken =>
-      Ok(IO { costService.getJobCost(userToken, WorkflowId(workflowId), CallFqn(callFqn), attempt.toShort, jobIndex) })
-  }
-
+class HammRoutes(samDAO: SamAuthProvider,
+                 costService: CostService[IO],
+                 statusService: StatusService[IO],
+                 versionService: VersionService[IO])(implicit con: Concurrent[IO]) extends Http4sDsl[IO] with HammLogger {
   // A Router can mount multiple services to prefixes.  The request is passed to the
   //  service with the longest matching prefix.
   val routes: HttpApp[IO] = Logger.httpApp(true, true)( Router[IO](
-    "/status" -> statusService.status,
-    "/api/cost/v1" -> authed(costRoutes)
+    "/status" -> statusService.service,
+    "/version" -> versionService.service,
+    "/api/cost/v1" -> authed(costService.service)
   ).orNotFound).mapF(handleException)
 
 

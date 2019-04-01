@@ -32,7 +32,7 @@ trait TestComponent extends Matchers {
   val mockJobTable = new MockJobTable(mockWorkflowTable)
 
 
-  val costService = new CostDbDao(samAuthProvider, dbRef, mockJobTable, mockWorkflowTable)
+  val costDbDao = new CostDbDao(samAuthProvider, dbRef, mockJobTable, mockWorkflowTable)
 }
 
 class TestSamAuthProvider(samConfig: SamConfig) extends SamAuthProvider(samConfig) {
