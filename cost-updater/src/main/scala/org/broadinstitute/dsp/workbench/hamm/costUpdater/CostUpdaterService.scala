@@ -12,10 +12,11 @@ import org.http4s.dsl.Http4sDsl
 import CostUpdaterService._
 
 class CostUpdaterService[F[_]: Sync: Logger, A](queue: InspectableQueue[F, A]) extends Http4sDsl[F] {
-
   val service: HttpRoutes[F] = {
     HttpRoutes.of[F] {
       case GET -> Root / "status" =>
+        Ok() //TODO: add DB check
+      case GET -> Root / "version" =>
         for {
           size <- queue.getSize
           result <- Ok(CostUpdaterStatusResponse(
