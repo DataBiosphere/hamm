@@ -14,9 +14,9 @@ import CostUpdaterService._
 class CostUpdaterService[F[_]: Sync: Logger, A](queue: InspectableQueue[F, A]) extends Http4sDsl[F] {
   val service: HttpRoutes[F] = {
     HttpRoutes.of[F] {
-      case GET -> Root / "status" =>
+      case GET -> Root / "costUpdater" / "status" =>
         Ok() //TODO: add DB check
-      case GET -> Root / "version" =>
+      case GET -> Root / "costUpdater" / "version" =>
         for {
           size <- queue.getSize
           result <- Ok(CostUpdaterStatusResponse(
