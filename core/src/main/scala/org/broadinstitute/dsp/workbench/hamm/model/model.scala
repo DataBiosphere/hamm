@@ -3,25 +3,33 @@ package org.broadinstitute.dsp.workbench.hamm.model
 import java.time.Instant
 import java.util.UUID
 
+import io.circe.Json
+
 
 sealed trait UsageType {
   def asString: String
   def asDescriptionString: String
+  def asPricingCalculatorString: String
 }
 
 object UsageType {
   private final val PREEMPTIBLE = "Preemptible"
   private final val ONDEMAND = "OnDemand"
-  private final val COMMIT1YR = "Commit1Yr"
+//  private final val COMMIT1YR = "Commit1Yr"
 
   private final val PREEMPTIBLE_DESCRIPTION_STRING = "Preemptible"
   private final val ONDEMAND_DESCRIPTION_STRING = ""
   private final val COMMIT1YR_DESCRIPTION_STRING = "Commitment v1:"
 
+  private final val PREEMPTIBLE_PRICINGCALCULATOR_STRING = "-PREEMPTIBLE"
+  private final val ONDEMAND_PRICINGCALCULATOR_STRING = ""
+//  private final val COMMIT1YR_PRICINGCALCULATOR_STRING = "Commitment v1:"
+
+
   val stringToUsageType = Map(
     PREEMPTIBLE -> Preemptible,
-    ONDEMAND -> OnDemand,
-    COMMIT1YR -> Commit1Yr
+    ONDEMAND -> OnDemand
+//    COMMIT1YR -> Commit1Yr
   )
 
   val booleanToUsageType = Map(
@@ -32,17 +40,19 @@ object UsageType {
   case object Preemptible extends UsageType {
     def asString = PREEMPTIBLE
     def asDescriptionString: String = PREEMPTIBLE_DESCRIPTION_STRING
+    def asPricingCalculatorString: String = PREEMPTIBLE_PRICINGCALCULATOR_STRING
   }
 
   case object OnDemand extends UsageType {
     def asString = ONDEMAND
     def asDescriptionString: String = ONDEMAND_DESCRIPTION_STRING
+    def asPricingCalculatorString: String = ONDEMAND_PRICINGCALCULATOR_STRING
   }
 
-  case object Commit1Yr extends UsageType {
-    def asString = COMMIT1YR
-    def asDescriptionString: String = COMMIT1YR_DESCRIPTION_STRING
-  }
+//  case object Commit1Yr extends UsageType {
+//    def asString = COMMIT1YR
+//    def asDescriptionString: String = COMMIT1YR_DESCRIPTION_STRING
+//  }
 }
 
 sealed trait ResourceFamily {
@@ -80,6 +90,7 @@ final case class SkuDescription(asString: String) extends AnyVal
 final case class ServiceDisplayName(asString: String) extends AnyVal
 final case class ResourceGroup(asString: String) extends AnyVal
 final case class UsageUnit(asString: String) extends AnyVal
+final case class BaseUnit(asString: String) extends AnyVal
 final case class StartUsageAmount(asInt: Int) extends AnyVal
 final case class CurrencyCode(asString: String) extends AnyVal
 final case class Units(asInt: Int) extends AnyVal
@@ -87,9 +98,9 @@ final case class Nanos(asInt: Int) extends AnyVal
 
 
 final case class TieredRate(startUsageAmount: StartUsageAmount, currencyCode: CurrencyCode, units: Units, nanos: Nanos)
-final case class PricingInfo(usageUnit: UsageUnit, tieredRates: List[TieredRate])
-final case class Category(serviceDisplayName: ServiceDisplayName, resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType)
-final case class GooglePriceItem(name: SkuName, skuId: SkuId, description: SkuDescription, category: Category, regions: List[Region], pricingInfo: List[PricingInfo])
+final case class PricingInfo(effectiveTime: Instant, usageUnit: UsageUnit, baseUnit: BaseUnit, tieredRates: List[TieredRate])
+final case class Category(resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType)
+final case class GooglePriceItem(name: SkuName, description: SkuDescription, category: Category, regions: List[Region], pricingInfo: List[PricingInfo])
 final case class GooglePriceList(priceItems: List[GooglePriceItem])
 
 
@@ -126,6 +137,13 @@ object MachineType {
     N1STANDARD_METADATA_STRING -> N1Standard,
     F1MICRO_METADATA_STRING -> F1Micro,
     G1SMALL_METADATA_STRING -> G1Small
+  )
+
+  val SKUStringToMachineType = Map(
+    CUSTOM -> Custom,
+    N1STANDARD -> N1Standard,
+    F1MICRO -> F1Micro,
+    G1SMALL -> G1Small
   )
 
   def partialStringToMachineType(str: String): MachineType = {
@@ -301,6 +319,7 @@ sealed trait DiskType {
   def asString: String
   def asDescriptionString: String
   def asResourceGroupString: String
+  def asPricingCalculatorString: String
 }
 
 object DiskType {
@@ -313,21 +332,27 @@ object DiskType {
   private final val SSD_RESOURCE_GROUP_STRING = "SSD"
   private final val HDD_RESOURCE_GROUP_STRING = "PDStandard"
 
+  private final val SSD_PRICING_CALCULATOR_STRING = "-PD-SSD"
+  private final val HDD_PRICING_CALCULATOR_STRING = "-PD-CAPACITY"
+
   val stringToDiskType = Map (
     SSD_STRING -> SSD,
     HDD_STRING -> HDD
   )
 
   case object SSD extends DiskType {
-    def asString = SSD_STRING
-    def asDescriptionString = SSD_DESCRIPTION_STRING
-    def asResourceGroupString = SSD_RESOURCE_GROUP_STRING
+    def asString: String = SSD_STRING
+    def asDescriptionString: String = SSD_DESCRIPTION_STRING
+    def asResourceGroupString: String = SSD_RESOURCE_GROUP_STRING
+    def asPricingCalculatorString: String = SSD_PRICING_CALCULATOR_STRING
+
   }
 
   case object HDD extends DiskType {
-    def asString = HDD_STRING
-    def asDescriptionString = HDD_DESCRIPTION_STRING
-    def asResourceGroupString = HDD_RESOURCE_GROUP_STRING
+    def asString: String = HDD_STRING
+    def asDescriptionString: String = HDD_DESCRIPTION_STRING
+    def asResourceGroupString: String = HDD_RESOURCE_GROUP_STRING
+    def asPricingCalculatorString: String = HDD_PRICING_CALCULATOR_STRING
   }
 }
 
@@ -473,4 +498,40 @@ object UserInfo {
       token)
 }
 
-final case class JobId(id: String )
+final case class JobId(id: String)
+
+
+sealed trait PriceType {
+  def asString: String
+}
+
+object PriceType {
+  private final val REGIONAL = "regional"
+  private final val TIERED = "tiered"
+  private final val COMPUTEENGINEOS = "compute-engine-os"
+
+  def getTypeFromPriceListKey(key: String, js: Json): PriceType = {
+    if (key.contains("CP-COMPUTEENGINE-OS"))
+      PriceType.ComputeEngineOS
+    else if (js.noSpaces.contains("TIER") )
+      PriceType.Tiered
+    else PriceType.Regional
+  }
+
+  val stringToPriceType = Map(
+    REGIONAL -> Regional,
+    TIERED -> Tiered
+  )
+
+  case object Regional extends PriceType {
+    def asString = REGIONAL
+  }
+
+  case object Tiered extends PriceType {
+    def asString = TIERED
+  }
+
+  case object ComputeEngineOS extends PriceType {
+    def asString = COMPUTEENGINEOS
+  }
+}

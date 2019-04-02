@@ -15,7 +15,6 @@ object Dependencies {
   val common = List(
     "com.github.pureconfig"             %% "pureconfig"          % "0.10.1",
     "com.iheart"                        %% "ficus"               % "1.4.3",
-    "com.zaxxer"                        %  "HikariCP"            % "1.3.+",
     "io.chrisdavenport"                 %% "log4cats-slf4j"      % "0.2.0",
     "io.circe"                          %% "circe-core"          % circeVersion,
     "io.circe"                          %% "circe-generic"       % circeVersion,

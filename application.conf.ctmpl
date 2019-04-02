@@ -21,10 +21,7 @@ db {
 
 
 google {
-  googleCloudBillingUrl = "https://cloudbilling.googleapis.com"
   googleDefaultPricingUrl = "https://cloudpricingcalculator.appspot.com/static/data/pricelist.json"
-  serviceId = "{{$billing.Data.serviceId}}"
-  serviceKey = "{{$billing.Data.serviceKey}}"
 }
 
 

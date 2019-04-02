@@ -1,17 +1,17 @@
 package org.broadinstitute.dsp.workbench.hamm.model
 
+import java.time.Instant
+
 import io.circe.{Decoder, Json}
 
-//TODO: this needs to be updated to use https://cloud.google.com/billing/v1/how-tos/catalog-api
 object GooglePriceListJsonCodec {
 
   implicit val categoryDecoder: Decoder[Category] = Decoder.instance { cursor =>
     for {
       resourceFamily <- cursor.downField("resourceFamily").as[ResourceFamily]
-      serviceDisplayName <- cursor.downField("serviceDisplayName").as[String]
       resourceGroup <- cursor.downField("resourceGroup").as[String]
       usageType <- cursor.downField("usageType").as[UsageType]
-    } yield Category(ServiceDisplayName(serviceDisplayName), resourceFamily, ResourceGroup(resourceGroup), usageType)
+    } yield Category(resourceFamily, ResourceGroup(resourceGroup), usageType)
   }
 
   implicit val tieredRateDecoder: Decoder[TieredRate] = Decoder.instance { cursor =>
@@ -25,9 +25,11 @@ object GooglePriceListJsonCodec {
 
   implicit val pricingInfoDecoder: Decoder[PricingInfo] = Decoder.instance { cursor =>
     for {
+      effectiveTime <- cursor.downField("pricingExpression").downField("effectiveTime").as[Instant]
       usageUnit <- cursor.downField("pricingExpression").downField("usageUnit").as[String]
+      baseUnit <- cursor.downField("pricingExpression").downField("baseUnit").as[String]
       tieredRates <- cursor.downField("pricingExpression").downField("tieredRates").as[List[TieredRate]]
-    } yield PricingInfo(UsageUnit(usageUnit), tieredRates)
+    } yield PricingInfo(effectiveTime, UsageUnit(usageUnit), BaseUnit(baseUnit), tieredRates)
   }
 
   implicit val googlePriceItemDecoder: Decoder[GooglePriceItem] = Decoder.instance {
@@ -39,7 +41,7 @@ object GooglePriceListJsonCodec {
         description <- cursor.downField("description").as[String]
         regions <- cursor.downField("serviceRegions").as[List[Region]]
         pricingInfo <- cursor.downField("pricingInfo").as[List[PricingInfo]]
-      } yield GooglePriceItem(SkuName(name), SkuId(skuId), SkuDescription(description), category, regions, pricingInfo)
+      } yield GooglePriceItem(SkuName(name), SkuDescription(description), category, regions, pricingInfo)
   }
 
   implicit val resourceFamilyDecoder: Decoder[ResourceFamily] = Decoder.decodeString.emap{
