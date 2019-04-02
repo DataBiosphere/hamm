@@ -90,6 +90,7 @@ final case class SkuDescription(asString: String) extends AnyVal
 final case class ServiceDisplayName(asString: String) extends AnyVal
 final case class ResourceGroup(asString: String) extends AnyVal
 final case class UsageUnit(asString: String) extends AnyVal
+final case class BaseUnit(asString: String) extends AnyVal
 final case class StartUsageAmount(asInt: Int) extends AnyVal
 final case class CurrencyCode(asString: String) extends AnyVal
 final case class Units(asInt: Int) extends AnyVal
@@ -97,9 +98,9 @@ final case class Nanos(asInt: Int) extends AnyVal
 
 
 final case class TieredRate(startUsageAmount: StartUsageAmount, currencyCode: CurrencyCode, units: Units, nanos: Nanos)
-final case class PricingInfo(usageUnit: UsageUnit, tieredRates: List[TieredRate])
-final case class Category(serviceDisplayName: ServiceDisplayName, resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType)
-final case class GooglePriceItem(name: SkuName, skuId: SkuId, description: SkuDescription, category: Category, regions: List[Region], pricingInfo: List[PricingInfo])
+final case class PricingInfo(effectiveTime: Instant, usageUnit: UsageUnit, baseUnit: BaseUnit, tieredRates: List[TieredRate])
+final case class Category(resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType)
+final case class GooglePriceItem(name: SkuName, description: SkuDescription, category: Category, regions: List[Region], pricingInfo: List[PricingInfo])
 final case class GooglePriceList(priceItems: List[GooglePriceItem])
 
 
@@ -136,6 +137,13 @@ object MachineType {
     N1STANDARD_METADATA_STRING -> N1Standard,
     F1MICRO_METADATA_STRING -> F1Micro,
     G1SMALL_METADATA_STRING -> G1Small
+  )
+
+  val SKUStringToMachineType = Map(
+    CUSTOM -> Custom,
+    N1STANDARD -> N1Standard,
+    F1MICRO -> F1Micro,
+    G1SMALL -> G1Small
   )
 
   def partialStringToMachineType(str: String): MachineType = {

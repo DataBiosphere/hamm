@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog logicalFilePath="hamm" xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <changeSet logicalFilePath="hamm" author="ansingh" id="price">
-        <createTable tableName="PRICE">
+    <changeSet logicalFilePath="hamm" author="ansingh" id="pricingCalculatorPrice">
+        <createTable tableName="PRICING_CALCULATOR_PRICE">
             <column name="ID" type="SERIAL"></column>
             <column name="NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -16,17 +16,17 @@
         </createTable>
     </changeSet>
 
-    <changeSet logicalFilePath="hamm" author="ansingh" id="priceUniqueKey">
-        <addUniqueConstraint columnNames="NAME, EFFECTIVE_DATE" constraintName="PriceIdentifierIndex" tableName="PRICE"/>
+    <changeSet logicalFilePath="hamm" author="ansingh" id="pricingCalculatorPriceUniqueKey">
+        <addUniqueConstraint columnNames="NAME, EFFECTIVE_DATE" constraintName="PricingCalculatorPriceIdentifierIndex" tableName="PRICING_CALCULATOR_PRICE"/>
     </changeSet>
 
     <changeSet logicalFilePath="hamm" author="ansingh" id="priceItemIndex">
-        <sql>CREATE INDEX IF NOT EXISTS priceItemIndex ON PRICE USING GIN (PRICE_ITEM)</sql>
+        <sql>CREATE INDEX IF NOT EXISTS priceItemIndex ON PRICING_CALCULATOR_PRICE USING GIN (PRICE_ITEM)</sql>
     </changeSet>
 
 
     <changeSet logicalFilePath="hamm" author="ansingh" id="nameAndEffectiveDateIndex">
-        <sql>CREATE INDEX IF NOT EXISTS name_effective_date_index ON PRICE (NAME, EFFECTIVE_DATE)</sql>
+        <sql>CREATE INDEX IF NOT EXISTS nameEffectiveDateIndex ON PRICING_CALCULATOR_PRICE (NAME, EFFECTIVE_DATE)</sql>
     </changeSet>
 
 </databaseChangeLog>

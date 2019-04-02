@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog logicalFilePath="hamm" xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet logicalFilePath="hamm" author="ansingh" id="skuPrice">
+        <createTable tableName="SKU_PRICE">
+            <column name="ID" type="SERIAL"></column>
+            <column name="SKU_NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DESCRIPTION" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="RESOURCE_FAMILY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="RESOURCE_GROUP" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USAGE_TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MACHINE_TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="EXTENDED" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REGIONS" type="VARCHAR(255) ARRAY">
+                <constraints nullable="false"/>
+            </column>
+            <column name="EFFECTIVE_TIME" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USAGE_UNIT" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BASE_UNIT" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="START_USAGE_AMOUNT" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UNITS" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CURRENCY_CODE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COST" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet logicalFilePath="hamm" author="ansingh" id="skuPriceUniqueKey">
+        <addUniqueConstraint columnNames="SKU_NAME, EFFECTIVE_TIME" constraintName="SKUPriceIdentifierIndex" tableName="SKU_PRICE"/>
+    </changeSet>
+
+</databaseChangeLog>

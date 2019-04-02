@@ -5,29 +5,13 @@ import java.util.concurrent.TimeUnit
 
 import cats.data.NonEmptyList
 import cats.implicits._
-import org.broadinstitute.dsp.workbench.hamm.db.{DbReference, PriceTable, PriceUniqueKey}
+import org.broadinstitute.dsp.workbench.hamm.db.{DbReference, PricingCalculatorPriceTable, PricingCalculatorPriceUniqueKey, SKUPriceTable}
 import org.broadinstitute.dsp.workbench.hamm.model._
 
 import scala.concurrent.duration.FiniteDuration
 
-class CostCalculator(dbRef: DbReference, priceTable: PriceTable) {
+class CostCalculator(dbRef: DbReference, skuPriceTable: SKUPriceTable, pricingCalculatorPriceTable: PricingCalculatorPriceTable) {
 
-
-//  private final val CUSTOM_MACHINE_CPU = "CP-DB-PG-CUSTOM-VM-CORE"
-//  private final val CUSTOM_MACHINE_RAM = "CP-DB-PG-CUSTOM-VM-RAM"
-//  private final val CUSTOM_MACHINE_CPU = "CP-COMPUTEENGINE-CUSTOM-VM-CORE"
-//  private final val CUSTOM_MACHINE_RAM = "CP-COMPUTEENGINE-CUSTOM-VM-RAM"
-//  private final val CUSTOM_MACHINE_EXTENDED_RAM = "CP-COMPUTEENGINE-CUSTOM-VM-EXTENDED-RAM"
-//  private final val CUSTOM_MACHINE_CPU_PREEMPTIBLE = "CP-COMPUTEENGINE-CUSTOM-VM-CORE-PREEMPTIBLE"
-//  private final val CUSTOM_MACHINE_RAM_PREEMPTIBLE = "CP-COMPUTEENGINE-CUSTOM-VM-RAM-PREEMPTIBLE"
-//  private final val CUSTOM_MACHINE_EXTENDED_RAM_PREEMPTIBLE = "CP-COMPUTEENGINE-CUSTOM-VM-EXTENDED-RAM-PREEMPTIBLE"
-//
-//  private final val CUSTOM_MACHINE_NAMES = Set(CUSTOM_MACHINE_CPU ,
-//                                               CUSTOM_MACHINE_RAM,
-//                                               CUSTOM_MACHINE_EXTENDED_RAM,
-//                                               CUSTOM_MACHINE_CPU_PREEMPTIBLE,
-//                                               CUSTOM_MACHINE_RAM_PREEMPTIBLE,
-//                                               CUSTOM_MACHINE_EXTENDED_RAM_PREEMPTIBLE)
 
   def getPriceOfWorkflow(workflowMetaDataJson: MetadataResponse): Double = {
     val ls: List[Either[NonEmptyList[String], Double]] = workflowMetaDataJson.calls.map { call =>
@@ -114,25 +98,28 @@ class CostCalculator(dbRef: DbReference, priceTable: PriceTable) {
 
 
   private def getCustomComputePrice(call: Call, usageType: UsageType, startTime: Instant): ComputePrices = {
-    val corePrice = getPrice(getCustomCoreName(call.machineType, usageType, false), call.region, startTime)
-    val ramPrice =  getPrice(getCustomRAMName(call.machineType, usageType, false), call.region, startTime)
+    val corePrice = getPrice(getCustomCoreName(call.machineType, usageType, false), call.region, ResourceFamily.Compute, ResourceGroup("CPU"), usageType, startTime)
+    val ramPrice  = getPrice(getCustomRAMName(call.machineType, usageType, false), call.region, ResourceFamily.Compute, ResourceGroup("RAM "), usageType, startTime)
     ComputePrices(corePrice, ramPrice)
   }
 
   private def getNonCustomComputePrice(call: Call, usageType: UsageType, startTime: Instant): Double = {
-    getPrice(getNonCustomName(call.machineType, usageType), call.region, startTime)
+    getPrice(getNonCustomName(call.machineType, usageType), call.region, ResourceFamily.Compute, ResourceGroup(call.machineType.asString), usageType, startTime)
   }
 
   private def getStoragePrice(call: Call, startTime: Instant): Double = {
-    getPrice(getStorageName(call.runtimeAttributes.disks.diskType), call.region, startTime)
+    getPrice(getStorageName(call.runtimeAttributes.disks.diskType), call.region, ResourceFamily.Storage, ResourceGroup(call.runtimeAttributes.disks.diskType.asResourceGroupString), UsageType.OnDemand, startTime)
   }
 
-  private def getPrice(name: String, region: Region, startTime: Instant): Double = {
+  private def getPrice(name: String, region: Region, resourceFamily: ResourceFamily, resourceGroup: ResourceGroup, usageType: UsageType, startTime: Instant): Double = {
     dbRef.inReadOnlyTransaction { implicit session =>
-      priceTable.getPriceQuery(PriceUniqueKey(name, startTime), region)
-    } match {
-      case Some(price: Double) => price
-      case _ => throw HammException(404, "Price not found")
+      skuPriceTable.getPriceRecordQuery(region, resourceFamily, resourceGroup, usageType, startTime) match {
+        case Some(skuPrice: Double) => skuPrice
+        case _ => pricingCalculatorPriceTable.getPriceQuery(PricingCalculatorPriceUniqueKey(name, startTime), region) match {
+          case Some(pricingCalculatorPrice: Double) => pricingCalculatorPrice
+          case _ => throw HammException(404, "Price not found")
+        }
+      }
     }
   }
 

@@ -29,7 +29,7 @@ trait TestComponent extends Matchers {
 
   val jobTable = new JobTable
   val workflowTable = new WorkflowTable
-  val priceTable = new PriceTable
+  val pricingCalculatorPriceTable = new PricingCalculatorPriceTable
 
   val mockWorkflowTable = new MockWorkflowTable
   val mockJobTable = new MockJobTable(mockWorkflowTable)
