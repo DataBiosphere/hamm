@@ -1,12 +1,9 @@
 package org.broadinstitute.dsp.workbench.hamm.server.auth
 
-import org.broadinstitute.dsp.workbench.hamm.TestComponent
-import org.broadinstitute.dsp.workbench.hamm.TestData
-import org.broadinstitute.dsp.workbench.hamm.config.SamConfig
+import org.broadinstitute.dsp.workbench.hamm.{TestComponent, TestData}
+import org.broadinstitute.dsp.workbench.hamm.server.auth.SamAuthProviderSpec.samAuthProvider
+import org.http4s.Uri
 import org.scalatest.{FreeSpecLike, Matchers}
-import net.ceedubs.ficus.Ficus._
-import org.broadinstitute.dsp.workbench.hamm.config.config.SamConfigReader
-import SamAuthProviderSpec.samAuthProvider
 
 class SamAuthProviderSpec extends FreeSpecLike with Matchers with TestComponent {
   "should check user has permissions on a workflow collection" in {
@@ -18,8 +15,8 @@ class SamAuthProviderSpec extends FreeSpecLike with Matchers with TestComponent 
   }
 }
 
-object SamAuthProviderSpec extends TestComponent {
-  val samAuthProvider: TestSamAuthProvider = new TestSamAuthProvider(config.as[SamConfig]("sam"))
+object SamAuthProviderSpec {
+  val samAuthProvider: TestSamAuthProvider = new TestSamAuthProvider(SamConfig(Uri.unsafeFromString("https://sam.dsde-dev.broadinstitute.org:443")))
 }
 
 class TestSamAuthProvider(samConfig: SamConfig) extends SamAuthProvider(samConfig) {

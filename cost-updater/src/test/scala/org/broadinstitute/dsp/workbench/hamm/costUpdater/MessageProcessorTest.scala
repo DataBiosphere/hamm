@@ -1,16 +1,15 @@
 package org.broadinstitute.dsp.workbench.hamm.costUpdater
-
 import java.nio.charset.StandardCharsets
 
 import cats.effect.IO
 import fs2.Stream
-import io.circe.parser._
+import io.circe.parser.parse
 import org.broadinstitute.dsde.workbench.google2.mock.FakeGoogleStorageInterpreter
 import org.broadinstitute.dsde.workbench.google2.{Event, GoogleSubscriber}
 import org.broadinstitute.dsp.workbench.hamm.HammTestSuite
-import org.broadinstitute.dsp.workbench.hamm.costUpdater.Generators._
-import org.broadinstitute.dsp.workbench.hamm.costUpdater.MessageProcessor._
 import org.broadinstitute.dsp.workbench.hamm.model.CromwellMetadataJsonCodecTest
+import org.broadinstitute.dsp.workbench.hamm.costUpdater.MessageProcessor.notificationMessageDecoder
+import org.broadinstitute.dsp.workbench.hamm.costUpdater.Generators._
 
 object MessageProcessorTest extends HammTestSuite {
   test("MessageProcessor should be able to decode NotificationMessage properly"){

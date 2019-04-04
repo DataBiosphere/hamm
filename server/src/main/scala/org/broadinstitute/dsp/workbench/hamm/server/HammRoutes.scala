@@ -27,13 +27,11 @@ class HammRoutes(samDAO: SamAuthProvider,
     "/api/cost/v1" -> authed(costService.service)
   ).orNotFound).mapF(handleException)
 
-
   def handleException: IO[Response[IO]] => IO[Response[IO]] = {
     x =>  x.handleErrorWith {
       case hammException: HammException => {
-        logger.error(hammException)("Hamm service serror")
+        logger.error(hammException)("Hamm service error")
         Ok(hammException.regrets).map[Response[IO]](resp => resp.withStatus(Status.apply(hammException.status)))
-
       }
       case th: Throwable => {
         logger.error(th)("Hamm Error") // change this message

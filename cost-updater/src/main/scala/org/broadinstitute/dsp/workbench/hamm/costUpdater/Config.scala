@@ -5,8 +5,8 @@ import cats.implicits._
 import com.google.pubsub.v1.ProjectTopicName
 import org.broadinstitute.dsde.workbench.google2.SubscriberConfig
 import org.broadinstitute.dsde.workbench.model.google.GcsBucketName
-import org.http4s.Uri
 import pureconfig.ConfigReader
+import org.http4s.Uri
 import pureconfig.error.ExceptionThrown
 import pureconfig.generic.auto._
 

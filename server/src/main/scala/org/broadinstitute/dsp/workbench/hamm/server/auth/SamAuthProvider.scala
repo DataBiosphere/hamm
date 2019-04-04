@@ -2,8 +2,8 @@ package org.broadinstitute.dsp.workbench.hamm.server.auth
 
 import org.broadinstitute.dsp.workbench.hamm.model._
 import org.broadinstitute.dsp.workbench.hamm.HammLogger
-import org.broadinstitute.dsp.workbench.hamm.config.SamConfig
 import org.http4s.Credentials.Token
+import org.http4s.Uri
 
 class SamAuthProvider(val config: SamConfig) extends HammLogger {
 
@@ -20,3 +20,5 @@ class SamAuthProvider(val config: SamConfig) extends HammLogger {
 object SamAuthProvider {
   def apply(config: SamConfig): SamAuthProvider = new SamAuthProvider(config)
 }
+
+final case class SamConfig(samUrl: Uri)

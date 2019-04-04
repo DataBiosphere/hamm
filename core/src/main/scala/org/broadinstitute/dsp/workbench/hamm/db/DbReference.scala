@@ -1,18 +1,16 @@
 package org.broadinstitute.dsp.workbench.hamm.db
 
 import java.sql.SQLTimeoutException
-import org.broadinstitute.dsp.workbench.hamm.config.config._
-import org.broadinstitute.dsp.workbench.hamm.config._
-import scalikejdbc.config.DBs
-import scala.concurrent.ExecutionContext
-import com.typesafe.config.Config
+
 import liquibase.database.jvm.JdbcConnection
-import liquibase.{Contexts, Liquibase}
 import liquibase.resource.{ClassLoaderResourceAccessor, ResourceAccessor}
-import net.ceedubs.ficus.Ficus._
+import liquibase.{Contexts, Liquibase}
 import org.broadinstitute.dsp.workbench.hamm.HammLogger
-import sun.security.provider.certpath.SunCertPathBuilderException
 import scalikejdbc._
+import scalikejdbc.config.DBs
+import sun.security.provider.certpath.SunCertPathBuilderException
+
+import scala.concurrent.ExecutionContext
 
 object DbReference extends HammLogger {
 
@@ -70,3 +68,5 @@ case class DbReference()(implicit val executionContext: ExecutionContext) {
     }
   }
 }
+
+final case class LiquibaseConfig(changelog: String, initWithLiquibase: Boolean)
