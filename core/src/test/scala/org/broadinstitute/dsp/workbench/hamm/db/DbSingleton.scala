@@ -6,5 +6,6 @@ import com.typesafe.config.ConfigFactory
 object DbSingleton {
   import org.broadinstitute.dsp.workbench.hamm.TestExecutionContext.testExecutionContext
 
+  val config = ConfigFactory.load()
   val ref: DbReference = DbReference.init(ConfigFactory.parseResources("application.conf").withFallback(ConfigFactory.load()))
 }

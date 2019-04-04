@@ -5,8 +5,8 @@ import cats.implicits._
 import cats.effect.{ExitCode, IO, IOApp}
 import com.typesafe.config.ConfigFactory
 import fs2.Stream
-import org.broadinstitute.dsp.workbench.hamm.config.{GoogleConfig, SamConfig}
-import org.broadinstitute.dsp.workbench.hamm.config.config.{GoogleConfigReader, SamConfigReader}
+import org.broadinstitute.dsp.workbench.hamm.config.{GoogleConfig, LiquibaseConfig, SamConfig}
+import org.broadinstitute.dsp.workbench.hamm.config.config.{GoogleConfigReader, SamConfigReader, LiquibaseConfigReader}
 import org.broadinstitute.dsp.workbench.hamm.db.{DbReference, JobTable, WorkflowTable}
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -20,11 +20,12 @@ object Main extends IOApp with HammLogger {
     val config = ConfigFactory.load()
     val googleConfig =  config.as[GoogleConfig]("google")
     val samConfig =  config.as[SamConfig]("sam")
+    val liquidBaseConfig = config.as[LiquibaseConfig]("liquibase")
 
     val app: Stream[IO, Unit] = for {
       httpClient          <- BlazeClientBuilder[IO](global).stream
       samAuthProvider     = SamAuthProvider(samConfig)
-      dbRef <- Stream.eval(IO(DbReference.init(config)))
+      dbRef <- Stream.eval(IO(DbReference.init(liquidBaseConfig)))
       hammRoutes          = new HammRoutes(
         samAuthProvider,
         CostService[IO](samAuthProvider, dbRef, JobTable, WorkflowTable),

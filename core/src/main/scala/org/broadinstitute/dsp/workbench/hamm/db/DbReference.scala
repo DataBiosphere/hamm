@@ -43,11 +43,10 @@ object DbReference extends HammLogger {
     }
   }
 
-  def dbSetUpAll = DBs.setupAll()
+  def dbSetUpAll: Unit = DBs.setupAll()
 
-  def init(config: Config)(implicit executionContext: ExecutionContext): DbReference = {
+  def init(liquibaseConfig: LiquibaseConfig)(implicit executionContext: ExecutionContext): DbReference = {
     dbSetUpAll
-    val liquibaseConfig = config.as[LiquibaseConfig]("liquibase")
     if (liquibaseConfig.initWithLiquibase)
       initWithLiquibase(liquibaseConfig)
 
