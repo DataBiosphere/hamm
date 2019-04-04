@@ -16,7 +16,7 @@ trait WorkflowTableQueries  {
   def getWorkflowCostQuery(workflowId: WorkflowId)(implicit session: DBSession): Option[Double]
 }
 
-class WorkflowTable extends WorkflowTableQueries {
+object WorkflowTable extends WorkflowTableQueries {
 
   def insertWorkflowQuery(workflow: Workflow)(implicit session: DBSession) = {
     import WorkflowBinders._

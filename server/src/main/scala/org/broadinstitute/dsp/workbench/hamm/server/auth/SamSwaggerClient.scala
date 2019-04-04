@@ -1,4 +1,4 @@
-package org.broadinstitute.dsp.workbench.hamm.auth
+package org.broadinstitute.dsp.workbench.hamm.server.auth
 
 import org.broadinstitute.dsde.workbench.client.sam.api.ResourcesApi
 import org.broadinstitute.dsde.workbench.client.sam.ApiClient

@@ -1,9 +1,15 @@
-package org.broadinstitute.dsp.workbench.hamm
+package org.broadinstitute.dsp.workbench.hamm.server
 
+import cats.effect.IO
+import org.broadinstitute.dsp.workbench.hamm.db.{DbSingleton, MockJobTable, MockWorkflowTable}
+import org.broadinstitute.dsp.workbench.hamm.server.auth.SamAuthProviderSpec.samAuthProvider
+import org.broadinstitute.dsp.workbench.hamm.{HammLogger, TestComponent, TestData}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
 
-class CostDaoSpec extends FlatSpec with Matchers with TestComponent with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
-
+class CostServiceSpec extends FlatSpec with Matchers with TestComponent with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
+  val mockWorkflowTable = new MockWorkflowTable
+  val mockJobTable = new MockJobTable(mockWorkflowTable)
+  val costService = new CostService[IO](samAuthProvider, DbSingleton.ref, mockJobTable, mockWorkflowTable)
   override def beforeAll() = {
     samAuthProvider.samClient.actionsPerResourcePerToken += (TestData.testSamResource, TestData.testToken) -> Set(TestData.testSamResourceAction)
   }
@@ -24,17 +30,14 @@ class CostDaoSpec extends FlatSpec with Matchers with TestComponent with HammLog
     ()
   }
 
-
-
   it should "get the cost of a workflow" in {
-    val result = costDbDao.getWorkflowCost(TestData.testToken, TestData.testWorkflowId)
+    val result = costService.getWorkflowCost(TestData.testToken, TestData.testWorkflowId)
     result shouldBe WorkflowCostResponse(TestData.testWorkflowId, TestData.testWorkflow.cost)
 
   }
 
-
   it should "get the cost of a job" in {
-    val result = costDbDao.getJobCost(TestData.testToken, TestData.testWorkflowId, TestData.testCallFqn, TestData.testAttempt, TestData.testJobIndex)
+    val result = costService.getJobCost(TestData.testToken, TestData.testWorkflowId, TestData.testCallFqn, TestData.testAttempt, TestData.testJobIndex)
     result shouldBe JobCostResponse(TestData.testWorkflowId, TestData.testCallFqn, TestData.testAttempt, TestData.testJobIndex, TestData.testWorkflow.cost)
   }
 }

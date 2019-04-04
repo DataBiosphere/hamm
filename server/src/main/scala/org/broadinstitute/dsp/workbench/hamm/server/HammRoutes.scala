@@ -3,9 +3,8 @@ package server
 
 import cats.data.{Kleisli, OptionT}
 import cats.effect._
-import org.broadinstitute.dsp.workbench.hamm.auth.SamAuthProvider
 import org.broadinstitute.dsp.workbench.hamm.model.HammException
-import org.broadinstitute.dsp.workbench.hamm.server.HammRoutes._
+import org.broadinstitute.dsp.workbench.hamm.server.auth.SamAuthProvider
 import org.http4s.Credentials.Token
 import org.http4s.circe.CirceEntityEncoder._
 import org.http4s.dsl.Http4sDsl
@@ -14,6 +13,7 @@ import org.http4s.server.middleware.Logger
 import org.http4s.server.{AuthMiddleware, Router}
 import org.http4s.syntax.kleisli._
 import org.http4s.{AuthScheme, HttpApp, Request, Response, Status}
+import HammRoutes._
 
 class HammRoutes(samDAO: SamAuthProvider,
                  costService: CostService[IO],

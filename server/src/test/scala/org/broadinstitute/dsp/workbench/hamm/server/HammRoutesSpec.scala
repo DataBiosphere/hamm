@@ -3,16 +3,19 @@ package server
 
 import cats.effect.IO
 import io.circe.generic.auto._
+import org.broadinstitute.dsp.workbench.hamm.db.{DbSingleton, MockJobTable, MockWorkflowTable}
+import org.broadinstitute.dsp.workbench.hamm.server.auth.SamAuthProviderSpec.samAuthProvider
 import org.http4s._
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.Authorization
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers, Assertion}
+import org.scalatest.{Assertion, BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec}
 
-
-class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http4sDsl[IO] with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
-
-  val hammRoutes = new HammRoutes(samAuthProvider, CostService[IO](costDbDao), StatusService[IO], VersionService[IO])
+class HammRoutesSpec extends FlatSpec with TestComponent with Http4sDsl[IO] with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
+  val mockWorkflowTable = new MockWorkflowTable
+  val mockJobTable = new MockJobTable(mockWorkflowTable)
+  val costService = new CostService[IO](samAuthProvider, DbSingleton.ref, mockJobTable, mockWorkflowTable)
+  val hammRoutes = new HammRoutes(samAuthProvider, costService, StatusService[IO], VersionService[IO])
 
   override def beforeAll() = {
     samAuthProvider.samClient.actionsPerResourcePerToken += (TestData.testSamResource, TestData.testToken) -> Set(TestData.testSamResourceAction)
