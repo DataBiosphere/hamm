@@ -17,7 +17,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object Main extends IOApp with HammLogger {
   override def run(args: List[String]): IO[ExitCode] =  {
-    val config = ConfigFactory.parseResources("application.conf").withFallback(ConfigFactory.load())
+    val config = ConfigFactory.load()
     val googleConfig =  config.as[GoogleConfig]("google")
     val samConfig =  config.as[SamConfig]("sam")
 
