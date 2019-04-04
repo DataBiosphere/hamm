@@ -1,4 +1,4 @@
-package org.broadinstitute.dsp.workbench.hamm.auth
+package org.broadinstitute.dsp.workbench.hamm.server.auth
 
 import org.broadinstitute.dsp.workbench.hamm.model._
 import org.broadinstitute.dsp.workbench.hamm.HammLogger
@@ -15,5 +15,8 @@ class SamAuthProvider(val config: SamConfig) extends HammLogger {
   def hasWorkflowCollectionPermission(token: Token, samResource: SamResource): Boolean = {
     samClient.checkResourceAction(token, workflowCollectionResourceTypeName, samResource, getCostResourceAction)
   }
+}
 
+object SamAuthProvider {
+  def apply(config: SamConfig): SamAuthProvider = new SamAuthProvider(config)
 }

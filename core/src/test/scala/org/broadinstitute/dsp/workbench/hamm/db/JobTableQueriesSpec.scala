@@ -7,19 +7,14 @@ import org.scalatest.fixture.FlatSpec
 import scalikejdbc.scalatest.AutoRollback
 
 class JobTableQueriesSpec extends FlatSpec with Matchers with AutoRollback with TestComponent {
-
-
   it should "insert and get a job" in { implicit session =>
-    jobTable.getJobQuery(TestData.testJobUniqueKey) shouldBe None
+    JobTable.getJobQuery(TestData.testJobUniqueKey) shouldBe None
 
-    workflowTable.insertWorkflowQuery(TestData.testWorkflow)
-    jobTable.insertJobQuery(TestData.testJob)
+    WorkflowTable.insertWorkflowQuery(TestData.testWorkflow)
+    JobTable.insertJobQuery(TestData.testJob)
 
-    jobTable.getJobQuery(TestData.testJobUniqueKey) shouldBe Some(TestData.testJob)
-    jobTable.getJobCostQuery(TestData.testJobUniqueKey) shouldBe Some(1)
-    jobTable.getJobWorkflowCollectionIdQuery(TestData.testJobUniqueKey) shouldBe Some(TestData.testWorkflowCollectionId)
+    JobTable.getJobQuery(TestData.testJobUniqueKey) shouldBe Some(TestData.testJob)
+    JobTable.getJobCostQuery(TestData.testJobUniqueKey) shouldBe Some(1)
+    JobTable.getJobWorkflowCollectionIdQuery(TestData.testJobUniqueKey) shouldBe Some(TestData.testWorkflowCollectionId)
   }
-
-
-
 }

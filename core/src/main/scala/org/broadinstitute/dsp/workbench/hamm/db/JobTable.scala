@@ -18,7 +18,7 @@ trait JobTableQueries {
 }
 
 
-class JobTable extends JobTableQueries with HammLogger {
+object JobTable extends JobTableQueries with HammLogger {
 
   val j = Job.syntax("j")
   val w = Workflow.syntax("w")

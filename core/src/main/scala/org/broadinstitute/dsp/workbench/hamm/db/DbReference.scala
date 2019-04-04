@@ -5,7 +5,6 @@ import org.broadinstitute.dsp.workbench.hamm.config.config._
 import org.broadinstitute.dsp.workbench.hamm.config._
 import scalikejdbc.config.DBs
 import scala.concurrent.ExecutionContext
-import com.google.common.base.Throwables
 import com.typesafe.config.Config
 import liquibase.database.jvm.JdbcConnection
 import liquibase.{Contexts, Liquibase}
@@ -28,7 +27,8 @@ object DbReference extends HammLogger {
       liquibase.update(new Contexts())
     } catch {
       case e: SQLTimeoutException =>
-        val isCertProblem = Throwables.getRootCause(e).isInstanceOf[SunCertPathBuilderException]
+        val isCertProblem = org.apache.commons.lang3.exception.ExceptionUtils.getRootCause(e).isInstanceOf[SunCertPathBuilderException]
+
         if (isCertProblem) {
           val k = "javax.net.ssl.keyStore"
           if (System.getProperty(k) == null) {

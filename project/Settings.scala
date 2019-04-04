@@ -36,7 +36,7 @@ object Settings {
         java.time.LocalDateTime.now(ZoneId.systemDefault()).toString
       }
     ),
-    buildInfoPackage := "org.broadinstitute.dsp.workbench.hamm"
+    buildInfoPackage := "org.broadinstitute.dsp.workbench.hamm.automated"
   )
 
   // recommended scalac options by https://tpolecat.github.io/2017/04/25/scalac-flags.html
@@ -87,48 +87,43 @@ object Settings {
       resolvers ++= commonResolvers,
       scalacOptions ++= commonCompilerSettings,
       scalafmtOnCompile := true,
-      addCompilerPlugin("org.spire-math" %% "kind-projector"     % "0.9.9"),
+      addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.9"),
       addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.0-M4"),
       testFrameworks += new TestFramework("minitest.runner.Framework")
     )
 
-  lazy val serverDockerSetting = List(
-    mainClass in Compile := Some("org.broadinstitute.dsp.workbench.hamm.server.Main"),
-    maintainer := "workbench@broadinstitute.org",
-    dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc11",
-    packageName in Docker := "workbench-firestore/hamm-server", //TODO: use appropriate project name
+  lazy val commonDockerSetting = List(
+    maintainer := "WB-CloudAccounts@broadinstitute.org ",
+    dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc14",
     dockerRepository := Some("us.gcr.io"),
-    dockerExposedPorts := Seq(9999),
+    dockerExposedPorts := List(8080),
     dockerUpdateLatest := true,
-    dockerAlias :=  DockerAlias(
-      Some("us.gcr.io"),
-      None,
-      "workbench-firestore/hamm-server", //TODO change this to real project container registry
-      git.gitHeadCommit.value.map(_.substring(0, 10))
-    ),
     dockerCommands ++= List(
       ExecCmd("CMD", "export", "CLASSPATH=lib/*jar")
     )
   )
 
-  lazy val serverSettings = commonSettings ++ serverDockerSetting
-
-  lazy val costUpdaterDockerSetting = List(
-    mainClass in Compile := Some("org.broadinstitute.dsp.workbench.hamm.costUpdater.Main"),
-    maintainer := "workbench@broadinstitute.org",
-    dockerBaseImage := "oracle/graalvm-ce:1.0.0-rc11",
-    packageName in Docker := "workbench-firestore/hamm-cost-updater", //TODO: use appropriate project name
-    dockerRepository := Some("us.gcr.io"),
-    dockerExposedPorts := Seq(9999), //TODO: is this necessary?
-    dockerUpdateLatest := true,
+  lazy val serverDockerSetting = commonDockerSetting ++ List(
+    mainClass in Compile := Some("org.broadinstitute.dsp.workbench.hamm.server.Main"),
+    packageName in Docker := "broad-dsp-gcr-public/hamm-server",
     dockerAlias :=  DockerAlias(
       Some("us.gcr.io"),
       None,
-      "workbench-firestore/hamm-cost-updater", //TODO change this to real project container registry
-      git.gitHeadCommit.value.map(_.substring(0, 10))
-    ),
-    dockerCommands ++= List(
-      ExecCmd("CMD", "export", "CLASSPATH=lib/*jar")
+      "broad-dsp-gcr-public/hamm-api-server",
+      git.gitHeadCommit.value.map(_.substring(0, 7))
+    )
+  )
+
+  lazy val serverSettings = commonSettings ++ serverDockerSetting
+
+  lazy val costUpdaterDockerSetting = commonDockerSetting ++ List(
+    mainClass in Compile := Some("org.broadinstitute.dsp.workbench.hamm.costUpdater.Main"),
+    packageName in Docker := "broad-dsp-gcr-public/hamm-cost-updater",
+    dockerAlias :=  DockerAlias(
+      Some("us.gcr.io"),
+      None,
+      "broad-dsp-gcr-public/hamm-cost-updater",
+      git.gitHeadCommit.value.map(_.substring(0, 7))
     )
   )
 

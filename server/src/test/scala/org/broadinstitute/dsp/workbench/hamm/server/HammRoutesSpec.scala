@@ -1,20 +1,21 @@
-package org.broadinstitute.dsp.workbench.hamm.api
+package org.broadinstitute.dsp.workbench.hamm
+package server
 
 import cats.effect.IO
 import io.circe.generic.auto._
-import org.broadinstitute.dsp.workbench.hamm.{HammLogger, TestData}
-import org.broadinstitute.dsp.workbench.hamm.service.{JobCostResponse, WorkflowCostResponse}
-import org.broadinstitute.dsp.workbench.hamm.TestComponent
+import org.broadinstitute.dsp.workbench.hamm.db.{DbSingleton, MockJobTable, MockWorkflowTable}
+import org.broadinstitute.dsp.workbench.hamm.server.auth.SamAuthProviderSpec.samAuthProvider
 import org.http4s._
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.Authorization
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
+import org.scalatest.{Assertion, BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec}
 
-
-class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http4sDsl[IO] with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
-
-  val hammRoutes = new HammRoutes(samAuthProvider, costService, statusService)
+class HammRoutesSpec extends FlatSpec with TestComponent with Http4sDsl[IO] with HammLogger with BeforeAndAfterAll with BeforeAndAfterEach {
+  val mockWorkflowTable = new MockWorkflowTable
+  val mockJobTable = new MockJobTable(mockWorkflowTable)
+  val costService = new CostService[IO](samAuthProvider, DbSingleton.ref, mockJobTable, mockWorkflowTable)
+  val hammRoutes = new HammRoutes(samAuthProvider, costService, StatusService[IO], VersionService[IO])
 
   override def beforeAll() = {
     samAuthProvider.samClient.actionsPerResourcePerToken += (TestData.testSamResource, TestData.testToken) -> Set(TestData.testSamResourceAction)
@@ -42,25 +43,31 @@ class HammRoutesSpec extends FlatSpec with Matchers with TestComponent with Http
                expectedStatus: Status,
                expectedBody:   Option[A])(
                 implicit ev: EntityDecoder[IO, A]
-              ): Boolean =  {
+              ): Assertion =  {
     val actualResp         = actual.unsafeRunSync
-    val statusCheck        = actualResp.status == expectedStatus
-    val bodyCheck          = expectedBody.fold[Boolean](
-      actualResp.body.compile.toVector.unsafeRunSync.isEmpty)( // Verify Response's body is empty.
-      expected => actualResp.as[A].unsafeRunSync == expected
+
+    actualResp.status shouldBe expectedStatus
+
+    expectedBody.fold[Assertion](
+      actualResp.body.compile.toVector.unsafeRunSync.isEmpty shouldBe(true))( // Verify Response's body is empty.
+      expected => actualResp.as[A].unsafeRunSync shouldBe expected
     )
-    statusCheck && bodyCheck
   }
 
 
   it should "get status" in {
-
     val response = hammRoutes.routes.apply {
       Request(method = Method.GET, uri = Uri.uri("/status"))
     }
-    check(response, Status.Ok, Some(()))
+    response.unsafeRunSync().status shouldBe Status.Ok
   }
 
+  it should "get version" in {
+    val response = hammRoutes.routes.apply {
+      Request(method = Method.GET, uri = Uri.uri("/version"))
+    }
+    response.unsafeRunSync().status shouldBe Status.Ok
+  }
 
   it should "get a workflow's cost" in {
     val uri = "/api/cost/v1/workflow/" + TestData.testWorkflow.workflowId.id

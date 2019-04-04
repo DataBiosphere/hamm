@@ -1,14 +1,23 @@
-package org.broadinstitute.dsp.workbench.hamm.service
+package org.broadinstitute.dsp.workbench.hamm
+package server
 
+import cats.effect.Sync
+import io.circe.generic.auto._
 import org.broadinstitute.dsp.workbench.hamm.db._
-import org.broadinstitute.dsp.workbench.hamm.model._
-import org.broadinstitute.dsp.workbench.hamm.model.HammException
-import org.broadinstitute.dsp.workbench.hamm.HammLogger
-import org.broadinstitute.dsp.workbench.hamm.auth.SamAuthProvider
+import org.broadinstitute.dsp.workbench.hamm.model.{HammException, SamResource, WorkflowId}
+import org.broadinstitute.dsp.workbench.hamm.server.auth.SamAuthProvider
+import org.http4s.{AuthedService, Status}
 import org.http4s.Credentials.Token
-import org.http4s.Status
+import org.http4s.circe.CirceEntityEncoder._
+import org.http4s.dsl.Http4sDsl
 
-class CostService(samAuthProvider: SamAuthProvider, dbRef: DbReference, jobTable: JobTableQueries, workflowTable: WorkflowTableQueries) extends HammLogger {
+class CostService[F[_]: Sync](samAuthProvider: SamAuthProvider, dbRef: DbReference, jobTable: JobTableQueries, workflowTable: WorkflowTableQueries) extends Http4sDsl[F] with HammLogger {
+  val service: AuthedService[Token, F] = AuthedService.apply{
+    case GET -> Root / "workflow" / workflowId as userToken =>
+      Ok(Sync[F].delay { getWorkflowCost(userToken, WorkflowId(workflowId)) })
+    case GET -> Root / "job" / workflowId / callFqn / attempt / IntVar(jobIndex)  as userToken =>
+      Ok(Sync[F].delay { getJobCost(userToken, WorkflowId(workflowId), CallFqn(callFqn), attempt.toShort, jobIndex) })
+  }
 
   def getWorkflowCost(token: Token, workflowId: WorkflowId): WorkflowCostResponse = {
     dbRef.inReadOnlyTransaction { implicit session =>
@@ -27,7 +36,7 @@ class CostService(samAuthProvider: SamAuthProvider, dbRef: DbReference, jobTable
 
   def getJobCost(token: Token, workflowId: WorkflowId, callFqn: CallFqn, attempt: Short, jobIndex: Int ): JobCostResponse = {
     val jobCostNotFoundException = HammException(Status.NotFound.code, s"Cost for job ${callFqn.asString}, attempt ${attempt.toString} in workflow ${workflowId.id} for job index ${jobIndex.toString} was not found.")
-   val jobUniqueKey =  JobUniqueKey(workflowId, callFqn, attempt, jobIndex)
+    val jobUniqueKey =  JobUniqueKey(workflowId, callFqn, attempt, jobIndex)
     dbRef.inReadOnlyTransaction { implicit session =>
 
       jobTable.getJobWorkflowCollectionIdQuery(jobUniqueKey) match {
@@ -39,6 +48,10 @@ class CostService(samAuthProvider: SamAuthProvider, dbRef: DbReference, jobTable
       }
     }
   }
+}
+
+object CostService {
+  def apply[F[_]: Sync](samAuthProvider: SamAuthProvider, dbRef: DbReference, jobTable: JobTableQueries, workflowTable: WorkflowTableQueries): CostService[F] = new CostService[F](samAuthProvider, dbRef, jobTable, workflowTable)
 }
 
 final case class WorkflowCostResponse(workflowId: WorkflowId, cost: Double)

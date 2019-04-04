@@ -13,21 +13,13 @@
     </encoder>
   </appender>
 
-  <logger name="org.broadinstitute.dsp.workbench.hamm" level="INFO" additivity="false">
-    <appender-ref ref="FILE"/>
+  <logger name="org.broadinstitute.workbench.ccm" level="INFO" additivity="false">
+    <appender-ref ref="FILE" />
   </logger>
 
-  <appender class="ch.qos.logback.core.ConsoleAppender" name="CONSOLE">
-    <param name="Threshold" value="INFO"/>
-    <encoder>
-      <pattern>%d{dd/MM/yyyy HH:mm:ss.SSS} %-5level %logger{30} - %msg%n</pattern>
-    </encoder>
-  </appender>
-
-  <root level="INFO">
+  <root level="DEBUG">
     <appender-ref ref="FILE" />
     <appender-ref ref="Sentry"/>
-    <appender-ref ref="CONSOLE"/>
   </root>
 
 </configuration>

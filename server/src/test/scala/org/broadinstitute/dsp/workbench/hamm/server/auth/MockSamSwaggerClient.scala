@@ -1,4 +1,4 @@
-package org.broadinstitute.dsp.workbench.hamm.auth
+package org.broadinstitute.dsp.workbench.hamm.server.auth
 
 import org.broadinstitute.dsp.workbench.hamm.model.{SamResource, SamResourceAction, SamResourceType}
 import org.http4s.Credentials.Token

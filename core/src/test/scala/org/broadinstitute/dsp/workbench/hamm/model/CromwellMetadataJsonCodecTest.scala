@@ -14,42 +14,44 @@ object CromwellMetadataJsonCodecTest extends FlatSpec with Matchers {
       json <- parse(sampleTest)
       r <- json.as[MetadataResponse]
     } yield {
-      val expectedResponse = MetadataResponse(
-        List(Call(
-          RuntimeAttributes(CpuNumber(1), Disk(DiskName("local-disk"), DiskSize(1), DiskType.HDD), BootDiskSizeGb(10), PreemptibleAttemptsAllowed(3)),
-          List(ExecutionEvent(ExecutionEventDescription("delocalizing-files"),       Instant.parse("2019-01-02T22:14:05.438689657Z"), Instant.parse("2019-01-02T22:14:09.779343193Z")),
-               ExecutionEvent(ExecutionEventDescription("UpdatingJobStore"),         Instant.parse("2019-01-02T22:14:39.825Z"),       Instant.parse("2019-01-02T22:14:40.799Z")),
-               ExecutionEvent(ExecutionEventDescription("ok"),                       Instant.parse("2019-01-02T22:14:09.779343193Z"), Instant.parse("2019-01-02T22:14:10Z")),
-               ExecutionEvent(ExecutionEventDescription("waiting for quota"),        Instant.parse("2019-01-02T22:11:04Z"),           Instant.parse("2019-01-02T22:11:27Z")),
-               ExecutionEvent(ExecutionEventDescription("RequestingExecutionToken"), Instant.parse("2019-01-02T22:10:13.687Z"),       Instant.parse("2019-01-02T22:10:13.979Z")),
-               ExecutionEvent(ExecutionEventDescription("RunningJob"),               Instant.parse("2019-01-02T22:11:02.884Z"),       Instant.parse("2019-01-02T22:11:04Z")),
-               ExecutionEvent(ExecutionEventDescription("UpdatingCallCache"),        Instant.parse("2019-01-02T22:14:39.160Z"),       Instant.parse("2019-01-02T22:14:39.825Z")),
-               ExecutionEvent(ExecutionEventDescription("pulling-image"),            Instant.parse("2019-01-02T22:12:47.780575142Z"), Instant.parse("2019-01-02T22:12:52.779343466Z")),
-               ExecutionEvent(ExecutionEventDescription("cromwell poll interval"),   Instant.parse("2019-01-02T22:14:10Z"),           Instant.parse("2019-01-02T22:14:39.160Z")),
-               ExecutionEvent(ExecutionEventDescription("localizing-files"),         Instant.parse("2019-01-02T22:12:52.779343466Z"), Instant.parse("2019-01-02T22:14:04.589980901Z")),
-               ExecutionEvent(ExecutionEventDescription("Pending"),                  Instant.parse("2019-01-02T22:10:13.686Z"),       Instant.parse("2019-01-02T22:10:13.687Z")),
-               ExecutionEvent(ExecutionEventDescription("start"),                    Instant.parse("2019-01-02T22:12:46.103634373Z"), Instant.parse("2019-01-02T22:12:47.780575142Z")),
-               ExecutionEvent(ExecutionEventDescription("WaitingForValueStore"),     Instant.parse("2019-01-02T22:10:13.979Z"),       Instant.parse("2019-01-02T22:10:13.979Z")),
-               ExecutionEvent(ExecutionEventDescription("initializing VM"),          Instant.parse("2019-01-02T22:11:27Z"),           Instant.parse("2019-01-02T22:12:46.103634373Z")),
-               ExecutionEvent(ExecutionEventDescription("running-docker"),           Instant.parse("2019-01-02T22:14:04.589980901Z"), Instant.parse("2019-01-02T22:14:05.438689657Z")),
-               ExecutionEvent(ExecutionEventDescription("CheckingCallCache"),        Instant.parse("2019-01-02T22:11:02.874Z"),       Instant.parse("2019-01-02T22:11:02.884Z")),
-               ExecutionEvent(ExecutionEventDescription("PreparingJob"),             Instant.parse("2019-01-02T22:10:13.979Z"),       Instant.parse("2019-01-02T22:11:02.874Z"))),
-          false,
-          true,
-          Region.UScentral1,
-          Status.Done,
-          MachineType.F1Micro,
-          BackEnd.Jes,
-          Attempt(1))),
-        Instant.parse("2019-01-02T22:10:07.088Z"),
-        Instant.parse("2019-01-02T22:14:47.266Z"),
-        WorkflowCollectionId("2d3fd356-e3be-4953-92f1-60af623e6fa5"),
-        Map("cromwell-workflow-id" -> "cromwell-0942e6dc-2a2e-4912-86e2-b91fdaf06c44",
-          "caas-collection-name" -> "2d3fd356-e3be-4953-92f1-60af623e6fa5")
-      )
+      val expectedResponse = sampleResponse
       r shouldBe expectedResponse
     }
   }
+
+  val sampleResponse = MetadataResponse(
+    List(Call(
+      RuntimeAttributes(CpuNumber(1), Disk(DiskName("local-disk"), DiskSize(1), DiskType.HDD), BootDiskSizeGb(10), PreemptibleAttemptsAllowed(3)),
+      List(ExecutionEvent(ExecutionEventDescription("delocalizing-files"),       Instant.parse("2019-01-02T22:14:05.438689657Z"), Instant.parse("2019-01-02T22:14:09.779343193Z")),
+        ExecutionEvent(ExecutionEventDescription("UpdatingJobStore"),         Instant.parse("2019-01-02T22:14:39.825Z"),       Instant.parse("2019-01-02T22:14:40.799Z")),
+        ExecutionEvent(ExecutionEventDescription("ok"),                       Instant.parse("2019-01-02T22:14:09.779343193Z"), Instant.parse("2019-01-02T22:14:10Z")),
+        ExecutionEvent(ExecutionEventDescription("waiting for quota"),        Instant.parse("2019-01-02T22:11:04Z"),           Instant.parse("2019-01-02T22:11:27Z")),
+        ExecutionEvent(ExecutionEventDescription("RequestingExecutionToken"), Instant.parse("2019-01-02T22:10:13.687Z"),       Instant.parse("2019-01-02T22:10:13.979Z")),
+        ExecutionEvent(ExecutionEventDescription("RunningJob"),               Instant.parse("2019-01-02T22:11:02.884Z"),       Instant.parse("2019-01-02T22:11:04Z")),
+        ExecutionEvent(ExecutionEventDescription("UpdatingCallCache"),        Instant.parse("2019-01-02T22:14:39.160Z"),       Instant.parse("2019-01-02T22:14:39.825Z")),
+        ExecutionEvent(ExecutionEventDescription("pulling-image"),            Instant.parse("2019-01-02T22:12:47.780575142Z"), Instant.parse("2019-01-02T22:12:52.779343466Z")),
+        ExecutionEvent(ExecutionEventDescription("cromwell poll interval"),   Instant.parse("2019-01-02T22:14:10Z"),           Instant.parse("2019-01-02T22:14:39.160Z")),
+        ExecutionEvent(ExecutionEventDescription("localizing-files"),         Instant.parse("2019-01-02T22:12:52.779343466Z"), Instant.parse("2019-01-02T22:14:04.589980901Z")),
+        ExecutionEvent(ExecutionEventDescription("Pending"),                  Instant.parse("2019-01-02T22:10:13.686Z"),       Instant.parse("2019-01-02T22:10:13.687Z")),
+        ExecutionEvent(ExecutionEventDescription("start"),                    Instant.parse("2019-01-02T22:12:46.103634373Z"), Instant.parse("2019-01-02T22:12:47.780575142Z")),
+        ExecutionEvent(ExecutionEventDescription("WaitingForValueStore"),     Instant.parse("2019-01-02T22:10:13.979Z"),       Instant.parse("2019-01-02T22:10:13.979Z")),
+        ExecutionEvent(ExecutionEventDescription("initializing VM"),          Instant.parse("2019-01-02T22:11:27Z"),           Instant.parse("2019-01-02T22:12:46.103634373Z")),
+        ExecutionEvent(ExecutionEventDescription("running-docker"),           Instant.parse("2019-01-02T22:14:04.589980901Z"), Instant.parse("2019-01-02T22:14:05.438689657Z")),
+        ExecutionEvent(ExecutionEventDescription("CheckingCallCache"),        Instant.parse("2019-01-02T22:11:02.874Z"),       Instant.parse("2019-01-02T22:11:02.884Z")),
+        ExecutionEvent(ExecutionEventDescription("PreparingJob"),             Instant.parse("2019-01-02T22:10:13.979Z"),       Instant.parse("2019-01-02T22:11:02.874Z"))),
+      false,
+      true,
+      Region.UScentral1,
+      Status.Done,
+      MachineType.F1Micro,
+      BackEnd.Jes,
+      Attempt(1))),
+    Instant.parse("2019-01-02T22:10:07.088Z"),
+    Instant.parse("2019-01-02T22:14:47.266Z"),
+    WorkflowCollectionId("2d3fd356-e3be-4953-92f1-60af623e6fa5"),
+    Map("cromwell-workflow-id" -> "cromwell-0942e6dc-2a2e-4912-86e2-b91fdaf06c44",
+      "caas-collection-name" -> "2d3fd356-e3be-4953-92f1-60af623e6fa5")
+  )
 
   val sampleTest: String =
     """
