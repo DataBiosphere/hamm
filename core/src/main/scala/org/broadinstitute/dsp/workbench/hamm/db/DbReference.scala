@@ -2,6 +2,7 @@ package org.broadinstitute.dsp.workbench.hamm.db
 
 import java.sql.SQLTimeoutException
 
+import cats.effect.{Resource, Sync}
 import liquibase.database.jvm.JdbcConnection
 import liquibase.resource.{ClassLoaderResourceAccessor, ResourceAccessor}
 import liquibase.{Contexts, Liquibase}
@@ -41,17 +42,17 @@ object DbReference extends HammLogger {
     }
   }
 
-  def dbSetUpAll: Unit = DBs.setupAll()
-
-  def init(liquibaseConfig: LiquibaseConfig)(implicit executionContext: ExecutionContext): DbReference = {
-    dbSetUpAll
+  private[hamm] def init(liquibaseConfig: LiquibaseConfig)(implicit executionContext: ExecutionContext): DbReference = {
+    DBs.setupAll()
     if (liquibaseConfig.initWithLiquibase)
       initWithLiquibase(liquibaseConfig)
 
     DbReference()
   }
 
-
+  def resource[F[_]: Sync](liquibaseConfig: LiquibaseConfig)(implicit executionContext: ExecutionContext): Resource[F, DbReference] = Resource.make(
+    Sync[F].delay(init(liquibaseConfig))
+  )(_ => Sync[F].delay(DBs.closeAll()))
 }
 
 case class DbReference()(implicit val executionContext: ExecutionContext) {

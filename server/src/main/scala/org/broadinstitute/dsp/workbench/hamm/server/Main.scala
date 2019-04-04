@@ -17,7 +17,7 @@ object Main extends IOApp with HammLogger {
       appConfig <- Stream.fromEither[IO](Config.appConfig)
       httpClient          <- BlazeClientBuilder[IO](global).stream
       samAuthProvider     = SamAuthProvider(appConfig.sam)
-      dbRef <- Stream.eval(IO(DbReference.init(appConfig.liquibase)))
+      dbRef <- Stream.resource(DbReference.resource[IO](appConfig.liquibase))
       hammRoutes          = new HammRoutes(
         samAuthProvider,
         CostService[IO](samAuthProvider, dbRef, JobTable, WorkflowTable),
