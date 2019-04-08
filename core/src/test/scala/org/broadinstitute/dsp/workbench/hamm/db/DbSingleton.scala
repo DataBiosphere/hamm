@@ -1,10 +1,9 @@
 package org.broadinstitute.dsp.workbench.hamm.db
 
-import com.typesafe.config.ConfigFactory
-
 // initialize database tables and connection pool only once
 object DbSingleton {
   import org.broadinstitute.dsp.workbench.hamm.TestExecutionContext.testExecutionContext
 
-  val ref: DbReference = DbReference.init(ConfigFactory.parseResources("application.conf").withFallback(ConfigFactory.load()))
+  val liquidbaseConfig = LiquibaseConfig("org/broadinstitute/dsp/workbench/hamm/liquibase/changelog.xml", true)
+  val ref: DbReference = DbReference.init(liquidbaseConfig)
 }

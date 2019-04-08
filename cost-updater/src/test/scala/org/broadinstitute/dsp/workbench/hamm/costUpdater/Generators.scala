@@ -1,6 +1,5 @@
 package org.broadinstitute.dsp.workbench.hamm.costUpdater
-
-import org.broadinstitute.dsde.workbench.google2.Generators._
+import org.broadinstitute.dsde.workbench.google2.Generators.{genGcsBlobName, genGcsBucketName}
 import org.scalacheck.Arbitrary
 
 object Generators {

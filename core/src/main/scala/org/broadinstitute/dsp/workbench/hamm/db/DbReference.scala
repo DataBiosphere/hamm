@@ -1,18 +1,17 @@
 package org.broadinstitute.dsp.workbench.hamm.db
 
 import java.sql.SQLTimeoutException
-import org.broadinstitute.dsp.workbench.hamm.config.config._
-import org.broadinstitute.dsp.workbench.hamm.config._
-import scalikejdbc.config.DBs
-import scala.concurrent.ExecutionContext
-import com.typesafe.config.Config
+
+import cats.effect.{Resource, Sync}
 import liquibase.database.jvm.JdbcConnection
-import liquibase.{Contexts, Liquibase}
 import liquibase.resource.{ClassLoaderResourceAccessor, ResourceAccessor}
-import net.ceedubs.ficus.Ficus._
+import liquibase.{Contexts, Liquibase}
 import org.broadinstitute.dsp.workbench.hamm.HammLogger
-import sun.security.provider.certpath.SunCertPathBuilderException
 import scalikejdbc._
+import scalikejdbc.config.DBs
+import sun.security.provider.certpath.SunCertPathBuilderException
+
+import scala.concurrent.ExecutionContext
 
 object DbReference extends HammLogger {
 
@@ -43,18 +42,17 @@ object DbReference extends HammLogger {
     }
   }
 
-  def dbSetUpAll = DBs.setupAll()
-
-  def init(config: Config)(implicit executionContext: ExecutionContext): DbReference = {
-    dbSetUpAll
-    val liquibaseConfig = config.as[LiquibaseConfig]("liquibase")
+  private[hamm] def init(liquibaseConfig: LiquibaseConfig)(implicit executionContext: ExecutionContext): DbReference = {
+    DBs.setupAll()
     if (liquibaseConfig.initWithLiquibase)
       initWithLiquibase(liquibaseConfig)
 
     DbReference()
   }
 
-
+  def resource[F[_]: Sync](liquibaseConfig: LiquibaseConfig)(implicit executionContext: ExecutionContext): Resource[F, DbReference] = Resource.make(
+    Sync[F].delay(init(liquibaseConfig))
+  )(_ => Sync[F].delay(DBs.closeAll()))
 }
 
 case class DbReference()(implicit val executionContext: ExecutionContext) {
@@ -71,3 +69,5 @@ case class DbReference()(implicit val executionContext: ExecutionContext) {
     }
   }
 }
+
+final case class LiquibaseConfig(changelog: String, initWithLiquibase: Boolean)

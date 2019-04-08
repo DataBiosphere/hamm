@@ -6,10 +6,6 @@ import java.util.concurrent.TimeUnit
 import cats.data.NonEmptyList
 import cats.implicits._
 import org.broadinstitute.dsp.workbench.hamm.model._
-
-import scala.concurrent.duration.FiniteDuration
-
-
 import scala.concurrent.duration.FiniteDuration
 
 object CostCalculator {

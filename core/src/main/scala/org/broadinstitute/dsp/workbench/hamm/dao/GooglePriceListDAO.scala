@@ -1,9 +1,9 @@
 package org.broadinstitute.dsp.workbench.hamm.dao
 
 import cats.effect.IO
-import org.broadinstitute.dsp.workbench.hamm.config.GoogleConfig
 import org.broadinstitute.dsp.workbench.hamm.model._
 import org.broadinstitute.dsp.workbench.hamm.model.GooglePriceListJsonCodec._
+import org.http4s.Uri
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.client.Client
 
@@ -79,3 +79,9 @@ object GooglePriceListDAO {
   }
 
 }
+
+final case class GoogleConfig(googleCloudBillingUrl: Uri,
+                              googleDefaultPricingUrl: Uri,
+                              serviceId: String,   // serviceId and serviceKey will go away once we get
+                              serviceKey: String   // SKUs from here: https://cloud.google.com/billing/reference/rest/v1/services.skus/list
+                             )
